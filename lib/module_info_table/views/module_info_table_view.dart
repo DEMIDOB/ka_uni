@@ -85,7 +85,6 @@ class _ModuleInfoTableViewState extends State<ModuleInfoTableView> {
                         row.favoriteToggleCell == null ? Text("") : CupertinoButton(
                           child: Icon(row.favoriteToggleCell!.isFavorite ? CupertinoIcons.star_fill : CupertinoIcons.star),
                           onPressed: () async {
-                            // TODO: signal if something went wrong!!!!!!
                             final toggleSuccessful = await vm.toggleIsFavorite(row.favoriteToggleCell!, widget.table.parentModule);
                             if (!toggleSuccessful) {
                               Fluttertoast.showToast(
