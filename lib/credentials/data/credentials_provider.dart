@@ -4,6 +4,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:kit_mobile/credentials/models/auth_result.dart';
 import 'package:kit_mobile/credentials/models/kit_credentials.dart';
 import 'package:kit_mobile/state_management/KITProvider.dart';
+import 'package:requests_plus/requests_plus.dart';
 
 class CredentialsProvider extends ChangeNotifier {
   final FlutterSecureStorage _storage = FlutterSecureStorage();
@@ -74,9 +75,13 @@ class CredentialsProvider extends ChangeNotifier {
     return await login(vm);
   }
 
-  Future<AuthResult> login(KITProvider vm) async {
+  Future<AuthResult> login(KITProvider vm, {clearCookiesAndCache = true}) async {
     loggingIn = true;
     notifyListeners();
+
+    if (clearCookiesAndCache) {
+      await vm.clearCookiesAndCache();
+    }
 
     if (!credentials.isFormatValid) {
       return AuthResult.wrongUsernameFormat;

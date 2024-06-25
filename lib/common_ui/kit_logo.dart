@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
 class KITLogo extends StatelessWidget {
@@ -8,10 +9,18 @@ class KITLogo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return SizedBox(
       width: width,
       // height: 28,
-      child: SvgPicture.asset("assets/images/KIT.svg"),
+      child: Row(
+        children: [
+          Text("KA", style: theme.textTheme.titleLarge?.copyWith(color: theme.primaryColor),),
+          Text(".Uni")
+        ],
+      )
+      // child: SvgPicture.asset("assets/images/KIT.svg"),
     );
   }
 

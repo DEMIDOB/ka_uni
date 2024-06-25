@@ -1,20 +1,51 @@
+import 'package:flutter/foundation.dart';
 import 'package:html/dom.dart';
 import 'package:kit_mobile/parsing/util/remove_html_children.dart';
+import 'package:requests_plus/requests_plus.dart';
 
 class ModuleInfoTableCell {
   String body = "";
   String link = "";
-  final Element node;
+  final Element? node;
 
-  bool _doesToggleFavorite = false;
-  bool _isFavorite = false;
+  String dateStr = "";
+  String timeStr = "";
 
-  ModuleInfoTableCell({required this.node});
+  bool doesToggleFavorite = false;
+  bool isFavorite = false;
+  String objectValue = "";
+
+  ModuleInfoTableCell({this.node});
 
   static ModuleInfoTableCell parseFromHtml(Element node) {
     ModuleInfoTableCell cell = ModuleInfoTableCell(node: node.clone(true));
     
+    final spans = node.getElementsByTagName("span");
     final links = node.getElementsByTagName("a");
+    final buttons = node.getElementsByTagName("button");
+    
+    for (final spanElement in spans) {
+      if (spanElement.classes.contains("date")) {
+        removeHtmlChildren(spanElement);
+        cell.dateStr = spanElement.innerHtml.trim();
+      } else if (spanElement.classes.contains("time")) {
+        removeHtmlChildren(spanElement);
+        cell.timeStr = spanElement.innerHtml.trim();
+      }
+    }
+
+    for (final buttonNode in buttons) {
+      if (buttonNode.attributes.containsKey("name") && buttonNode.attributes["name"]!.toLowerCase().contains("eventfavorite")) {
+        cell.markMeAsAddToFavorites();
+      }
+    }
+
+    // if (cell.dateStr.isNotEmpty) {
+    //   if (kDebugMode) {
+    //     print(cell.dateStr);
+    //     print(cell.timeStr);
+    //   }
+    // }
 
     if (links.isEmpty) {
       removeHtmlChildren(node);
@@ -33,22 +64,36 @@ class ModuleInfoTableCell {
   }
 
   markMeAsAddToFavorites() {
-    final button = node.getElementsByTagName("button").firstOrNull;
+    if (node == null) {
+      return;
+    }
+
+    final button = node!.getElementsByTagName("button").firstOrNull;
     if (button == null) {
       return;
     }
 
-    final starImage = button.getElementsByTagName("img").firstOrNull;
-    if (starImage == null) {
+    final buttonName = button.attributes["name"];
+    if (buttonName == null) {
       return;
     }
 
-    final imgSrc = starImage.attributes["src"];
-    if (imgSrc == null) {
+    final buttonValue = button.attributes["value"];
+    if (buttonValue == null) {
       return;
     }
 
-    _isFavorite = imgSrc.contains("star.png");
-    _doesToggleFavorite = true;
+    isFavorite = buttonName.contains("remove");
+    doesToggleFavorite = true;
+    objectValue = buttonValue;
   }
+
+  bool get isAppointment {
+    return dateStr.isNotEmpty && timeStr.isNotEmpty;
+  }
+
+  static ModuleInfoTableCell get empty {
+    return ModuleInfoTableCell();
+  }
+
 }

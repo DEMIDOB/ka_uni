@@ -42,6 +42,8 @@ dependencies:
   flutter_secure_storage: ^9.0.0
   flutter_widget_from_html: ^0.14.11
   carousel_slider: ^4.2.1
+  flutter_map: ^7.0.1
+  fluttertoast: ^8.2.6
 
 dev_dependencies:
   flutter_test:

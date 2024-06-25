@@ -1,5 +1,7 @@
 import 'dart:math';
 
+import 'package:kit_mobile/module/models/module.dart';
+
 class HierarchicTableRow  {
   final int level;
   String title;
@@ -16,6 +18,8 @@ class HierarchicTableRow  {
   List<HierarchicTableRow> children = [];
 
   HierarchicTableRow({required this.level, required this.title, required this.href, required this.type, required this.statusStr, required this.mark, required this.pointsAcquired, required this.pointsMax});
+
+  String get id => "${this.level}_${this.title}_${this.year}";
 
   static HierarchicTableRow? parseTr(element, Map<int, List<HierarchicTableRow>> rowsSorted) {
     HierarchicTableRow? newRow;

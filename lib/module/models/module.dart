@@ -11,8 +11,11 @@ class KITModule {
   String grade = "0,0";
   String pointsAcquired = "0,0";
   String pointsAvailable = "0,0";
+  String hierarchicalTableRowId = "";
 
   List<ModuleInfoTable> tables = [];
+
+  DateTime lastUpdated = DateTime.fromMillisecondsSinceEpoch(0);
 
   // Module({required this.csbrId, required this.title, required this.avgMark, required this.pointsAcquired});
   
@@ -90,9 +93,11 @@ class KITModule {
 
     // parse all tables
     tables = ModuleInfoTable.extractAllFromHtml(src);
-    tables.forEach((table) {
-      table.prepare();
-    });
+    for (final table in tables) {
+      table.prepare(this);
+    }
+
+    lastUpdated = DateTime.now();
   }
 
   String get timeAxisPositionString {
@@ -114,6 +119,12 @@ class KITModule {
 
   bool get examDateKnown {
     return examDateStr != "unbekannt";
+  }
+
+  bool get isEmpty => id == "";
+
+  bool get requiresUpdate {
+    return isEmpty || DateTime.now().difference(lastUpdated).inMinutes > 5;
   }
 
   @override

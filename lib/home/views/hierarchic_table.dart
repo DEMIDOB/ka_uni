@@ -35,7 +35,7 @@ class HierarchicTableView extends StatelessWidget {
             final cookiesTmp = vm.getCookies();
             print(cookiesTmp["_shibsession_campus-prod-sp"]);
             print(cookiesTmp["session-campus-prod-sp"]);
-            final moduleFuture = vm.fetchModule(row);
+            final moduleFuture = vm.getOrFetchModule(row);
             Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) => ModuleView(module: moduleFuture)));
           },
           child: Padding(

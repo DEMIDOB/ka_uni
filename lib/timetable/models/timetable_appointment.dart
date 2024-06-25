@@ -4,6 +4,7 @@ import 'package:html/parser.dart';
 import 'package:kit_mobile/geo/kit_place.dart';
 import 'package:kit_mobile/parsing/util/remove_html_children.dart';
 import 'package:requests_plus/requests_plus.dart';
+import 'package:latlong2/latlong.dart';
 
 enum TimetableAppointmentType {
   lecture,
@@ -41,50 +42,60 @@ class TimetableAppointment {
 
   int get duration => end.difference(begin).inMinutes;
 
-  Future<String> get placeData async {
+  Future<LatLng> get placeData async {
+    const kitLocation = LatLng(49.011976497932714, 8.417003405137054);
+
     if (place.link.isEmpty) {
-      return "Keine Infos";
+      return kitLocation;
     }
 
-    return (await RequestsPlus.get("https://www.kit.edu/campusplan/?id=20.30")).body;
+    // print(place.link);
+    //
+    // return (await RequestsPlus.get("https://www.kit.edu/campusplan/?id=20.30")).body;
 
     final response = await RequestsPlus.get(place.link);
     var document = parse(response.body);
     final targetDiv = document.getElementById("rwro_map-field");
     if (targetDiv == null) {
-      return "Keine Infos mehr :(";
+      return kitLocation;
     }
     
     final links = targetDiv.getElementsByTagName("a");
     if (links.length <2) {
-      return "Keine Infos mehr :(";
+      return kitLocation;
     }
 
     String? href = links[1].attributes["href"];
     if (href == null) {
-      return "Keine Infos mehr :(";
+      return kitLocation;
     }
 
     final openMapUri = Uri.parse(href);
-    final lon = openMapUri.queryParameters["mlon"];
-    final lat = openMapUri.queryParameters["mlat"];
+    final lon = double.tryParse(openMapUri.queryParameters["mlon"] ?? "-1");
+    final lat = double.tryParse(openMapUri.queryParameters["mlat"] ?? "-1");
     final zoom = openMapUri.queryParameters["zoom"];
 
-    print(zoom);
+    if (lat == null || lon == null) {
+      return kitLocation;
+    }
 
-    final url = "https://image.maps.ls.hereapi.com/mia/1.6/mapview";
-    Map<String, String> queryParameters = {};
+    return LatLng(lat, lon);
 
-    queryParameters["apiKey"] = "ITm1qjHWvH1hAZERtqVnB_hF21VhsJieEn7DNSLXOf8";
-    queryParameters["c"] = "$lat,$lon";
-    queryParameters["t"] = "2";
-    queryParameters["w"] = "300";
-    queryParameters["h"] = "400";
-    queryParameters["z"] = zoom ?? "7";
-
-    final mapResponse = await RequestsPlus.get(url);
-
-    return mapResponse.body;
+    // print(zoom);
+    //
+    // final url = "https://image.maps.ls.hereapi.com/mia/1.6/mapview";
+    // Map<String, String> queryParameters = {};
+    //
+    // queryParameters["apiKey"] = "ITm1qjHWvH1hAZERtqVnB_hF21VhsJieEn7DNSLXOf8";
+    // queryParameters["c"] = "$lat,$lon";
+    // queryParameters["t"] = "2";
+    // queryParameters["w"] = "300";
+    // queryParameters["h"] = "400";
+    // queryParameters["z"] = zoom ?? "7";
+    //
+    // final mapResponse = await RequestsPlus.get(url);
+    //
+    // return mapResponse.body;
   }
 
   static TimetableAppointment? parseFromHtmlTr(Element appointmentNode) {

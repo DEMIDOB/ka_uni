@@ -1,8 +1,10 @@
 import 'dart:async';
+import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:kit_mobile/credentials/data/credentials_provider.dart';
 import 'package:kit_mobile/credentials/models/auth_result.dart';
 import 'package:kit_mobile/home/views/home_page.dart';
@@ -43,53 +45,69 @@ class LoginPageState extends State<LoginPage> {
     }
 
     return Scaffold(
-      body: Scaffold(
-        appBar: AppBar(
-          centerTitle: true,
-          title: const Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              KITLogo(width: 50,),
-              Text(" Account")
-            ],
-          ),
-        ),
-        body: (!credsVM.credentialsLoaded || credsVM.loggingIn) ? const Center(child: KITProgressIndicator(),) : Container(
-          padding: EdgeInsets.only(top: 20, bottom: 20),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              // Text("Was ist das?"),
-              Column(
+      body: Stack(
+        children: [
+          Scaffold(
+            appBar: AppBar(
+              centerTitle: true,
+              title: const Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Text("Hallo", style: theme.textTheme.headlineLarge?.copyWith(fontWeight: FontWeight.bold)),
-                  Text("Wilkommen im KIT", style: theme.textTheme.headlineSmall?.copyWith(color: theme.primaryColor),),
+                  KITLogo(width: 50,),
+                  Text(" Account")
                 ],
               ),
-              Column(
+            ),
+            body: (!credsVM.credentialsLoaded || credsVM.loggingIn) ? const Center(child: KITProgressIndicator(),) : Container(
+              padding: EdgeInsets.only(top: 20, bottom: 20),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    child: CupertinoTextField(
-                      controller: _usernameInputController,
-                      placeholder: "Username (uxxxx)",
-                    ),
+                  // Text("Was ist das?"),
+                  Column(
+                    children: [
+                      Text("Hallo", style: theme.textTheme.headlineLarge?.copyWith(fontWeight: FontWeight.bold)),
+                      Text("Wilkommen in Karlsruhe", style: theme.textTheme.headlineSmall?.copyWith(color: theme.primaryColor),),
+                      // Text("Wilkommen im KIT", style: theme.textTheme.headlineSmall?.copyWith(color: theme.primaryColor),),
+                    ],
                   ),
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    child: CupertinoTextField(
-                      controller: _passwordInputController,
-                      placeholder: "Passwort",
-                      obscureText: true,
-                    ),
-                  ),
-                  CupertinoButton(child: Text("Einloggen"), onPressed: () => _submitLogin(credsVM, vm))
+                  Column(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        child: CupertinoTextField(
+                          controller: _usernameInputController,
+                          placeholder: "Username (uxxxx)",
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        child: CupertinoTextField(
+                          controller: _passwordInputController,
+                          placeholder: "Passwort",
+                          obscureText: true,
+                        ),
+                      ),
+                      CupertinoButton(child: Text("Einloggen"), onPressed: () => _submitLogin(credsVM, vm))
+                    ],
+                  )
                 ],
-              )
-            ],
+              ),
+            ),
           ),
-        ),
+
+          vm.overlayHtmlData.isNotEmpty ? BackdropFilter(
+            // color: Colors.black12,
+            filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+            child: ListView(
+              children: [
+                CupertinoButton(onPressed: vm.dismissOverlayHtml, child: const Text("Dismiss")),
+                HtmlWidget(vm.overlayHtmlData)
+              ],
+            ),
+          ) : const Text("")
+        ],
       )
     );
   }
