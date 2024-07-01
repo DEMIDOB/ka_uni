@@ -34,7 +34,7 @@ class _KITHomePageState extends State<KITHomePage> {
         leading: CupertinoButton(
           onPressed: () {
             credsVM.logout(vm);
-            Navigator.of(context).pop();
+            // Navigator.of(context).pop();
           },
           child: const Icon(CupertinoIcons.arrow_left_square),
         ),
@@ -226,7 +226,7 @@ class _KITHomePageState extends State<KITHomePage> {
                     ],
                   ),
 
-                  HierarchicTableView(rows: vm.rows,)
+                  HierarchicTableView(rows: vm.moduleRows,)
                 ],
               ),
             )

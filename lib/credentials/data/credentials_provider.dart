@@ -6,6 +6,8 @@ import 'package:kit_mobile/credentials/models/kit_credentials.dart';
 import 'package:kit_mobile/state_management/KITProvider.dart';
 import 'package:requests_plus/requests_plus.dart';
 
+import '../../main.dart';
+
 class CredentialsProvider extends ChangeNotifier {
   final FlutterSecureStorage _storage = FlutterSecureStorage();
 
@@ -16,6 +18,8 @@ class CredentialsProvider extends ChangeNotifier {
   KITCredentials credentials = KITCredentials();
   bool credentialsLoaded = false;
   bool loggingIn = false;
+
+  String displayName = "";
 
   Future<void> loadCredentials() async {
     final all = await _storage.readAll(
@@ -28,6 +32,7 @@ class CredentialsProvider extends ChangeNotifier {
     if (credentials.valid) {
       credentials.username = all["username"]!;
       credentials.password = all["password"]!;
+      displayName = all["userDisplayName"] ?? credentials.username;
     }
 
     credentialsLoaded = true;
@@ -37,9 +42,21 @@ class CredentialsProvider extends ChangeNotifier {
   }
 
   _writeCredentials() async {
-    await _storage.write(key: "username",   value: credentials.username,         iOptions: _iOSOptions, aOptions: _androidOptions);
-    await _storage.write(key: "password",   value: credentials.password,         iOptions: _iOSOptions, aOptions: _androidOptions);
-    await _storage.write(key: "isLoggedIn", value: credentials.valid ? "1" : "", iOptions: _iOSOptions, aOptions: _androidOptions);
+    if (displayName.isEmpty) {
+      displayName = credentials.username;
+    }
+
+    await _storage.write(key: "username",        value: credentials.username,         iOptions: _iOSOptions, aOptions: _androidOptions);
+    await _storage.write(key: "password",        value: credentials.password,         iOptions: _iOSOptions, aOptions: _androidOptions);
+    await _storage.write(key: "isLoggedIn",      value: credentials.valid ? "1" : "", iOptions: _iOSOptions, aOptions: _androidOptions);
+    await _storage.write(key: "userDisplayName", value: displayName,                  iOptions: _iOSOptions, aOptions: _androidOptions);
+
+    if (isAlpha) {
+      await _storage.write(key: "alpha", value: "hero", iOptions: _iOSOptions, aOptions: _androidOptions);
+    }
+
+    // displayName = credentials.username;
+    notifyListeners();
   }
 
   _clearCredentials() async {
@@ -47,17 +64,27 @@ class CredentialsProvider extends ChangeNotifier {
     await _writeCredentials();
   }
 
-  enterUsername(String value) async {
-    credentials.username = value;
-    await _writeCredentials();
-  }
+  // enterUsername(String value) async {
+  //   credentials.username = value;
+  //   await _writeCredentials();
+  // }
+  //
+  // enterPassword(String value) async {
+  //   credentials.password = value;
+  //   await _writeCredentials();
+  // }
 
-  enterPassword(String value) async {
-    credentials.password = value;
-    await _writeCredentials();
+  setDisplayName(String val) async {
+    displayName = val;
+    await _storage.write(key: "userDisplayName", value: val, iOptions: _iOSOptions, aOptions: _androidOptions);
   }
 
   Future<AuthResult> submit(String typedUsername, String typedPassword, KITProvider vm) async {
+    if (displayName.isEmpty) {
+      displayName = typedUsername;
+      notifyListeners();
+    }
+
     KITCredentials newCredentials = KITCredentials(username: typedUsername, password: typedPassword);
     if (kDebugMode) {
       print("Submitted $newCredentials");
@@ -72,7 +99,7 @@ class CredentialsProvider extends ChangeNotifier {
 
     credentials = newCredentials;
 
-    return await login(vm);
+    return await login(vm, clearCookiesAndCache: true);
   }
 
   Future<AuthResult> login(KITProvider vm, {clearCookiesAndCache = true}) async {
@@ -98,6 +125,7 @@ class CredentialsProvider extends ChangeNotifier {
     }
 
     credentials.valid = true;
+    setDisplayName(vm.student.name.repr);
     _writeCredentials();
 
     loggingIn = false;
@@ -108,8 +136,11 @@ class CredentialsProvider extends ChangeNotifier {
 
   logout(KITProvider vm) async {
     _clearCredentials();
+    vm.profileReady = false;
+    vm.scheduleFetchingTimer?.cancel();
     vm.setCredentials(credentials);
     notifyListeners();
+    vm.notifyListeners();
     // vm.clearData();
   }
 

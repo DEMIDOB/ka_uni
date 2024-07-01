@@ -8,6 +8,8 @@ import 'package:provider/provider.dart';
 
 import 'home/views/home_page.dart';
 
+const isAlpha = true;
+
 void main() {
   runApp(const MyApp());
 }
@@ -63,8 +65,22 @@ class MyApp extends StatelessWidget {
           useMaterial3: true,
         ),
         darkTheme: darkThemeData,
-        home: LoginPage(),
+        home: KITApp()
       )
     );
   }
+}
+
+class KITApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 500),
+      transitionBuilder: (Widget child, Animation<double> animation) {
+        return FadeTransition(opacity: animation, child: child);
+      },
+      child: Provider.of<KITProvider>(context).profileReady ? KITHomePage() : LoginPage(),
+    );
+  }
+
 }

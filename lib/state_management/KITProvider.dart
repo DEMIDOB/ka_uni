@@ -42,8 +42,8 @@ class KITProvider extends ChangeNotifier {
 
   bool profileReady = false;
 
-  List<HierarchicTableRow> rows = [];
-  Map<String, KITModule> modules = {};
+  List<HierarchicTableRow> moduleRows = [];
+  Map<String, KITModule> rowModules = {}; // INDEXING AS row_id: module
 
   TimetableWeekly timetable = TimetableWeekly();
   
@@ -355,6 +355,7 @@ class KITProvider extends ChangeNotifier {
   // fetchScheduleStage1_
   bool isFetchingSchedule = false;
   bool isFetchingModules = false;
+  bool allModulesFetched = false;
 
   String overlayHtmlData = "";
   dismissOverlayHtml() {
@@ -363,11 +364,15 @@ class KITProvider extends ChangeNotifier {
   }
 
   Timer? scheduleFetchingTimer;
-  fetchSchedule({notify = true, retryIfFailed = true, secondRetryIfFailed = true}) async {
+  fetchSchedule({notify = true, retryIfFailed = true, secondRetryIfFailed = true, refreshSession = true}) async {
     // if (isFetchingSchedule) {
     //   print("Already fetching the schedule! Blocked attempt to run another instance of the method. Returning...");
     //   return;
     // }
+
+    if (refreshSession) {
+      clearCookiesAndCache();
+    }
 
     isFetchingSchedule = true;
     await _fetchScheduleStage0_Init(notify: notify, retryIfFailed: retryIfFailed, secondRetryIfFailed: secondRetryIfFailed);
@@ -441,13 +446,13 @@ class KITProvider extends ChangeNotifier {
 
     });
 
-    rows = [];
+    moduleRows = [];
     document.getElementsByClassName("tablecontent").forEach((tbody) {
       tbody.getElementsByTagName("tr").forEach((tr) {
         try {
           final row = HierarchicTableRow.parseTr(tr, rowsSorted);
           if (row != null) {
-            rows.add(row);
+            moduleRows.add(row);
           }
         } catch (exc) {
           if (kDebugMode) {
@@ -531,8 +536,8 @@ class KITProvider extends ChangeNotifier {
     // }
     // await Future.wait(futures);
 
-    for (final row in rows) {
-      if (modules.containsKey(row.id) && !modules[row.id]!.requiresUpdate) {
+    for (final row in moduleRows) {
+      if (rowModules.containsKey(row.id) && !rowModules[row.id]!.requiresUpdate) {
         continue;
       }
       final module = await fetchModule(row);
@@ -545,6 +550,8 @@ class KITProvider extends ChangeNotifier {
     }
 
     isFetchingModules = false;
+    allModulesFetched = true;
+    print("Finished fetching modules!");
   }
 
   Future<KITModule> fetchModule(HierarchicTableRow row) async {
@@ -555,8 +562,8 @@ class KITProvider extends ChangeNotifier {
 
     var module = KITModule();
 
-    if (modules.containsKey(row.id)) {
-      module = modules[row.id]!;
+    if (rowModules.containsKey(row.id)) {
+      module = rowModules[row.id]!;
     }
     
     module.parseModulePage(response.body);
@@ -574,19 +581,19 @@ class KITProvider extends ChangeNotifier {
 
     module.hierarchicalTableRowId = row.id;
 
-    final prevModuleData = modules[module.hierarchicalTableRowId];
+    final prevModuleData = rowModules[module.hierarchicalTableRowId];
     if (prevModuleData != null && module.isEmpty && !prevModuleData.isEmpty) {
       return prevModuleData;
     }
 
-    modules[module.hierarchicalTableRowId] = module;
+    rowModules[module.hierarchicalTableRowId] = module;
 
     return module;
   }
 
   Future<KITModule> getOrFetchModule(HierarchicTableRow row) async {
-    var module = modules[row.id];
-    print(modules);
+    var module = rowModules[row.id];
+    print(rowModules);
     if (module != null) {
       return module;
     }
@@ -595,7 +602,7 @@ class KITProvider extends ChangeNotifier {
     Timer(const Duration(seconds: 1), () => completer.complete());
     await completer.future;
 
-    module = modules[row.id];
+    module = rowModules[row.id];
     if (module != null) {
       return module;
     }
@@ -636,7 +643,7 @@ class KITProvider extends ChangeNotifier {
     final ok = !response.body.toLowerCase().contains("sitzung ist abgelaufen");
     // print(response.statusCode);
     // print(inModule.hierarchicalTableRowId);
-    for (final row in rows) {
+    for (final row in moduleRows) {
       if (row.id == inModule.hierarchicalTableRowId) {
         fetchModule(row).then((_) => fetchTimetable());
         break;

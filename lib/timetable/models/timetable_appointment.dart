@@ -40,6 +40,10 @@ class TimetableAppointment {
     return begin.hour == other.begin.hour && begin.minute == other.begin.minute;
   }
 
+  bool get isEmpty {
+    return id.isEmpty && title == "—";
+  }
+
   int get duration => end.difference(begin).inMinutes;
 
   Future<LatLng> get placeData async {
@@ -48,10 +52,6 @@ class TimetableAppointment {
     if (place.link.isEmpty) {
       return kitLocation;
     }
-
-    // print(place.link);
-    //
-    // return (await RequestsPlus.get("https://www.kit.edu/campusplan/?id=20.30")).body;
 
     final response = await RequestsPlus.get(place.link);
     var document = parse(response.body);

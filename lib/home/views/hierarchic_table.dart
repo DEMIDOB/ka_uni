@@ -31,15 +31,11 @@ class HierarchicTableView extends StatelessWidget {
             //   return;
             // }
 
-            print(row.href);
-            final cookiesTmp = vm.getCookies();
-            print(cookiesTmp["_shibsession_campus-prod-sp"]);
-            print(cookiesTmp["session-campus-prod-sp"]);
             final moduleFuture = vm.getOrFetchModule(row);
             Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) => ModuleView(module: moduleFuture)));
           },
           child: Padding(
-            padding: EdgeInsets.only(left: 10 + (row.level - minLevelToShow) * 20, top: row.level == minLevelToShow ? 8 : 6, bottom: row.level == minLevelToShow ? 8 : 0),
+            padding: EdgeInsets.only(left: 10 + (row.level - minLevelToShow) * 20, top: row.level == minLevelToShow ? 8 : 6, bottom: row.level == minLevelToShow ? 8 : 0, right: 10),
             child: Column(
               children: [
                 (row.level == minLevelToShow ? Divider() : SizedBox(height: 0,)),

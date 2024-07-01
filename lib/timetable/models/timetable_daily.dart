@@ -8,6 +8,16 @@ class TimetableDaily {
   Weekday weekday = Weekday.monday;
   List<TimetableAppointment> appointments = genericAppointmentsSchedule;
 
+  bool get isEmpty {
+    for (final appointment in appointments) {
+      if (appointment.isEmpty) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
   static List<TimetableAppointment> get genericAppointmentsSchedule {
    final d = DateTime.now();
 
@@ -25,7 +35,6 @@ class TimetableDaily {
   static TimetableDaily? parseFromHtml(Element node, Weekday weekday) {
     TimetableDaily timetableDaily = TimetableDaily();
     timetableDaily.weekday = weekday;
-    // print(node.innerHtml);
 
     node.getElementsByClassName("appointment").forEach((appointmentNode) {
       final appointment = TimetableAppointment.parseFromHtmlTr(appointmentNode);
@@ -45,10 +54,6 @@ class TimetableDaily {
         timetableDaily.appointments[idx] = appointment;
       }
     });
-
-    // if (kDebugMode) {
-    //   print("parsed timetableDaily ${timetableDaily.appointments.length}");
-    // }
 
     return timetableDaily;
   }
