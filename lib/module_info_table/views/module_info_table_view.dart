@@ -51,7 +51,7 @@ class _ModuleInfoTableViewState extends State<ModuleInfoTableView> {
                     children: [
                       Container(
                         padding: const EdgeInsets.all(5),
-                        child: Icon(CupertinoIcons.arrow_turn_down_right, size: 15, color: theme.primaryColor,),
+                        child: Icon(CupertinoIcons.arrow_turn_down_right, size: 15, color: theme.colorScheme.primary,),
                       ),
                       Text(appointmentCell.dateStr),
                       const SizedBox(width: 15,),

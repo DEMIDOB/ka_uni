@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 
 import '../main.dart';
 import 'alpha_badge.dart';
@@ -15,16 +14,15 @@ class KITLogo extends StatelessWidget {
     final theme = Theme.of(context);
 
     return SizedBox(
-      width: width,
+      // width: width,
       // height: 28,
       child: Row(
         children: [
-          SizedBox(width: 30,),
 
-          Text("KA", style: theme.textTheme.titleLarge?.copyWith(color: theme.primaryColor),),
-          Text(".Uni"),
+          Text("KA", style: theme.textTheme.titleLarge?.copyWith(color: theme.colorScheme.primary),),
+          const Text(".Uni"),
 
-          SizedBox(width: 10,),
+          const SizedBox(width: 2,),
 
           !isAlpha ? const Text("") : const AlphaBadge()
         ],

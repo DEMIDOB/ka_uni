@@ -4,6 +4,8 @@ PODS:
   - Flutter (1.0.0)
   - flutter_secure_storage (6.0.0):
     - Flutter
+  - flutter_web_browser (0.17.1):
+    - Flutter
   - fluttertoast (0.0.2):
     - Flutter
     - Toast
@@ -14,7 +16,7 @@ PODS:
   - path_provider_foundation (0.0.1):
     - Flutter
     - FlutterMacOS
-  - sqflite (0.0.3):
+  - sqflite_darwin (0.0.4):
     - Flutter
     - FlutterMacOS
   - Toast (4.0.0)
@@ -27,20 +29,22 @@ PODS:
     - Flutter
   - webview_flutter_wkwebview (0.0.1):
     - Flutter
+    - FlutterMacOS
 
 DEPENDENCIES:
   - audio_session (from `.symlinks/plugins/audio_session/ios`)
   - Flutter (from `Flutter`)
   - flutter_secure_storage (from `.symlinks/plugins/flutter_secure_storage/ios`)
+  - flutter_web_browser (from `.symlinks/plugins/flutter_web_browser/ios`)
   - fluttertoast (from `.symlinks/plugins/fluttertoast/ios`)
   - just_audio (from `.symlinks/plugins/just_audio/ios`)
   - package_info_plus (from `.symlinks/plugins/package_info_plus/ios`)
   - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
-  - sqflite (from `.symlinks/plugins/sqflite/darwin`)
+  - sqflite_darwin (from `.symlinks/plugins/sqflite_darwin/darwin`)
   - url_launcher_ios (from `.symlinks/plugins/url_launcher_ios/ios`)
   - video_player_avfoundation (from `.symlinks/plugins/video_player_avfoundation/darwin`)
   - wakelock_plus (from `.symlinks/plugins/wakelock_plus/ios`)
-  - webview_flutter_wkwebview (from `.symlinks/plugins/webview_flutter_wkwebview/ios`)
+  - webview_flutter_wkwebview (from `.symlinks/plugins/webview_flutter_wkwebview/darwin`)
 
 SPEC REPOS:
   trunk:
@@ -53,6 +57,8 @@ EXTERNAL SOURCES:
     :path: Flutter
   flutter_secure_storage:
     :path: ".symlinks/plugins/flutter_secure_storage/ios"
+  flutter_web_browser:
+    :path: ".symlinks/plugins/flutter_web_browser/ios"
   fluttertoast:
     :path: ".symlinks/plugins/fluttertoast/ios"
   just_audio:
@@ -61,8 +67,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/package_info_plus/ios"
   path_provider_foundation:
     :path: ".symlinks/plugins/path_provider_foundation/darwin"
-  sqflite:
-    :path: ".symlinks/plugins/sqflite/darwin"
+  sqflite_darwin:
+    :path: ".symlinks/plugins/sqflite_darwin/darwin"
   url_launcher_ios:
     :path: ".symlinks/plugins/url_launcher_ios/ios"
   video_player_avfoundation:
@@ -70,22 +76,23 @@ EXTERNAL SOURCES:
   wakelock_plus:
     :path: ".symlinks/plugins/wakelock_plus/ios"
   webview_flutter_wkwebview:
-    :path: ".symlinks/plugins/webview_flutter_wkwebview/ios"
+    :path: ".symlinks/plugins/webview_flutter_wkwebview/darwin"
 
 SPEC CHECKSUMS:
   audio_session: 088d2483ebd1dc43f51d253d4a1c517d9a2e7207
   Flutter: e0871f40cf51350855a761d2e70bf5af5b9b5de7
-  flutter_secure_storage: 23fc622d89d073675f2eaa109381aefbcf5a49be
+  flutter_secure_storage: d33dac7ae2ea08509be337e775f6b59f1ff45f12
+  flutter_web_browser: 7bccaafbb0c5b8862afe7bcd158f15557109f61f
   fluttertoast: e9a18c7be5413da53898f660530c56f35edfba9c
   just_audio: baa7252489dbcf47a4c7cc9ca663e9661c99aafa
-  package_info_plus: 58f0028419748fad15bf008b270aaa8e54380b1c
-  path_provider_foundation: 3784922295ac71e43754bd15e0653ccfd36a147c
-  sqflite: 673a0e54cc04b7d6dba8d24fb8095b31c3a99eec
+  package_info_plus: c0502532a26c7662a62a356cebe2692ec5fe4ec4
+  path_provider_foundation: 2b6b4c569c0fb62ec74538f866245ac84301af46
+  sqflite_darwin: a553b1fd6fe66f53bbb0fe5b4f5bab93f08d7a13
   Toast: 91b396c56ee72a5790816f40d3a94dd357abc196
-  url_launcher_ios: 6116280ddcfe98ab8820085d8d76ae7449447586
-  video_player_avfoundation: 2b4384f3b157206b5e150a0083cdc0c905d260d3
+  url_launcher_ios: 5334b05cef931de560670eeae103fd3e431ac3fe
+  video_player_avfoundation: 7c6c11d8470e1675df7397027218274b6d2360b3
   wakelock_plus: 78ec7c5b202cab7761af8e2b2b3d0671be6c4ae1
-  webview_flutter_wkwebview: be0f0d33777f1bfd0c9fdcb594786704dbf65f36
+  webview_flutter_wkwebview: 0982481e3d9c78fd5c6f62a002fcd24fc791f1e4
 
 PODFILE CHECKSUM: 819463e6a0290f5a72f145ba7cde16e8b6ef0796
 

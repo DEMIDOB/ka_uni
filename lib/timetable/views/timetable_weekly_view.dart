@@ -129,13 +129,13 @@ class _TimetableWeeklyViewState extends State<TimetableWeeklyView> {
                     children: [
                       SizedBox(
                         width: MediaQuery.of(context).size.width * 0.8,
-                        height: _weekdayHeight * 0.454,
+                        height: _weekdayHeight * 0.47,
                       ),
                       Column(
                         children: [
-                          Icon(CupertinoIcons.zzz, color: theme.primaryColor, size: 64,),
+                          Icon(CupertinoIcons.zzz, color: theme.colorScheme.primary, size: 64,),
                           Padding(
-                            padding: EdgeInsets.symmetric(vertical: 5),
+                            padding: const EdgeInsets.symmetric(vertical: 5),
                             child: Text("Wochenende :)", style: theme.textTheme.bodyLarge,),
                           )
                         ],

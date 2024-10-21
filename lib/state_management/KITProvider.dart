@@ -1,14 +1,10 @@
 import 'dart:async';
-// import 'dart:html';
-// import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:kit_mobile/credentials/models/kit_credentials.dart';
 import 'package:kit_mobile/module_info_table/models/module_info_table_cell.dart';
-import 'package:kit_mobile/module_info_table/models/module_info_table_row.dart';
 import 'package:kit_mobile/student/name.dart';
-import 'package:provider/provider.dart';
 
 import '../module/models/module.dart';
 import '../parsing/models/hierarchic_table_row.dart';
@@ -17,17 +13,16 @@ import '../student/student.dart';
 import 'package:http/http.dart' as http;
 import 'package:html/parser.dart';
 import 'package:requests_plus/requests_plus.dart';
-import 'package:requests_plus/src/response.dart';
 
 import '../timetable/models/timetable_weekly.dart';
 
 class KITProvider extends ChangeNotifier {
   Student student = Student(
-    name: Name(firstName: "Daniil", lastName: "Demidov", middleName: "K"),
-    matriculationNumber: "2502709",
-    degreeProgram: "Mathematik",
+    name: Name(firstName: "", lastName: "", middleName: ""),
+    matriculationNumber: "0000000",
+    degreeProgram: "",
     ectsAcquired: "",
-    avgMark: "2.1",
+    avgMark: "0.0",
   );
 
   KITCredentials _credentials = KITCredentials();
@@ -117,6 +112,14 @@ class KITProvider extends ChangeNotifier {
     notifyListeners();
 
     return true;
+  }
+
+  forceRefetchEverything() async {
+    scheduleFetchingTimer?.cancel();
+    scheduleFetchingTimer = null;
+
+    await clearCookiesAndCache();
+    await fetchSchedule();
   }
 
   _fetchScheduleStage0_Init({notify = true, retryIfFailed = true, secondRetryIfFailed = true}) async {
@@ -364,14 +367,9 @@ class KITProvider extends ChangeNotifier {
   }
 
   Timer? scheduleFetchingTimer;
-  fetchSchedule({notify = true, retryIfFailed = true, secondRetryIfFailed = true, refreshSession = true}) async {
-    // if (isFetchingSchedule) {
-    //   print("Already fetching the schedule! Blocked attempt to run another instance of the method. Returning...");
-    //   return;
-    // }
-
+  fetchSchedule({notify = true, retryIfFailed = true, secondRetryIfFailed = true, refreshSession = true, startRefreshTimer = true}) async {
     if (refreshSession) {
-      clearCookiesAndCache();
+      await clearCookiesAndCache();
     }
 
     isFetchingSchedule = true;
@@ -383,10 +381,7 @@ class KITProvider extends ChangeNotifier {
     if (stage2Response == null) {
       if (kDebugMode) {
         print("Stage 2 failed!");
-        // print(response.body);
-        // print(_cookiesString);
       }
-      // return;
     } else {
       response = stage2Response!;
     }
@@ -396,7 +391,6 @@ class KITProvider extends ChangeNotifier {
     if (stage3Response == null) {
       if (kDebugMode) {
         print("Stage 3 failed!");
-        // print(_cookiesString);
       }
       return;
     }
@@ -404,13 +398,10 @@ class KITProvider extends ChangeNotifier {
     
     // parse the response
     var document = parse(response.body);
-    // print(response.body);
 
     String firstName = "", lastName = "", matrn = "";
     String degreeProgram = "";
     String ectsAcquired = "";
-
-    // print(response.body);
 
     document.getElementsByClassName("pagination").forEach((element) {
       final divs = element.getElementsByTagName("div");
@@ -433,7 +424,6 @@ class KITProvider extends ChangeNotifier {
     });
 
     Map<int, List<HierarchicTableRow>> rowsSorted = {};
-    // rowsSorted[]
 
     document.getElementsByClassName("hierarchy1").forEach((element) {
       try {
@@ -468,8 +458,6 @@ class KITProvider extends ChangeNotifier {
         print("No row. Failed to fetch for now. Retrying...");
       }
 
-      // profileReady = false;
-
       if (retryIfFailed) {
         await fetchSchedule(retryIfFailed: secondRetryIfFailed, secondRetryIfFailed: false);
       }
@@ -494,7 +482,11 @@ class KITProvider extends ChangeNotifier {
     }
 
     isFetchingSchedule = false;
-    scheduleFetchingTimer ??= Timer(const Duration(minutes: 3), fetchSchedule);
+
+    // tmp: create a lock or something to prevent interface glitches
+    if (startRefreshTimer) {
+      scheduleFetchingTimer ??= Timer(const Duration(minutes: 1), forceRefetchEverything);
+    }
   }
 
   Future<void> fetchTimetable({retryIfFailed = true}) async {
@@ -504,7 +496,7 @@ class KITProvider extends ChangeNotifier {
     final url = "https://campus.studium.kit.edu/redirect.php?system=campus&url=/campus/student/timetable.asp";
     applyCookies(url);
     final response = await RequestsPlus.get(url);
-    // print(response.body);
+
     final timetableUpdate = TimetableWeekly.parseFromHtmlString(response.body);
     if (timetableUpdate == null) {
       if (kDebugMode) {
@@ -520,41 +512,27 @@ class KITProvider extends ChangeNotifier {
   }
 
   Future<void> fetchAllModules() async {
-    // if (isFetchingModules) {
-    //   return;
-    // }
-
     isFetchingModules = true;
 
     if (kDebugMode) {
       print("Fetching all modules");
     }
 
-    // List<Future<KITModule>> futures = [];
-    // for (final row in rows) {
-    //   futures.add(fetchModule(row));
-    // }
-    // await Future.wait(futures);
-
     for (final row in moduleRows) {
       if (rowModules.containsKey(row.id) && !rowModules[row.id]!.requiresUpdate) {
         continue;
       }
-      final module = await fetchModule(row);
-      // if (kDebugMode) {
-      //   print(module.title);
-      // }
-      // if (module.isEmpty) {
-      //   return;
-      // }
+      final module = await fetchModule(row, recursiveRetry: false);
     }
 
     isFetchingModules = false;
     allModulesFetched = true;
-    print("Finished fetching modules!");
+    if (kDebugMode) {
+      print("Finished fetching modules!");
+    }
   }
 
-  Future<KITModule> fetchModule(HierarchicTableRow row) async {
+  Future<KITModule> fetchModule(HierarchicTableRow row, {recursiveRetry = true}) async {
     final url = row.href;
 
     await applyCookies(url);
@@ -567,9 +545,6 @@ class KITProvider extends ChangeNotifier {
     }
     
     module.parseModulePage(response.body);
-    // if (kDebugMode) {
-    //   print(module.toString());
-    // }
 
     if (module.grade == "0,0" && row.mark.isNotEmpty) {
       module.grade = row.mark;
@@ -586,16 +561,26 @@ class KITProvider extends ChangeNotifier {
       return prevModuleData;
     }
 
+    if (module.isEmpty && recursiveRetry) {
+      if (kDebugMode) {
+        print("Failed to fetch the module. Possible reason: session expired. Retrying...");
+      }
+      await forceRefetchEverything();
+      return fetchModule(row, recursiveRetry: false);
+    }
+
     rowModules[module.hierarchicalTableRowId] = module;
 
     return module;
   }
 
+  bool _isModuleReady(KITModule? module) => module != null && !module.isEmpty;
+
   Future<KITModule> getOrFetchModule(HierarchicTableRow row) async {
     var module = rowModules[row.id];
-    print(rowModules);
-    if (module != null) {
-      return module;
+
+    if (_isModuleReady(module)) {
+      return module!;
     }
 
     final completer = Completer();
@@ -603,8 +588,8 @@ class KITProvider extends ChangeNotifier {
     await completer.future;
 
     module = rowModules[row.id];
-    if (module != null) {
-      return module;
+    if (_isModuleReady(module)) {
+      return module!;
     }
 
     return fetchModule(row);
@@ -621,7 +606,6 @@ class KITProvider extends ChangeNotifier {
     await RequestsPlus.clearStoredCookies("https://campus.kit.edu/");
   }
 
-  // TODO: return succeeded or not!
   Future<bool> toggleIsFavorite(ModuleInfoTableCell cell, KITModule inModule, {visual=true}) async {
     if (cell.objectValue.isEmpty) {
       if (kDebugMode) {
@@ -637,19 +621,17 @@ class KITProvider extends ChangeNotifier {
       notifyListeners();
     }
 
-    final url = "https://campus.kit.edu/sp/campus/student/specificModuleView.asp";
-    // applyCookies(url);
+    const url = "https://campus.kit.edu/sp/campus/student/specificModuleView.asp";
+
     final response = await RequestsPlus.post(url, body: {action: cell.objectValue}, followRedirects: true);
     final ok = !response.body.toLowerCase().contains("sitzung ist abgelaufen");
-    // print(response.statusCode);
-    // print(inModule.hierarchicalTableRowId);
+
     for (final row in moduleRows) {
       if (row.id == inModule.hierarchicalTableRowId) {
         fetchModule(row).then((_) => fetchTimetable());
         break;
       }
     }
-    // inModule.parseModulePage(response.body);
 
     if (!ok) {
       cell.isFavorite = !cell.isFavorite;

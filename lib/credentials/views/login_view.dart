@@ -14,6 +14,7 @@ import 'package:kit_mobile/common_ui/kit_logo.dart';
 import 'package:provider/provider.dart';
 
 import '../../../common_ui/kit_progress_indicator.dart';
+import '../../info/views/info_view.dart';
 import '../../main.dart';
 
 class LoginPage extends StatefulWidget {
@@ -72,11 +73,10 @@ class LoginPageState extends State<LoginPage> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    // Text("Was ist das?"),
                     Column(
                       children: [
                         Text("Hallo", style: theme.textTheme.headlineLarge?.copyWith(fontWeight: FontWeight.bold)),
-                        Text("Wilkommen in Karlsruhe", style: theme.textTheme.headlineSmall?.copyWith(color: theme.primaryColor),),
+                        Text("Wilkommen in Karlsruhe", style: theme.textTheme.headlineSmall?.copyWith(color: theme.colorScheme.primary),),
                         // Text("Wilkommen im KIT", style: theme.textTheme.headlineSmall?.copyWith(color: theme.primaryColor),),
                       ],
                     ),
@@ -101,7 +101,13 @@ class LoginPageState extends State<LoginPage> {
                             // obscureText: true,
                           ),
                         ),
-                        CupertinoButton(child: Text("Einloggen"), onPressed: () => _submitLogin(credsVM, vm))
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            CupertinoButton(child: Text("Was ist das?"), onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) => InfoView()))),
+                            CupertinoButton(child: Text("Einloggen"), onPressed: () => _submitLogin(credsVM, vm))
+                          ],
+                        )
                       ],
                     )
                   ],
@@ -109,22 +115,28 @@ class LoginPageState extends State<LoginPage> {
               ),
 
                 AnimatedPositioned(
+                  child: AnimatedOpacity(
+                      curve: Curves.ease,
+                      duration: const Duration(milliseconds: 750),
+                    opacity: _awaitingAuthentication ? 1 : 0.5,
                     child: Container(
                         decoration: BoxDecoration(
                             boxShadow: [BoxShadow(
-                              color: theme.primaryColor.withOpacity(0.8),
+                              color: theme.colorScheme.primary.withOpacity(theme.brightness == Brightness.light ? 0.8 : 0.5),
                               blurRadius: 50,
                               spreadRadius: 20,
                             )],
-                            color: Theme.of(context).primaryColor,
+                            color: theme.colorScheme.primary,
                             borderRadius: BorderRadius.all(Radius.circular(mq.size.width * 7))
                         ),
                         width: mq.size.width * 7,
                         height: mq.size.width * 7
                     ),
+                  ),
                     top: _awaitingAuthentication ? -mq.size.height * 0.5 : mq.size.height * 0.3,
                     curve: Curves.ease,
                     duration: const Duration(milliseconds: 750)
+
                 ),
 
                 AnimatedOpacity(
@@ -146,7 +158,10 @@ class LoginPageState extends State<LoginPage> {
                               width: mq.size.width,
                               // height: 125,
                               child: Center(
-                                child: Text("Hallo, ${credsVM.displayName}", style: theme.textTheme.headlineLarge?.copyWith(fontWeight: FontWeight.bold, color: Colors.white), maxLines: 2,),
+                                child: Hero(
+                                  tag: "greeting",
+                                  child: Text("Hallo, ${credsVM.displayName}", style: theme.textTheme.headlineLarge?.copyWith(fontWeight: FontWeight.bold, color: Colors.white), maxLines: 2,),
+                                ),
                               ),
                             ),
 

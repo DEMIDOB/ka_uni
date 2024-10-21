@@ -81,18 +81,18 @@ class _ModuleViewState extends State<ModuleView> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.start,
                             children: [
-                              Icon(module.isUpcoming ? CupertinoIcons.clock : (module.examDateKnown ? CupertinoIcons.check_mark_circled : CupertinoIcons.question_circle), color: module.examDateKnown ? theme.primaryColor : theme.disabledColor,),
+                              Icon(module.isUpcoming ? CupertinoIcons.clock : (module.examDateKnown ? CupertinoIcons.check_mark_circled : CupertinoIcons.question_circle), color: module.examDateKnown ? theme.colorScheme.primary : theme.disabledColor,),
                               Padding(padding: EdgeInsets.all(iconDescriptionPadding),),
-                              Text(module.timeAxisPositionString,) // style: theme.textTheme.bodyMedium?.copyWith(color: module.examDateKnown ? theme.primaryColor : theme.disabledColor),)
+                              Text(module.timeAxisPositionString,) // style: theme.textTheme.bodyMedium?.copyWith(color: module.examDateKnown ? theme.colorScheme.primary : theme.disabledColor),)
                             ],
                           ),
 
                           !module.examDateKnown ? Text("") : Row(
                             mainAxisAlignment: MainAxisAlignment.start,
                             children: [
-                              Icon(CupertinoIcons.calendar_circle, color: module.examDateKnown ? theme.primaryColor : theme.disabledColor,),
+                              Icon(CupertinoIcons.calendar_circle, color: module.examDateKnown ? theme.colorScheme.primary : theme.disabledColor,),
                               Padding(padding: EdgeInsets.all(iconDescriptionPadding),),
-                              Text(module.examDateStr,) // style: theme.textTheme.bodyMedium?.copyWith(color: module.examDateKnown ? theme.primaryColor : theme.disabledColor),)
+                              Text(module.examDateStr,) // style: theme.textTheme.bodyMedium?.copyWith(color: module.examDateKnown ? theme.colorScheme.primary : theme.disabledColor),)
                             ],
                           )
                         ],
@@ -114,7 +114,7 @@ class _ModuleViewState extends State<ModuleView> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.start,
                             children: [
-                              Icon(CupertinoIcons.pencil_outline, color: theme.primaryColor,),
+                              Icon(CupertinoIcons.pencil_outline, color: theme.colorScheme.primary,),
                               Padding(padding: EdgeInsets.all(iconDescriptionPadding),),
                               Text(module.grade.isNotEmpty ? module.grade : "0,0",)
                             ],
@@ -125,7 +125,7 @@ class _ModuleViewState extends State<ModuleView> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.start,
                             children: [
-                              Icon(CupertinoIcons.book_circle, color: theme.primaryColor,),
+                              Icon(CupertinoIcons.book_circle, color: theme.colorScheme.primary,),
                               Padding(padding: EdgeInsets.all(iconDescriptionPadding),),
                               Text("${module.pointsAcquired} / ${module.pointsAvailable} LP",)
                             ],

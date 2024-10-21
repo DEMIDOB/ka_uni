@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:kit_mobile/credentials/data/credentials_provider.dart';
 import 'package:kit_mobile/credentials/views/login_view.dart';
 import 'package:kit_mobile/state_management/KITProvider.dart';
@@ -36,10 +35,12 @@ class MyApp extends StatelessWidget {
       headlineMedium: themeData.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
     );
 
+    themeData = themeData.copyWith(textTheme: textTheme);
+
     var darkThemeData = ThemeData.dark();
 
     darkThemeData = darkThemeData.copyWith(
-      colorScheme: ColorScheme.fromSeed(seedColor: mainColor, brightness: Brightness.dark, onBackground: Colors.red, background: Colors.red),
+      colorScheme: ColorScheme.fromSeed(seedColor: mainColor, brightness: Brightness.dark), //, onBackground: Colors.red, background: Colors.red),
       textTheme: darkThemeData.textTheme.copyWith(
         titleLarge: darkThemeData.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
         titleMedium: darkThemeData.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
@@ -47,7 +48,7 @@ class MyApp extends StatelessWidget {
         headlineMedium: darkThemeData.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
       ),
       scaffoldBackgroundColor: Colors.black,
-      appBarTheme: darkThemeData.appBarTheme
+      appBarTheme: darkThemeData.appBarTheme,
     );
 
     return MultiProvider(
@@ -57,13 +58,7 @@ class MyApp extends StatelessWidget {
       ],
       child: MaterialApp(
         title: 'KIT mobile',
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(
-              seedColor: Color.fromARGB(1, 0, 150, 130)
-          ),
-          textTheme: textTheme,
-          useMaterial3: true,
-        ),
+        theme: themeData,
         darkTheme: darkThemeData,
         home: KITApp()
       )

@@ -24,7 +24,7 @@ class TimetableDailyView extends StatelessWidget {
           children: tt.appointments.map((appointment) {
             return Container(
               decoration: BoxDecoration(
-                border: appointment.begin.hour < 17 ? Border(bottom: BorderSide(color: Colors.black12)) : null,
+                border: appointment.begin.hour < 17 ? Border(bottom: BorderSide(color: theme.brightness == Brightness.light ? Colors.black12 : Colors.white.withOpacity(0.15))) : null,
               ),
               // color: Colors.red,
               child: SizedBox(
@@ -43,7 +43,7 @@ class TimetableDailyView extends StatelessWidget {
                       onTap: () {
                         Navigator.of(context).push(MaterialPageRoute(builder: (context) => TimetableAppointmentPage(appointment: appointment)));
                       },
-                      child: Container(
+                      child: SizedBox(
                         width: appointment.type == TimetableAppointmentType.lunchBreak ? null : deviceWidth * 0.8,
                         child: Container(
                           padding: EdgeInsets.symmetric(horizontal: 15),
@@ -63,7 +63,7 @@ class TimetableDailyView extends StatelessWidget {
                                   //   padding: EdgeInsets.only(left: 0),
                                   // )
                                 ],
-                              ) : SizedBox(height: 0,)
+                              ) : const SizedBox(height: 0,)
                             ],
                           ),
                         ),
@@ -74,19 +74,17 @@ class TimetableDailyView extends StatelessWidget {
                       top: 0,
                       right: 0,
                       child: ClipRRect(
-                          borderRadius: BorderRadius.only(topRight: Radius.circular(8)),
-                          child: Container(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                BlockContainer(
-                                  padding: EdgeInsets.only(left: 3, bottom: 3),
-                                    innerPadding: EdgeInsets.only(left: 6, bottom: 3, top: 3, right: 6),
-                                    child: Text("${appointment.begin.hour.toString().padLeft(2, "0")}:${appointment.begin.minute.toString().padLeft(2, "0")}", style: theme.textTheme.bodyLarge?.copyWith(color: theme.primaryColor),)
-                                ),
-                                // Text("${appointment.end.hour.toString().padLeft(2, "0")}:${appointment.end.minute.toString().padLeft(2, "0")}"),
-                              ],
-                            ),
+                          borderRadius: const BorderRadius.only(topRight: Radius.circular(8)),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              BlockContainer(
+                                padding: const EdgeInsets.only(left: 3, bottom: 3),
+                                  innerPadding: const EdgeInsets.only(left: 6, bottom: 3, top: 3, right: 6),
+                                  child: Text("${appointment.begin.hour.toString().padLeft(2, "0")}:${appointment.begin.minute.toString().padLeft(2, "0")}", style: theme.textTheme.bodyLarge?.copyWith(color: theme.primaryColor),)
+                              ),
+                              // Text("${appointment.end.hour.toString().padLeft(2, "0")}:${appointment.end.minute.toString().padLeft(2, "0")}"),
+                            ],
                           ),
                       ),
                     ),
