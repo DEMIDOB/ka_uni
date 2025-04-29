@@ -36,6 +36,15 @@ class LoginPageState extends State<LoginPage> {
     final theme = Theme.of(context);
     final mq = MediaQuery.of(context);
 
+    final myCupertinoInputDecoration = BoxDecoration(
+      color: CupertinoDynamicColor.withBrightness(
+        color: CupertinoColors.white,
+        darkColor: CupertinoColors.darkBackgroundGray,
+      ),
+      border: Border.all(color: Colors.grey.withOpacity(0.2)),
+      borderRadius: BorderRadius.all(Radius.circular(5.0))
+    );
+
     if (credsVM.credentialsLoaded && _usernameInputController.text.isEmpty) {
       _usernameInputController.text = credsVM.credentials.username;
       _passwordInputController.text = credsVM.credentials.password;
@@ -88,6 +97,9 @@ class LoginPageState extends State<LoginPage> {
                             controller: _usernameInputController,
                             placeholder: "Username (uxxxx)",
                             enabled: (credsVM.credentialsLoaded && !credsVM.loggingIn),
+                            autocorrect: false,
+                            style: theme.textTheme.bodyMedium,
+                            decoration: myCupertinoInputDecoration,
                           ),
                         ),
                         Container(
@@ -97,7 +109,10 @@ class LoginPageState extends State<LoginPage> {
                             // onChanged: (val) => _passwordInputController.text,
                             placeholder: "Passwort",
                             enabled: (credsVM.credentialsLoaded && !credsVM.loggingIn),
-                            // obscureText: true,
+                            keyboardType: TextInputType.visiblePassword,
+                            obscureText: true,
+                            style: theme.textTheme.bodyMedium,
+                            decoration: myCupertinoInputDecoration,
                           ),
                         ),
                         Row(
