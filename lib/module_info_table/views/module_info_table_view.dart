@@ -1,6 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:fluttertoast/fluttertoast.dart';
+// import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
 
 import '../../state_management/KITProvider.dart';
@@ -87,25 +87,25 @@ class _ModuleInfoTableViewState extends State<ModuleInfoTableView> {
                           onPressed: () async {
                             final toggleSuccessful = await vm.toggleIsFavorite(row.favoriteToggleCell!, widget.table.parentModule);
                             if (!toggleSuccessful) {
-                              Fluttertoast.showToast(
-                                  msg: "Fehler!",
-                                  toastLength: Toast.LENGTH_SHORT,
-                                  gravity: ToastGravity.CENTER,
-                                  timeInSecForIosWeb: 1,
-                                  backgroundColor: Colors.red,
-                                  textColor: Colors.white,
-                                  fontSize: 16.0
-                              );
+                              // Fluttertoast.showToast(
+                              //     msg: "Fehler!",
+                              //     toastLength: Toast.LENGTH_SHORT,
+                              //     gravity: ToastGravity.CENTER,
+                              //     timeInSecForIosWeb: 1,
+                              //     backgroundColor: Colors.red,
+                              //     textColor: Colors.white,
+                              //     fontSize: 16.0
+                              // );
                             } else {
-                              Fluttertoast.showToast(
-                                  msg: row.favoriteToggleCell!.isFavorite ? "Wurde zum Stundenplan hinzugefügt!" : "Wurde vom Stundenplan entfernt!",
-                                  toastLength: Toast.LENGTH_SHORT,
-                                  gravity: ToastGravity.CENTER,
-                                  timeInSecForIosWeb: 1,
-                                  backgroundColor: Colors.grey,
-                                  textColor: Colors.white,
-                                  fontSize: 16.0
-                              );
+                              // Fluttertoast.showToast(
+                              //     msg: row.favoriteToggleCell!.isFavorite ? "Wurde zum Stundenplan hinzugefügt!" : "Wurde vom Stundenplan entfernt!",
+                              //     toastLength: Toast.LENGTH_SHORT,
+                              //     gravity: ToastGravity.CENTER,
+                              //     timeInSecForIosWeb: 1,
+                              //     backgroundColor: Colors.grey,
+                              //     textColor: Colors.white,
+                              //     fontSize: 16.0
+                              // );
                             }
                           }
                         )
