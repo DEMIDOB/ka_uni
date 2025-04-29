@@ -38,11 +38,11 @@ class ModuleInfoTable {
     headTr.getElementsByTagName("th").forEach((tableColTitleNode) {
       // removeHtmlChildren(tableColTitleNode);
       String text = "";
-      tableColTitleNode.children.forEach((child) {
+      for (var child in tableColTitleNode.children) {
         removeHtmlChildren(child);
         text += child.innerHtml;
         child.remove();
-      });
+      }
       text += tableColTitleNode.innerHtml;
       text = _clearTitle(text);
       table.colTitles.add(text);
@@ -103,15 +103,15 @@ class ModuleInfoTable {
         return false;
       }
 
-      int _idx = 0;
+      int idx0 = 0;
       for (final colTitle in colTitles) {
         if (name.toLowerCase().trim() == colTitle.toLowerCase().trim()) {
           break;
         }
-        ++_idx;
+        ++idx0;
       }
 
-      idx = _idx;
+      idx = idx0;
     }
 
     if (idx < 0 || idx >= colTitles.length) {
@@ -119,13 +119,13 @@ class ModuleInfoTable {
     }
 
     colTitles.removeAt(idx);
-    rows.forEach((row) {
+    for (var row in rows) {
       try {
-        row.cells.removeAt(idx!);
+        row.cells.removeAt(idx);
       } catch (exc) {
 
       }
-    });
+    }
 
     return true;
   }
@@ -134,7 +134,9 @@ class ModuleInfoTable {
     show = true;
     this.parentModule = parentModule;
 
-    while (removeCol(name: ""));
+    while (removeCol(name: "")) {
+       {}
+    }
 
     switch (caption.trim()) {
       case "Teilleistungen":

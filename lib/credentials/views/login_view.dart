@@ -8,16 +8,15 @@ import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:kit_mobile/common_ui/alpha_badge.dart';
 import 'package:kit_mobile/credentials/data/credentials_provider.dart';
 import 'package:kit_mobile/credentials/models/auth_result.dart';
-import 'package:kit_mobile/home/views/home_page.dart';
 import 'package:kit_mobile/state_management/KITProvider.dart';
-import 'package:kit_mobile/common_ui/kit_logo.dart';
 import 'package:provider/provider.dart';
 
 import '../../../common_ui/kit_progress_indicator.dart';
 import '../../info/views/info_view.dart';
-import '../../main.dart';
 
 class LoginPage extends StatefulWidget {
+  const LoginPage({super.key});
+
   @override
   State<StatefulWidget> createState() {
     return LoginPageState();
@@ -115,6 +114,9 @@ class LoginPageState extends State<LoginPage> {
               ),
 
                 AnimatedPositioned(
+                  top: _awaitingAuthentication ? -mq.size.height * 0.5 : mq.size.height * 0.3,
+                    curve: Curves.ease,
+                    duration: const Duration(milliseconds: 750),
                   child: AnimatedOpacity(
                       curve: Curves.ease,
                       duration: const Duration(milliseconds: 750),
@@ -132,10 +134,7 @@ class LoginPageState extends State<LoginPage> {
                         width: mq.size.width * 7,
                         height: mq.size.width * 7
                     ),
-                  ),
-                    top: _awaitingAuthentication ? -mq.size.height * 0.5 : mq.size.height * 0.3,
-                    curve: Curves.ease,
-                    duration: const Duration(milliseconds: 750)
+                  )
 
                 ),
 
@@ -147,7 +146,7 @@ class LoginPageState extends State<LoginPage> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Container(
+                        SizedBox(
                           width: mq.size.width * 0.3,
                           child: const AlphaBadge(),
                         ),
@@ -205,7 +204,7 @@ class LoginPageState extends State<LoginPage> {
     credsVM.submit(_usernameInputController.text, _passwordInputController.text, vm).then((result) {
       if (result != AuthResult.ok) {
         if (kDebugMode) {
-          print("Authentication failed: ${result}");
+          print("Authentication failed: $result");
         }
         setState(() {
           _awaitingAuthentication = false;

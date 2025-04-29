@@ -1,5 +1,4 @@
 import 'package:html/dom.dart';
-import 'package:kit_mobile/module_info_table/views/module_info_table_view.dart';
 
 import 'module_info_table_cell.dart';
 

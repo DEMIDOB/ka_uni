@@ -10,6 +10,8 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../common_ui/block_container.dart';
 
 class InfoView extends StatefulWidget {
+  const InfoView({super.key});
+
   @override
   State<StatefulWidget> createState() {
     return _InfoViewState();
@@ -42,7 +44,7 @@ class _InfoViewState extends State<InfoView> {
             child: SizedBox(
               width: 20 ,
               height: 20,
-              child: SvgPicture.asset("assets/images/GitHub.svg", color: theme.colorScheme.primary,),
+              child: SvgPicture.asset("assets/images/GitHub.svg", color: theme.colorScheme.primary,), // TODO: Deal with that "deprecated" color argument
             ),
             onPressed: () => launchUrl(Uri.parse("https://github.com/DEMIDOB/ka_uni")),
           )

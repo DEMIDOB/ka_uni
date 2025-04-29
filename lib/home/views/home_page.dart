@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:kit_mobile/home/views/hierarchic_table.dart';
 import 'package:kit_mobile/timetable/views/timetable_weekly_view.dart';
@@ -96,7 +95,7 @@ class _KITHomePageState extends State<KITHomePage> {
                                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                         children: [
                                           Hero(tag: "student_name_repr", child: Text(vm.student.name.repr, style: theme.textTheme.headlineSmall)),
-                                          Text("${vm.student.matriculationNumber}"),
+                                          Text(vm.student.matriculationNumber),
                                         ],
                                       ),
                                     ),
@@ -143,7 +142,7 @@ class _KITHomePageState extends State<KITHomePage> {
                             children: [
                               BlockContainer(
                                 padding: EdgeInsets.only(top: 7),
-                                child: Container(
+                                child: SizedBox(
                                   width: MediaQuery.of(context).size.width * 0.36,
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -158,7 +157,7 @@ class _KITHomePageState extends State<KITHomePage> {
 
                               BlockContainer(
                                   padding: EdgeInsets.only(top: 7),
-                                  child: Container(
+                                  child: SizedBox(
                                     width: MediaQuery.of(context).size.width * 0.36,
                                     // padding: EdgeInsets.only(top: 10, bottom: 10, left: 15, right: 15),
                                     child: Row(

@@ -10,6 +10,8 @@ import 'package:provider/provider.dart';
 import '../../state_management/KITProvider.dart';
 
 class TimetableWeeklyView extends StatefulWidget {
+  const TimetableWeeklyView({super.key});
+
   @override
   State<StatefulWidget> createState() {
     return _TimetableWeeklyViewState();

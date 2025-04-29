@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:kit_mobile/credentials/models/kit_credentials.dart';
 import 'package:kit_mobile/module_info_table/models/module_info_table_cell.dart';
@@ -383,7 +382,7 @@ class KITProvider extends ChangeNotifier {
         print("Stage 2 failed!");
       }
     } else {
-      response = stage2Response!;
+      response = stage2Response;
     }
 
     // stage 3

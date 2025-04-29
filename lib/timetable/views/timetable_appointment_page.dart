@@ -1,13 +1,9 @@
 import 'dart:ui';
 
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
-import 'package:kit_mobile/common_ui/kit_logo.dart';
 import 'package:kit_mobile/common_ui/kit_progress_indicator.dart';
 import 'package:kit_mobile/timetable/models/timetable_appointment.dart';
-import 'package:latlong2/latlong.dart';
 
 class TimetableAppointmentPage extends StatelessWidget {
   final TimetableAppointment appointment;

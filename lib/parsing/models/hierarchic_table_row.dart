@@ -1,6 +1,5 @@
 import 'dart:math';
 
-import 'package:kit_mobile/module/models/module.dart';
 
 class HierarchicTableRow  {
   final int level;
@@ -19,7 +18,7 @@ class HierarchicTableRow  {
 
   HierarchicTableRow({required this.level, required this.title, required this.href, required this.type, required this.statusStr, required this.mark, required this.pointsAcquired, required this.pointsMax});
 
-  String get id => "${this.level}_${this.title}_${this.year}";
+  String get id => "${level}_${title}_$year";
 
   static HierarchicTableRow? parseTr(element, Map<int, List<HierarchicTableRow>> rowsSorted) {
     HierarchicTableRow? newRow;
@@ -118,10 +117,10 @@ class HierarchicTableRow  {
 
   clearHref() {
     final base = "https://campus.kit.edu/sp/";
-    while (this.href.startsWith("../")) {
-      this.href = this.href.substring(3);
+    while (href.startsWith("../")) {
+      href = href.substring(3);
     }
 
-    this.href = base + this.href;
+    href = base + href;
   }
 }

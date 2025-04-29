@@ -13,6 +13,7 @@ class KITCredentials {
     return matches.length == 1 && matches.firstOrNull?.input == username;
   }
 
+  @override
   String toString() {
     return "KITCredentials($username, $password)";
   }

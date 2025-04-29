@@ -74,7 +74,7 @@ class _ModuleInfoTableViewState extends State<ModuleInfoTableView> {
                       children: [
                         Row(
                           children: [
-                            Container(
+                            SizedBox(
                               width: mq.size.width * 0.5,
                               child: Text(titleCell.body, style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold), maxLines: 3,),
                             ),

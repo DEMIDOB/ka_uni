@@ -9,7 +9,7 @@ import '../models/module.dart';
 class ModuleView extends StatefulWidget {
   Future<KITModule> module;
 
-  ModuleView({required this.module});
+  ModuleView({super.key, required this.module});
 
   @override
   State<StatefulWidget> createState() {
@@ -137,7 +137,7 @@ class _ModuleViewState extends State<ModuleView> {
                 ),
 
                 Column(
-                  children: module.tables.map((table) => BlockContainer(child: ModuleInfoTableView(table: table), padding: EdgeInsets.only(top: 20, left: 4, right: 4),)).toList(),
+                  children: module.tables.map((table) => BlockContainer(padding: EdgeInsets.only(top: 20, left: 4, right: 4),child: ModuleInfoTableView(table: table),)).toList(),
                 )
 
               ],

@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:kit_mobile/credentials/data/credentials_provider.dart';
 import 'package:kit_mobile/credentials/views/login_view.dart';
@@ -67,6 +66,8 @@ class MyApp extends StatelessWidget {
 }
 
 class KITApp extends StatelessWidget {
+  const KITApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return AnimatedSwitcher(

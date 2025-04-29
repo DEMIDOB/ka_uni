@@ -1,7 +1,5 @@
-import 'package:flutter/foundation.dart';
 import 'package:html/dom.dart';
 import 'package:kit_mobile/parsing/util/remove_html_children.dart';
-import 'package:requests_plus/requests_plus.dart';
 
 class ModuleInfoTableCell {
   String body = "";

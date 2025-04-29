@@ -1,8 +1,6 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:kit_mobile/module/views/module_page.dart';
 import 'package:kit_mobile/state_management/KITProvider.dart';
-import 'package:kit_mobile/common_ui/block_container.dart';
 import 'package:provider/provider.dart';
 
 import '../../parsing/models/hierarchic_table_row.dart';

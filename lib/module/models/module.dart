@@ -51,9 +51,9 @@ class KITModule {
     if (elements != null && elements.isNotEmpty) {
       final gradeNode = elements.first;
       if (gradeNode.hasChildNodes()) {
-        gradeNode.children.forEach((child) {
+        for (var child in gradeNode.children) {
           child.remove();
-        });
+        }
       }
 
       grade = gradeNode.innerHtml;
@@ -62,30 +62,30 @@ class KITModule {
     // get LP
     elements = document.getElementById("csbr_credits-field")?.getElementsByClassName("element");
     if (elements != null && elements.isNotEmpty) {
-      elements.first.children.forEach((child) {
+      for (var child in elements.first.children) {
         child.remove();
-      });
+      }
       pointsAcquired = elements.first.innerHtml;
     }
 
     // get possible LP
     elements = document.getElementById("csbr_requiredcredits-field")?.getElementsByClassName("element");
     if (elements != null && elements.isNotEmpty) {
-      elements.first.children.forEach((child) {
+      for (var child in elements.first.children) {
         child.remove();
-      });
+      }
       pointsAvailable = elements.first.innerHtml;
     }
 
     // parse exam date
     final examDateStrSplit = examDateStr.trim().split(".");
     List<int> dateSplitInt = [];
-    examDateStrSplit.forEach((element) {
+    for (var element in examDateStrSplit) {
       final currentDateElementInt = int.tryParse(element);
       if (currentDateElementInt != null) {
         dateSplitInt.add(currentDateElementInt);
       }
-    });
+    }
 
     if (dateSplitInt.length == 3) {
       examDate = DateTime(dateSplitInt[2], dateSplitInt[1], dateSplitInt[0]);
