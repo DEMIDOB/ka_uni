@@ -1,0 +1,2 @@
+/Users/lamacaroine/StudioProjects/ka_uni/android/app/.cxx/RelWithDebInfo/2l5xr3i2/x86/CMakeFiles/edit_cache.dir
+/Users/lamacaroine/StudioProjects/ka_uni/android/app/.cxx/RelWithDebInfo/2l5xr3i2/x86/CMakeFiles/rebuild_cache.dir
