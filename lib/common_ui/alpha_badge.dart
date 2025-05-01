@@ -20,7 +20,7 @@ class AlphaBadge extends StatelessWidget {
           // border: Border.all(color: Colors.red),
           // borderRadius: BorderRadius.all(Radius.circular(5))
       // ),
-      child: Text("α", style: Theme.of(context).textTheme.titleLarge?.copyWith(color: Colors.red, fontSize: 12)),
+      child: Text("β", style: Theme.of(context).textTheme.titleLarge?.copyWith(color: Colors.red, fontSize: 12)),
     );
   }
 
