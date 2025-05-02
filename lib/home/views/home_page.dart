@@ -132,7 +132,7 @@ class _KITHomePageState extends State<KITHomePage> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text("Semester", style: theme.textTheme.titleMedium,),
-                                Text("SS 2024", style: theme.textTheme.titleMedium,),
+                                Text(vm.currentSemesterString, style: theme.textTheme.titleMedium,),
                               ],
                             ),
                           ),

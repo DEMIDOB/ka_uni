@@ -126,7 +126,7 @@ class KITProvider extends ChangeNotifier {
       return -1;
     }
 
-    final startedWaitingForModulesFetching = DateTime.now();
+    // final startedWaitingForModulesFetching = DateTime.now();
     // while (isFetchingModules) {
     //   if (DateTime.now().difference(startedWaitingForModulesFetching).inSeconds > 10) {
     //     return -1;
@@ -164,7 +164,9 @@ class KITProvider extends ChangeNotifier {
     if (_isManualRedirectRequired(response)) {
       final currentResponse = await _handleNoJSResponse(response.body);
       if (currentResponse == null) {
-        print("Stage 1: Manual redirect has failed");
+        if (kDebugMode) {
+          print("Stage 1: Manual redirect has failed");
+        }
         return response;
       }
       response = currentResponse;
@@ -251,7 +253,9 @@ class KITProvider extends ChangeNotifier {
       if (response.headers.containsKey("location")) {
         final location = response.headers["location"]!;
         url = "https://idp.scc.kit.edu$location";
-        print(url);
+        if (kDebugMode) {
+          print(url);
+        }
         await applyCookies(url);
         response = await RequestsPlus.get(url);
         await setCookies(await RequestsPlus.getStoredCookies(url));
@@ -402,6 +406,7 @@ class KITProvider extends ChangeNotifier {
     String degreeProgram = "";
     String ectsAcquired = "";
 
+    // parsing name and matrikelnummer (contained in a div.pagination)
     document.getElementsByClassName("pagination").forEach((element) {
       final divs = element.getElementsByTagName("div");
       if (divs.isNotEmpty) {
@@ -639,6 +644,15 @@ class KITProvider extends ChangeNotifier {
     notifyListeners();
 
     return ok;
+  }
+
+  String get currentSemesterString {
+    final now = DateTime.now();
+    if ([10, 11, 12, 1, 2, 3].contains(now.month)) {
+      return "WS ${now.year}";
+    }
+
+    return "SS ${now.year}";
   }
 }
 
