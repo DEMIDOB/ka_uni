@@ -4,7 +4,6 @@ import 'package:flutter_web_browser/flutter_web_browser.dart';
 import 'package:kit_mobile/module_info_table/views/module_info_table_view.dart';
 import 'package:kit_mobile/common_ui/block_container.dart';
 import 'package:kit_mobile/common_ui/kit_progress_indicator.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import '../models/module.dart';
 
