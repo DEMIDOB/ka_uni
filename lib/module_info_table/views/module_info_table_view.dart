@@ -1,11 +1,8 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:kit_mobile/module_info_table/models/module_info_table_types/module_info_table_generic.dart';
 import 'package:kit_mobile/module_info_table/models/module_info_table_types/module_info_table_sensible.dart';
 // import 'package:fluttertoast/fluttertoast.dart';
-import 'package:provider/provider.dart';
 
-import '../../state_management/KITProvider.dart';
 import '../models/module_info_table.dart';
 
 class ModuleInfoTableView extends StatefulWidget {
