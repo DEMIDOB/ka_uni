@@ -17,6 +17,8 @@ class ModuleInfoTable {
   bool show = true;
 
   late KITModule parentModule;
+
+  String? iliasLink;
   
   static ModuleInfoTable? parseFromHtml(String src) {
     final document = parse(src.replaceAll("&nbsp;", " "));
@@ -62,6 +64,8 @@ class ModuleInfoTable {
       if (row.cells.length != table.colTitles.length) {
         return;
       }
+
+      table._preprocessRow(row);
       table.rows.add(row);
     });
     
@@ -158,5 +162,11 @@ class ModuleInfoTable {
         break;
     }
 
+  }
+
+  // called after the row is parsed and has finished all its internal processing
+  // before adding it to the rows list of the table
+  _preprocessRow(ModuleInfoTableRow row) {
+    iliasLink ??= row.iliasLink;
   }
 }

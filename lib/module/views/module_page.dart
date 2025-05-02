@@ -1,8 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_web_browser/flutter_web_browser.dart';
 import 'package:kit_mobile/module_info_table/views/module_info_table_view.dart';
 import 'package:kit_mobile/common_ui/block_container.dart';
 import 'package:kit_mobile/common_ui/kit_progress_indicator.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../models/module.dart';
 
@@ -44,6 +46,12 @@ class _ModuleViewState extends State<ModuleView> {
         return Scaffold(
           appBar: AppBar(
             title: Text("Modul", style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.normal),),
+            actions: [
+              (module.iliasLink != null && module.iliasLink!.isNotEmpty) ? CupertinoButton(child: Text("ILIAS"), onPressed: () {
+                // print(module.iliasLink);
+                FlutterWebBrowser.openWebPage(url: module.iliasLink!);
+              } ) : Text("")
+            ],
           ),
           body: Padding(
             padding: EdgeInsets.symmetric(horizontal: 15),
@@ -137,7 +145,10 @@ class _ModuleViewState extends State<ModuleView> {
                 ),
 
                 Column(
-                  children: module.tables.map((table) => BlockContainer(padding: EdgeInsets.only(top: 20, left: 4, right: 4),child: ModuleInfoTableView(table: table),)).toList(),
+                  children: module.tables.map((table) => BlockContainer(
+                    padding: EdgeInsets.only(top: 20, left: 4, right: 4),
+                    child: ModuleInfoTableView(table: table),)
+                  ).toList(),
                 )
 
               ],

@@ -12,6 +12,7 @@ class KITModule {
   String pointsAcquired = "0,0";
   String pointsAvailable = "0,0";
   String hierarchicalTableRowId = "";
+  String? iliasLink = "";
 
   List<ModuleInfoTable> tables = [];
 
@@ -95,6 +96,9 @@ class KITModule {
     tables = ModuleInfoTable.extractAllFromHtml(src);
     for (final table in tables) {
       table.prepare(this);
+      if (table.iliasLink != null) {
+        iliasLink = table.iliasLink;
+      }
     }
 
     lastUpdated = DateTime.now();

@@ -11,6 +11,9 @@ class ModuleInfoTableCell {
 
   bool doesToggleFavorite = false;
   bool isFavorite = false;
+
+  // technical string encoding the corresponding action, for example
+  // 0x961185545DD745ADB71707170D9472E1 as "remove that subject from favorites"
   String objectValue = "";
 
   ModuleInfoTableCell({this.node});
@@ -88,6 +91,10 @@ class ModuleInfoTableCell {
 
   bool get isAppointment {
     return dateStr.isNotEmpty && timeStr.isNotEmpty;
+  }
+
+  bool get hasIliasLink {
+    return (link.toLowerCase().contains("ilias"));
   }
 
   static ModuleInfoTableCell get empty {
