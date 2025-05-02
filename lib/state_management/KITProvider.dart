@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:kit_mobile/credentials/models/kit_credentials.dart';
 import 'package:kit_mobile/module_info_table/models/module_info_table_cell.dart';
+import 'package:kit_mobile/state_management/util/campus_rp_cookies_manager.dart';
 import 'package:kit_mobile/student/name.dart';
 
 import '../module/models/module.dart';
@@ -32,7 +33,8 @@ class KITProvider extends ChangeNotifier {
   }
 
   String JSESSIONID = "";
-  Map<String, String> _localCookies = {};
+  // Map<String, String> _localCookies = {};
+  CampusRPCookiesManager _cookiesManager = CampusRPCookiesManager();
 
   bool profileReady = false;
 
@@ -44,52 +46,6 @@ class KITProvider extends ChangeNotifier {
   KITProvider() {
     fetchJSession();
     fetchSchedule();
-  }
-  
-  setCookies(CookieJar cookieJar) {
-    cookieJar.forEach((name, cookie) {
-      _localCookies[name] = cookie.value;
-      // print("Set $name: ${cookie.value}");
-    });
-  }
-
-  Map<String, String> getCookies() {
-    Map<String, String> cookiesCopy = {};
-    _localCookies.forEach((key, value) {
-      cookiesCopy[key] = value;
-    });
-    return cookiesCopy;
-  }
-
-  applyCookies(String url) {
-
-    if (!url.startsWith("https://campus.kit.edu")) {
-      return;
-    }
-    // return;
-    // if (kDebugMode) {
-    //   print("Applying cookies to $url");
-    // }
-
-    _localCookies.forEach((name, value) {
-      RequestsPlus.addCookie(url, name, value);
-    });
-  }
-
-  // bool _hasCookie(String name) {
-  //   return _localCookies.containsKey(name.toLowerCase());
-  // }
-  //
-  // String _getCookie(String name) {
-  //   return _localCookies[name] ?? "";
-  // }
-
-  String get _cookiesString {
-    String cs = "";
-    _localCookies.forEach((key, value) {
-      cs += "$key=$value;";
-    });
-    return cs.substring(0, cs.length - 2);
   }
 
   Future<bool> fetchJSession() async {
@@ -106,8 +62,8 @@ class KITProvider extends ChangeNotifier {
       return false;
     }
 
-    _localCookies["JSESSIONID"] = cookies["JSESSIONID"]!.value;
-    JSESSIONID = _localCookies["JSESSIONID"]!;
+    _cookiesManager.JSESSIONID = cookies["JSESSIONID"]!.value;
+    JSESSIONID = _cookiesManager.JSESSIONID;
     notifyListeners();
 
     return true;
@@ -117,7 +73,7 @@ class KITProvider extends ChangeNotifier {
     scheduleFetchingTimer?.cancel();
     scheduleFetchingTimer = null;
 
-    await clearCookiesAndCache();
+    await _cookiesManager.clearCookiesAndCache();
     await fetchSchedule();
   }
 
@@ -136,7 +92,7 @@ class KITProvider extends ChangeNotifier {
     scheduleFetchingTimer = null;
 
     profileReady = false || profileReady;
-    clearCookiesAndCache();
+    _cookiesManager.clearCookiesAndCache();
 
     if (notify) {
       notifyListeners();
@@ -146,8 +102,8 @@ class KITProvider extends ChangeNotifier {
       return -2;
     }
 
-    _localCookies.remove("path");
-    _localCookies.remove("secure");
+    _cookiesManager.removeLocalCookie("path");
+    _cookiesManager.removeLocalCookie("secure");
 
     return 0;
   }
@@ -156,9 +112,9 @@ class KITProvider extends ChangeNotifier {
     String url = "https://campus.studium.kit.edu/Shibboleth.sso/Login?target=https://campus.studium.kit.edu/exams/registration.php?login=1";
 
     RequestsPlus.addCookie(url, "JSESSIONID", JSESSIONID);
-    applyCookies(url);
+    await _cookiesManager.applyLocalCookiesToUrl(url);
     var response = await RequestsPlus.get(url);
-    await setCookies(await RequestsPlus.getStoredCookies(url));
+    await _cookiesManager.extractCookiesFromJar(await RequestsPlus.getStoredCookies(url));
 
     // sometimes, the server wants us to manually redirect us to the login page, idk why
     if (_isManualRedirectRequired(response)) {
@@ -227,9 +183,9 @@ class KITProvider extends ChangeNotifier {
       print("Successfully found the login form. Data provided: $formData");
     }
 
-    await applyCookies(url);
+    await _cookiesManager.applyLocalCookiesToUrl(url);
     var response = await RequestsPlus.post(url, body: formData);
-    await setCookies(await RequestsPlus.getStoredCookies(url));
+    await _cookiesManager.extractCookiesFromJar(await RequestsPlus.getStoredCookies(url));
 
     if (_isManualRedirectRequired(response)) {
       final currentResponse = await _handleNoJSResponse(response.body);
@@ -256,9 +212,9 @@ class KITProvider extends ChangeNotifier {
         if (kDebugMode) {
           print(url);
         }
-        await applyCookies(url);
+        await _cookiesManager.applyLocalCookiesToUrl(url);
         response = await RequestsPlus.get(url);
-        await setCookies(await RequestsPlus.getStoredCookies(url));
+        await _cookiesManager.extractCookiesFromJar(await RequestsPlus.getStoredCookies(url));
       }
     }
 
@@ -270,9 +226,9 @@ class KITProvider extends ChangeNotifier {
   Future<http.Response?> _fetchScheduleStage3_ObtainSchedule(http.Response previousResponse) async {
     String url = "https://campus.studium.kit.edu/redirect.php?system=campus&url=/campus/student/contractview.asp";
 
-    await applyCookies(url);
+    await _cookiesManager.applyLocalCookiesToUrl(url);
     var response = await RequestsPlus.get(url);
-    await setCookies(await RequestsPlus.getStoredCookies(url));
+    await _cookiesManager.extractCookiesFromJar(await RequestsPlus.getStoredCookies(url));
 
     if (_isManualRedirectRequired(response)) {
       if (kDebugMode) {
@@ -337,17 +293,17 @@ class KITProvider extends ChangeNotifier {
     }
 
     if (kDebugMode) {
-      print("Handling no-js redirect: url is $url, cookies: $_cookiesString");
+      print("Handling no-js redirect: url is $url, cookies: ${_cookiesManager.cookiesString}");
       print("formData: ${formData.keys}");
     }
 
-    await applyCookies(url);
+    await _cookiesManager.applyLocalCookiesToUrl(url);
     var response = await RequestsPlus.post(url, body: formData, followRedirects: true);
-    await setCookies(await RequestsPlus.getStoredCookies(url));
+    await _cookiesManager.extractCookiesFromJar(await RequestsPlus.getStoredCookies(url));
 
     if (response.statusCode == 302 && response.headers.containsKey("location")) {
       url = response.headers["location"]!;
-      applyCookies(url);
+      await _cookiesManager.applyLocalCookiesToUrl(url);
       response = await RequestsPlus.get(url);
     }
 
@@ -372,7 +328,7 @@ class KITProvider extends ChangeNotifier {
   Timer? scheduleFetchingTimer;
   fetchSchedule({notify = true, retryIfFailed = true, secondRetryIfFailed = true, refreshSession = true, startRefreshTimer = true}) async {
     if (refreshSession) {
-      await clearCookiesAndCache();
+      await _cookiesManager.clearCookiesAndCache();
     }
 
     isFetchingSchedule = true;
@@ -498,7 +454,7 @@ class KITProvider extends ChangeNotifier {
       print("Fetching timetable...");
     }
     final url = "https://campus.studium.kit.edu/redirect.php?system=campus&url=/campus/student/timetable.asp";
-    applyCookies(url);
+    await _cookiesManager.applyLocalCookiesToUrl(url);
     final response = await RequestsPlus.get(url);
 
     final timetableUpdate = TimetableWeekly.parseFromHtmlString(response.body);
@@ -539,7 +495,7 @@ class KITProvider extends ChangeNotifier {
   Future<KITModule> fetchModule(HierarchicTableRow row, {recursiveRetry = true}) async {
     final url = row.href;
 
-    await applyCookies(url);
+    await _cookiesManager.applyLocalCookiesToUrl(url);
     final response = await RequestsPlus.get(url);
 
     var module = KITModule();
@@ -599,17 +555,6 @@ class KITProvider extends ChangeNotifier {
     return fetchModule(row);
   }
 
-  Future<void> clearCookiesAndCache() async {
-    if (kDebugMode) {
-      print("Clearing cookies and cache...");
-    }
-    _localCookies = {};
-    await setCookies(CookieJar());
-    await RequestsPlus.clearStoredCookies("https://campus.studium.kit.edu/");
-    await RequestsPlus.clearStoredCookies("https://idp.scc.kit.edu/");
-    await RequestsPlus.clearStoredCookies("https://campus.kit.edu/");
-  }
-
   Future<bool> toggleIsFavorite(ModuleInfoTableCell cell, KITModule inModule, {visual=true}) async {
     if (cell.objectValue.isEmpty) {
       if (kDebugMode) {
@@ -653,6 +598,10 @@ class KITProvider extends ChangeNotifier {
     }
 
     return "SS ${now.year}";
+  }
+
+  clearCookiesAndCache() async {
+    await _cookiesManager.clearCookiesAndCache();
   }
 }
 
