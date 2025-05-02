@@ -49,6 +49,7 @@ dependencies:
 
   http: any
   latlong2: any
+  webview_flutter: ^4.11.0
 dev_dependencies:
   flutter_test:
     sdk: flutter
