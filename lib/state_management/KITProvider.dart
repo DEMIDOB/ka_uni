@@ -76,13 +76,13 @@ class KITProvider extends ChangeNotifier {
     });
   }
 
-  bool _hasCookie(String name) {
-    return _localCookies.containsKey(name.toLowerCase());
-  }
-
-  String _getCookie(String name) {
-    return _localCookies[name] ?? "";
-  }
+  // bool _hasCookie(String name) {
+  //   return _localCookies.containsKey(name.toLowerCase());
+  // }
+  //
+  // String _getCookie(String name) {
+  //   return _localCookies[name] ?? "";
+  // }
 
   String get _cookiesString {
     String cs = "";
@@ -526,7 +526,7 @@ class KITProvider extends ChangeNotifier {
       if (rowModules.containsKey(row.id) && !rowModules[row.id]!.requiresUpdate) {
         continue;
       }
-      final module = await fetchModule(row, recursiveRetry: false);
+      await fetchModule(row, recursiveRetry: false);
     }
 
     isFetchingModules = false;
