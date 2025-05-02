@@ -9,6 +9,7 @@ class HierarchicTableView extends StatelessWidget {
   final List<HierarchicTableRow> rows;
 
   const HierarchicTableView({super.key, required this.rows});
+  final minLevelToShow = 3;
 
   @override
   Widget build(BuildContext context) {
@@ -17,18 +18,12 @@ class HierarchicTableView extends StatelessWidget {
 
     return Column(
       children: rows.map((row) {
-        final minLevelToShow = 3;
-
         if (row.level < minLevelToShow) {
           return SizedBox(width: 0, height: 0,);
         }
 
         return GestureDetector(
           onTap: () {
-            // if (row.level == minLevelToShow) {
-            //   return;
-            // }
-
             final moduleFuture = vm.getOrFetchModule(row);
             Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) => ModuleView(module: moduleFuture)));
           },
