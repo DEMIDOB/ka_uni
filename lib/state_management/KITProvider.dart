@@ -401,7 +401,7 @@ class KITProvider extends ChangeNotifier {
 
     });
 
-    moduleRows = [];
+    _clearRows();
     document.getElementsByClassName("tablecontent").forEach((tbody) {
       tbody.getElementsByTagName("tr").forEach((tr) {
         try {
@@ -493,7 +493,7 @@ class KITProvider extends ChangeNotifier {
       }
       final newModule = await fetchModule(row, recursiveRetry: false);
       if (newModule.iliasLink != null) {
-        _addRelevantModule(newModule);
+        _addRelevantModuleRow(row);
       }
     }
 
@@ -612,12 +612,46 @@ class KITProvider extends ChangeNotifier {
     return "SS ${now.year}";
   }
 
+  _clearRows() {
+    moduleRows = [];
+    relevantModuleRowIDs = [];
+  }
+
   clearCookiesAndCache() async {
     await _cookiesManager.clearCookiesAndCache();
   }
 
-  List<KITModule> relevantModuleRows = [];
-  _addRelevantModule(KITModule module) {
+  List<String> relevantModuleRowIDs = [];
 
+  _addRelevantModuleRow(HierarchicTableRow row, {keepSorted = true, notify = true}) {
+    final module = rowModules[row.id];
+    if (module == null) {
+      return;
+    }
+
+    final rowLevelAccepted = 3;
+    if (row.level != rowLevelAccepted) {
+      return;
+    }
+
+    // double-check if the module is relevant (there must be an ilias-course link)
+    if (module.iliasLink == null || module.iliasLink!.isEmpty) {
+      return;
+    }
+
+    // there is not so many of them
+    if (relevantModuleRowIDs.contains(module.id)) {
+      return;
+    }
+
+    // TODO: implement
+    if (keepSorted) {
+    }
+
+    if (notify) {
+      notifyListeners();
+    }
+
+    relevantModuleRowIDs.add(row.id);
   }
 }

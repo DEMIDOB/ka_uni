@@ -2,6 +2,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:kit_mobile/home/views/hierarchic_table.dart';
+import 'package:kit_mobile/home/views/padded_title.dart';
+import 'package:kit_mobile/home/views/relevant_modules.dart';
 import 'package:kit_mobile/timetable/views/timetable_weekly_view.dart';
 import 'package:provider/provider.dart';
 
@@ -39,22 +41,13 @@ class _KITHomePageState extends State<KITHomePage> {
         leading: CupertinoButton(
           onPressed: () {
             credsVM.logout(vm);
-            // Navigator.of(context).pop();
           },
           child: const Icon(CupertinoIcons.arrow_left_square),
         ),
         actions: [
           CupertinoButton(
             onPressed: () {
-              // credsVM.enterPassword("xui");
-              // print(credsVM.credentials.password);
-              //
-              // credsVM.loadCredentials().then((value) {
-              //   print(credsVM.credentials.password);
-              // });
               Navigator.of(context).push(MaterialPageRoute(builder: (context) => InfoView()));
-              // vm.fetchSchedule();
-              // vm.fetchTimetable();
             },
             child: const Icon(CupertinoIcons.info),
           )
@@ -201,39 +194,15 @@ class _KITHomePageState extends State<KITHomePage> {
 
                     const Padding(padding: EdgeInsets.all(10)),
 
-                    // Row(
-                    //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    //   children: [
-                    //     Container(
-                    //       width: MediaQuery.of(context).size.width * 0.45,
-                    //       decoration: BoxDecoration(
-                    //           borderRadius: BorderRadius.circular(8),
-                    //           border: Border.all(color: theme.primaryColor)
-                    //       ),
-                    //       child: CupertinoButton(child: Text("Meine Module"), onPressed: () {}, padding: EdgeInsets.symmetric(horizontal: 10),),
-                    //     ),
-                    //
-                    //     Container(
-                    //       width: MediaQuery.of(context).size.width * 0.45,
-                    //       decoration: BoxDecoration(
-                    //         borderRadius: BorderRadius.circular(8),
-                    //         border: Border.all(color: theme.primaryColor)
-                    //       ),
-                    //       child: CupertinoButton(child: Text("Prüfungen"), onPressed: () {}, padding: EdgeInsets.symmetric(horizontal: 10),),
-                    //     ),
-                    //   ],
-                    // ),
+                    PaddedTitle(title: "Aktuelle Module im ${vm.currentSemesterString}"),
+                    Container(
+                      padding: EdgeInsets.all(5),
+                      child: RelevantModulesView(),
+                    ),
 
                     const Padding(padding: EdgeInsets.all(20)),
 
-                    Row(
-                      children: [
-                        const Padding(padding: EdgeInsets.all(4)),
-                        Text("Meine Module", style: theme.textTheme.titleLarge),
-                        const Padding(padding: EdgeInsets.all(5)),
-                      ],
-                    ),
-
+                    PaddedTitle(title: "Meine Module"),
                     HierarchicTableView(rows: vm.moduleRows,)
                   ],
                 ),
