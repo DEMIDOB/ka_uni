@@ -18,6 +18,8 @@ class KITModule {
 
   DateTime lastUpdated = DateTime.fromMillisecondsSinceEpoch(0);
 
+  bool hasFavoriteChild = false;
+
   // Module({required this.csbrId, required this.title, required this.avgMark, required this.pointsAcquired});
   
   parseModulePage(String src) {
@@ -96,9 +98,12 @@ class KITModule {
     tables = ModuleInfoTable.extractAllFromHtml(src);
     for (final table in tables) {
       table.prepare(this);
+
       if (table.iliasLink != null) {
         iliasLink = table.iliasLink;
       }
+
+      hasFavoriteChild |= table.hasFavoriteChild;
     }
 
     lastUpdated = DateTime.now();

@@ -84,9 +84,6 @@ class CredentialsProvider extends ChangeNotifier {
     }
 
     KITCredentials newCredentials = KITCredentials(username: typedUsername, password: typedPassword);
-    if (kDebugMode) {
-      print("Submitted $newCredentials");
-    }
 
     if (!newCredentials.isFormatValid) {
       if (kDebugMode) {
@@ -134,8 +131,9 @@ class CredentialsProvider extends ChangeNotifier {
 
   logout(KITProvider vm) async {
     _clearCredentials();
-    vm.profileReady = false;
-    vm.scheduleFetchingTimer?.cancel();
+    // i do not really like how this is implemented. I'll rewrite this in the future
+    vm.campusManager.profileReady = false;
+    vm.campusManager.scheduleFetchingTimer?.cancel();
     vm.setCredentials(credentials);
     notifyListeners();
     vm.notifyListeners();

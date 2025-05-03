@@ -19,6 +19,7 @@ class ModuleInfoTable {
   late KITModule parentModule;
 
   String? iliasLink;
+  bool hasFavoriteChild = false;
   
   static ModuleInfoTable? parseFromHtml(String src) {
     final document = parse(src.replaceAll("&nbsp;", " "));
@@ -168,5 +169,6 @@ class ModuleInfoTable {
   // before adding it to the rows list of the table
   _preprocessRow(ModuleInfoTableRow row) {
     iliasLink ??= row.iliasLink;
+    hasFavoriteChild |= row.hasFavoriteChild;
   }
 }

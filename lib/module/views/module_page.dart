@@ -5,6 +5,7 @@ import 'package:kit_mobile/module_info_table/views/module_info_table_view.dart';
 import 'package:kit_mobile/common_ui/block_container.dart';
 import 'package:kit_mobile/common_ui/kit_progress_indicator.dart';
 
+import '../../ilias/views/ilias_page_view.dart';
 import '../models/module.dart';
 
 class ModuleView extends StatefulWidget {
@@ -48,7 +49,8 @@ class _ModuleViewState extends State<ModuleView> {
             actions: [
               (module.iliasLink != null && module.iliasLink!.isNotEmpty) ? CupertinoButton(child: Text("ILIAS"), onPressed: () {
                 // print(module.iliasLink);
-                FlutterWebBrowser.openWebPage(url: module.iliasLink!);
+                Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) => IliasPageView(module)));
+                // FlutterWebBrowser.openWebPage(url: module.iliasLink!);
               } ) : Text("")
             ],
           ),

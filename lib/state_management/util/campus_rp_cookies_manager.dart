@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:requests_plus/requests_plus.dart';
 
-class CampusRPCookiesManager {
+class RPCookiesManager {
   final Map<String, String> _cookies = {};
   bool _isFrozen = false;
 
@@ -15,13 +15,17 @@ class CampusRPCookiesManager {
 
   bool get isFrozen => _isFrozen;
 
-  CampusRPCookiesManager({Map<String, String>? initialCookies}) {
+  RPCookiesManager({Map<String, String>? initialCookies}) {
     if (initialCookies !=  null) {
       initialCookies.forEach((name, value) => _cookies[name] = value);
     }
   }
 
   extractCookiesFromJar(CookieJar cookieJar) {
+    if (isFrozen) {
+      return;
+    }
+
     cookieJar.forEach((name, cookie) {
       _cookies[name] = cookie.value;
     });
@@ -78,6 +82,8 @@ class CampusRPCookiesManager {
       print("Clearing cookies and cache...");
     }
 
+    unfreeze();
+
     _cookies.clear();
 
     await extractCookiesFromJar(CookieJar());
@@ -86,5 +92,5 @@ class CampusRPCookiesManager {
     await RequestsPlus.clearStoredCookies("https://campus.kit.edu/");
   }
 
-  CampusRPCookiesManager clone() => CampusRPCookiesManager(initialCookies: _cookies);
+  RPCookiesManager clone() => RPCookiesManager(initialCookies: _cookies);
 }

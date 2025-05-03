@@ -203,7 +203,7 @@ class _KITHomePageState extends State<KITHomePage> {
                     const Padding(padding: EdgeInsets.all(20)),
 
                     PaddedTitle(title: "Meine Module"),
-                    HierarchicTableView(rows: vm.moduleRows,)
+                    HierarchicTableView(rows: vm.campusManager.moduleRows,)
                   ],
                 ),
               )

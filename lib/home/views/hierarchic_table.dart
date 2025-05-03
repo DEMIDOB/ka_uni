@@ -24,7 +24,7 @@ class HierarchicTableView extends StatelessWidget {
 
         return GestureDetector(
           onTap: () {
-            final moduleFuture = vm.getOrFetchModule(row);
+            final moduleFuture = vm.getOrFetchModuleForRow(row);
             Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) => ModuleView(module: moduleFuture)));
           },
           child: Padding(

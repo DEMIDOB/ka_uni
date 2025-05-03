@@ -14,9 +14,9 @@ class RelevantModulesView extends StatelessWidget {
       height: 300,
       child: GridView.count(crossAxisCount: 2,
         scrollDirection: Axis.horizontal,
-        children: List.generate(vm.relevantModuleRowIDs.length, (idx) {
-          final rowID = vm.relevantModuleRowIDs[idx];
-          final module = vm.rowModules[rowID];
+        children: List.generate(vm.campusManager.relevantModuleRowIDs.length, (idx) {
+          final rowID = vm.campusManager.relevantModuleRowIDs[idx];
+          final module = vm.campusManager.rowModules[rowID];
 
           if (module == null) {
             return Text("Error: ${idx}");

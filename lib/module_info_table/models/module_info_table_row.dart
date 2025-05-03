@@ -12,6 +12,7 @@ class ModuleInfoTableRow {
 
   // assumption: one ilias-link per row
   String? iliasLink;
+  bool hasFavoriteChild = false;
 
   static ModuleInfoTableRow parseFromHtml(Element node) {
     ModuleInfoTableRow row = ModuleInfoTableRow();
@@ -28,6 +29,7 @@ class ModuleInfoTableRow {
         row.favoriteToggleCell = cell;
       }
 
+      // special properties:
       if (cell.hasIliasLink) {
         // see assumption above
         row.iliasLink = cell.link;
@@ -35,6 +37,9 @@ class ModuleInfoTableRow {
           print("IGOR ${cell.link}");
         }
       }
+
+      row.hasFavoriteChild |= cell.isFavorite;
+      // special properties end
     }
 
     return row;
