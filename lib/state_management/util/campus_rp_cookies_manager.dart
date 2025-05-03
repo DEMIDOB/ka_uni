@@ -3,6 +3,23 @@ import 'package:requests_plus/requests_plus.dart';
 
 class CampusRPCookiesManager {
   final Map<String, String> _cookies = {};
+  bool _isFrozen = false;
+
+  freeze() {
+    _isFrozen = true;
+  }
+
+  unfreeze() {
+    _isFrozen = false;
+  }
+
+  bool get isFrozen => _isFrozen;
+
+  CampusRPCookiesManager({Map<String, String>? initialCookies}) {
+    if (initialCookies !=  null) {
+      initialCookies.forEach((name, value) => _cookies[name] = value);
+    }
+  }
 
   extractCookiesFromJar(CookieJar cookieJar) {
     cookieJar.forEach((name, cookie) {
@@ -20,8 +37,7 @@ class CampusRPCookiesManager {
     //   await RequestsPlus.addCookie(url, entry.key, entry.value);
     // }
 
-    print(_cookies);
-    // TODO: remove after all checks 
+    // TODO: remove after all checks
     _cookies.forEach((name, value) {
       RequestsPlus.addCookie(url, name, value);
     });
@@ -29,6 +45,19 @@ class CampusRPCookiesManager {
 
   removeLocalCookie(String name) {
     _cookies.remove(name);
+  }
+
+  filterCookies({List<String>? allowedCookieNames}) {
+    allowedCookieNames ??= [];
+
+    final currentCookieNames = _cookies.keys.toList();
+    for (final name in currentCookieNames) {
+      if (allowedCookieNames.contains(name)) {
+        continue;
+      }
+
+      _cookies.remove(name);
+    }
   }
 
   String get cookiesString {
@@ -56,4 +85,6 @@ class CampusRPCookiesManager {
     await RequestsPlus.clearStoredCookies("https://idp.scc.kit.edu/");
     await RequestsPlus.clearStoredCookies("https://campus.kit.edu/");
   }
+
+  CampusRPCookiesManager clone() => CampusRPCookiesManager(initialCookies: _cookies);
 }

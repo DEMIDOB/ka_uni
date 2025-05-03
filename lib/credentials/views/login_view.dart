@@ -212,6 +212,13 @@ class LoginPageState extends State<LoginPage> {
   bool _awaitingAuthentication = false;
 
   _submitLogin(CredentialsProvider credsVM, KITProvider vm) {
+    if (kDebugMode) {
+      print("Submitted Login");
+    }
+    if (_awaitingAuthentication) {
+      return;
+    }
+
     setState(() {
       _awaitingAuthentication = true;
     });

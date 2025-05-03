@@ -32,7 +32,7 @@ class KITProvider extends ChangeNotifier {
     _credentials = newCredentials;
   }
 
-  String JSESSIONID = "";
+  String get JSESSIONID => _cookiesManager.JSESSIONID;
   // Map<String, String> _localCookies = {};
   CampusRPCookiesManager _cookiesManager = CampusRPCookiesManager();
 
@@ -44,8 +44,11 @@ class KITProvider extends ChangeNotifier {
   TimetableWeekly timetable = TimetableWeekly();
   
   KITProvider() {
+    if (kDebugMode) {
+      print("Instantiating a KITProvider...");
+    }
     fetchJSession();
-    fetchSchedule();
+    // fetchSchedule();
   }
 
   Future<bool> fetchJSession() async {
@@ -63,7 +66,7 @@ class KITProvider extends ChangeNotifier {
     }
 
     _cookiesManager.JSESSIONID = cookies["JSESSIONID"]!.value;
-    JSESSIONID = _cookiesManager.JSESSIONID;
+    // JSESSIONID = _cookiesManager.JSESSIONID;
     notifyListeners();
 
     return true;
@@ -226,6 +229,8 @@ class KITProvider extends ChangeNotifier {
   Future<http.Response?> _fetchScheduleStage3_ObtainSchedule(http.Response previousResponse) async {
     String url = "https://campus.studium.kit.edu/redirect.php?system=campus&url=/campus/student/contractview.asp";
 
+    final allowedCookies = ["_shibsession_campus-prod-sp", "session-campus-prod-sp"];
+    _cookiesManager.filterCookies(allowedCookieNames: allowedCookies);
     await _cookiesManager.applyLocalCookiesToUrl(url);
     var response = await RequestsPlus.get(url);
     await _cookiesManager.extractCookiesFromJar(await RequestsPlus.getStoredCookies(url));
@@ -425,6 +430,9 @@ class KITProvider extends ChangeNotifier {
       return;
     }
 
+    // TODO: remove if fails the test
+    _cookiesManager.freeze();
+
     degreeProgram = rowsSorted[1]?.first.title ?? "";
     ectsAcquired = rowsSorted[1]?.first.pointsAcquired ?? "";
 
@@ -443,9 +451,10 @@ class KITProvider extends ChangeNotifier {
 
     isFetchingSchedule = false;
 
+    // TODO: reenable
     // tmp: create a lock or something to prevent interface glitches
     if (startRefreshTimer) {
-      scheduleFetchingTimer ??= Timer(const Duration(minutes: 1), forceRefetchEverything);
+      // scheduleFetchingTimer ??= Timer(const Duration(minutes: 1), forceRefetchEverything);
     }
   }
 
@@ -482,7 +491,10 @@ class KITProvider extends ChangeNotifier {
       if (rowModules.containsKey(row.id) && !rowModules[row.id]!.requiresUpdate) {
         continue;
       }
-      await fetchModule(row, recursiveRetry: false);
+      final newModule = await fetchModule(row, recursiveRetry: false);
+      if (newModule.iliasLink != null) {
+        _addRelevantModule(newModule);
+      }
     }
 
     isFetchingModules = false;
@@ -603,5 +615,9 @@ class KITProvider extends ChangeNotifier {
   clearCookiesAndCache() async {
     await _cookiesManager.clearCookiesAndCache();
   }
-}
 
+  List<KITModule> relevantModuleRows = [];
+  _addRelevantModule(KITModule module) {
+
+  }
+}
