@@ -1,4 +1,6 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:kit_mobile/common_ui/block_container.dart';
 import 'package:kit_mobile/module/models/module.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
@@ -39,14 +41,58 @@ class _IliasPageViewWState extends State<IliasPageView> {
 
 
     // final vm = Provider.of<KITProvider>(context);
-    _controller.loadRequest(Uri.parse(widget.module.iliasLink!));
+    String link = widget.module.iliasLink ?? "";
+    if (link.isEmpty) {
+      link = "https://ilias.studium.kit.edu/";
+    }
+    _controller.loadRequest(Uri.parse(link));
   }
 
   @override
   Widget build(BuildContext context) {
+    final mq = MediaQuery.of(context);
+    final appBarHeight = AppBar().preferredSize.height;
+
     return Scaffold(
-      appBar: AppBar(title: Text("ILIAS: ${widget.module.title}"),),
-      body: WebViewWidget(controller: _controller),
+      appBar: AppBar(title: Text(widget.module.title.isEmpty ? "ILIAS" : "ILIAS: ${widget.module.title}"),),
+      bottomSheet: null,
+      body: Column(
+        children: [
+          SizedBox(
+            width: mq.size.width,
+            height: mq.size.height - 150 - appBarHeight,
+            child: WebViewWidget(controller: _controller),
+          ),
+          BlockContainer(
+            padding: EdgeInsets.all(5),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                CupertinoButton(
+                  padding: EdgeInsets.zero,
+                  child: Icon(CupertinoIcons.back),
+                  onPressed: () async {
+                    if (await _controller.canGoBack()) {
+                      _controller.goBack();
+                    }
+                  },
+                ),
+
+                CupertinoButton(
+                  padding: EdgeInsets.zero,
+                  child: Icon(CupertinoIcons.forward),
+                  onPressed: () async {
+                    if (await _controller.canGoForward()) {
+                      _controller.goForward();
+                    }
+                  },
+                )
+
+              ],
+            ),
+          )
+        ],
+      )
     );
   }
 

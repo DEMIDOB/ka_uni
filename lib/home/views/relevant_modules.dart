@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:kit_mobile/home/views/relevant_module.dart';
+import 'package:kit_mobile/module/models/module.dart';
 import 'package:provider/provider.dart';
 
 import '../../state_management/KITProvider.dart';
@@ -16,10 +17,11 @@ class RelevantModulesView extends StatelessWidget {
         scrollDirection: Axis.horizontal,
         children: List.generate(vm.campusManager.relevantModuleRowIDs.length, (idx) {
           final rowID = vm.campusManager.relevantModuleRowIDs[idx];
-          final module = vm.campusManager.rowModules[rowID];
+          var module = vm.campusManager.rowModules[rowID];
 
           if (module == null) {
-            return Text("Error: ${idx}");
+            module = KITModule();
+            module.title = rowID;
           }
 
           return RelevantModuleView(module: module);

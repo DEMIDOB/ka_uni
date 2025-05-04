@@ -246,9 +246,6 @@ class LoginPageState extends State<LoginPage> {
   }
 
   _onSuccessfulLogin(CredentialsProvider credsVM, KITProvider vm) {
-    // Navigator.of(context).push(MaterialPageRoute(builder: (context) {
-    //   return KITHomePage();
-    // }));
     credsVM.setDisplayName(vm.student.name.repr);
   }
 

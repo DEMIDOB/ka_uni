@@ -40,6 +40,9 @@ class RPCookiesManager {
     // for (var entry in _cookies.entries) {
     //   await RequestsPlus.addCookie(url, entry.key, entry.value);
     // }
+    if (isFrozen) {
+      return;
+    }
 
     // TODO: remove after all checks
     _cookies.forEach((name, value) {

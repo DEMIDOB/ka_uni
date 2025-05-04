@@ -51,6 +51,7 @@ dependencies:
   latlong2: any
   webview_flutter: ^4.11.0
   synchronized: ^3.3.1
+  shared_preferences: ^2.5.3
 dev_dependencies:
   flutter_test:
     sdk: flutter

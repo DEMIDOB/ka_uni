@@ -10,8 +10,9 @@ class BlockContainer extends StatelessWidget {
   final Widget child;
   final EdgeInsets? padding;
   final EdgeInsets? innerPadding;
+  final double opacity;
 
-  const BlockContainer({super.key, required this.child, this.padding, this.innerPadding});
+  const BlockContainer({super.key, required this.child, this.padding, this.innerPadding, this.opacity=1});
 
   @override
   Widget build(BuildContext context) {
@@ -22,7 +23,7 @@ class BlockContainer extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.all(Radius.circular(8)),
-          color: theme.isDarkMode ? theme.cardColor : theme.scaffoldBackgroundColor,
+          color: theme.isDarkMode ? theme.cardColor.withValues(alpha: opacity) : theme.scaffoldBackgroundColor.withValues(alpha: opacity),
           // color: Colors.white,
           boxShadow: [
             BoxShadow(

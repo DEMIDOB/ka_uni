@@ -48,7 +48,7 @@ class KITProvider extends ChangeNotifier {
   }
 
   forceRefetchEverything() async {
-    campusManager.forceRefetchEverything();
+    await campusManager.forceRefetchEverything();
   }
 
   String overlayHtmlData = "";
@@ -59,7 +59,7 @@ class KITProvider extends ChangeNotifier {
 
   fetchSchedule({notify = true, retryIfFailed = true, secondRetryIfFailed = true, refreshSession = true, startRefreshTimer = true}) async {
     final fetchResult = await campusManager.fetchSchedule();
-    Future.delayed(Duration(seconds: 3), iliasManager.authorize);
+    Future.delayed(Duration(seconds: 1), iliasManager.authorize);
     return fetchResult;
   }
 
@@ -71,7 +71,7 @@ class KITProvider extends ChangeNotifier {
     return await campusManager.toggleIsFavorite(cell, inModule, visual: visual);
   }
 
-  String get currentSemesterString {
+  static String get currentSemesterString {
     final now = DateTime.now();
     if ([10, 11, 12, 1, 2, 3].contains(now.month)) {
       return "WS ${now.year}";

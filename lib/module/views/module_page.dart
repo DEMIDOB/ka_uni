@@ -3,7 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:kit_mobile/common_ui/block_container.dart';
 import 'package:kit_mobile/common_ui/kit_progress_indicator.dart';
 import 'package:kit_mobile/module_info_table/views/module_info_table_view.dart';
+import 'package:provider/provider.dart';
 
+import '../../ilias/views/ilias_page_view.dart';
+import '../../state_management/KITProvider.dart';
 import '../models/module.dart';
 
 class ModuleView extends StatefulWidget {
@@ -22,6 +25,7 @@ class _ModuleViewState extends State<ModuleView> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final vm = Provider.of<KITProvider>(context);
 
     return FutureBuilder(
       future: widget.module,
@@ -46,6 +50,7 @@ class _ModuleViewState extends State<ModuleView> {
             title: Text("Modul", style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.normal),),
             actions: [
               (module.iliasLink != null && module.iliasLink!.isNotEmpty) ? CupertinoButton(child: Text("ILIAS"), onPressed: () {
+                Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) => IliasPageView(module, PHPSESSID: vm.iliasManager.PHPSESSID)));
                 // print(module.iliasLink);
                 // Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) => IliasPageView(module)));
                 // FlutterWebBrowser.openWebPage(url: module.iliasLink!);

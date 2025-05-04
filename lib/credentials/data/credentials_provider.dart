@@ -134,6 +134,7 @@ class CredentialsProvider extends ChangeNotifier {
     // i do not really like how this is implemented. I'll rewrite this in the future
     vm.campusManager.ready = false;
     vm.campusManager.scheduleFetchingTimer?.cancel();
+    vm.campusManager.resetRelevantModules();
     await vm.iliasManager.logout();
     vm.setCredentials(credentials);
     notifyListeners();

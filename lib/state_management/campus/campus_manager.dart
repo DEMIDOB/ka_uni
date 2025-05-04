@@ -3,8 +3,10 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:html/parser.dart';
 import 'package:http/http.dart' as http;
+import 'package:kit_mobile/state_management/KITProvider.dart';
 import 'package:kit_mobile/state_management/kit_loginer.dart';
 import 'package:requests_plus/requests_plus.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../module/models/module.dart';
 import '../../module_info_table/models/module_info_table_cell.dart';
@@ -73,6 +75,8 @@ class CampusManager extends KITLoginer {
 
   Timer? scheduleFetchingTimer;
   fetchSchedule({notify = true, retryIfFailed = true, secondRetryIfFailed = true, refreshSession = true, startRefreshTimer = true}) async {
+    cookiesManager.freeze();
+
     if (refreshSession) {
       await cookiesManager.clearCookiesAndCache();
     }
@@ -142,7 +146,7 @@ class CampusManager extends KITLoginer {
 
     });
 
-    _clearRows();
+    _clearRows(clearRelevants: student.name.firstName.isEmpty);
     document.getElementsByClassName("tablecontent").forEach((tbody) {
       tbody.getElementsByTagName("tr").forEach((tr) {
         try {
@@ -176,6 +180,7 @@ class CampusManager extends KITLoginer {
 
     student.set(name: Name(firstName: firstName, lastName: lastName), matriculationNumber: matrn, degreeProgram: degreeProgram, avgMark: rowsSorted[1]?.first.mark ?? "0,0", ectsAcquired: ectsAcquired);
 
+    cookiesManager.unfreeze();
     fetchTimetable().then((_) {
       fetchAllModules();
     });
@@ -203,7 +208,19 @@ class CampusManager extends KITLoginer {
       print("Fetching all modules");
     }
 
+    await prepareRelevantModuleRows();
+    List<HierarchicTableRow> rowsToFetch = [], lessImportantRows = [];
     for (final row in moduleRows) {
+      if (relevantModuleRowIDs.contains(row.id)) {
+        rowsToFetch.add(row);
+      } else {
+        lessImportantRows.add(row);
+      }
+    }
+
+    rowsToFetch = rowsToFetch + lessImportantRows;
+
+    for (final row in rowsToFetch) {
       if (row.level < 4) {
         continue;
       }
@@ -293,6 +310,29 @@ class CampusManager extends KITLoginer {
   bool _isModuleReady(KITModule? module) => module != null && !module.isEmpty;
 
   List<String> relevantModuleRowIDs = [];
+  String get _relevantModuleRowsStorageKey => "RMR ${KITProvider.currentSemesterString}";
+
+  Future<void> prepareRelevantModuleRows() async {
+    final prefs = await SharedPreferences.getInstance();
+    final stored = prefs.getStringList(_relevantModuleRowsStorageKey);
+    if (kDebugMode) {
+      print("Stored $stored");
+    }
+    relevantModuleRowIDs = stored ?? relevantModuleRowIDs;
+  }
+
+  storeRelevantModuleRows() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList(_relevantModuleRowsStorageKey, relevantModuleRowIDs);
+  }
+
+  resetRelevantModules() async {
+    relevantModuleRowIDs = [];
+    await storeRelevantModuleRows();
+    if (kDebugMode) {
+      print("Done resetting relevant modules!");
+    }
+  }
 
   _addRelevantModuleRow(HierarchicTableRow row, {keepSorted = true}) {
     if (kDebugMode) {
@@ -316,9 +356,8 @@ class CampusManager extends KITLoginer {
     }
 
     // there is not so many of them
-    if (relevantModuleRowIDs.contains(row.id)) {
+    while (relevantModuleRowIDs.remove(row.id)) {
       if (kDebugMode) print("There already exists this module");
-      return;
     }
 
     if (keepSorted) {
@@ -326,7 +365,7 @@ class CampusManager extends KITLoginer {
 
       bool hasNumber = false;
       for (final num in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]) {
-        if (row.mark.contains("${num}")) {
+        if (row.mark.contains("$num")) {
           if (kDebugMode) print("has number");
           hasNumber = true;
           break;
@@ -348,6 +387,7 @@ class CampusManager extends KITLoginer {
       relevantModuleRowIDs.add(row.id);
     }
 
+    storeRelevantModuleRows();
     notificationCallback();
   }
 
@@ -388,9 +428,11 @@ class CampusManager extends KITLoginer {
   }
 
   // Rows:
-  _clearRows() {
+  _clearRows({clearRelevants=false}) {
     moduleRows = [];
-    relevantModuleRowIDs = [];
+    if (clearRelevants) {
+      relevantModuleRowIDs = [];
+    }
   }
 
 
