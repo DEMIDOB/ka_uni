@@ -1,5 +1,4 @@
 import 'package:html/dom.dart';
-
 import 'package:kit_mobile/timetable/models/timetable_appointment.dart';
 import 'package:kit_mobile/timetable/models/timetable_weekly.dart';
 

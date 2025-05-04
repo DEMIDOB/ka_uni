@@ -3,8 +3,8 @@ import 'package:html/dom.dart';
 import 'package:html/parser.dart';
 import 'package:kit_mobile/geo/kit_place.dart';
 import 'package:kit_mobile/parsing/util/remove_html_children.dart';
-import 'package:requests_plus/requests_plus.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:requests_plus/requests_plus.dart';
 
 enum TimetableAppointmentType {
   lecture,

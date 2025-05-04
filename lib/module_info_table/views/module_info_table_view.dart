@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:kit_mobile/module_info_table/models/module_info_table_types/module_info_table_generic.dart';
 import 'package:kit_mobile/module_info_table/models/module_info_table_types/module_info_table_sensible.dart';
+
 // import 'package:fluttertoast/fluttertoast.dart';
 
 import '../models/module_info_table.dart';
