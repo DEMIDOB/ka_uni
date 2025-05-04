@@ -73,7 +73,7 @@ class TimetableAppointment {
     final openMapUri = Uri.parse(href);
     final lon = double.tryParse(openMapUri.queryParameters["mlon"] ?? "-1");
     final lat = double.tryParse(openMapUri.queryParameters["mlat"] ?? "-1");
-    final zoom = openMapUri.queryParameters["zoom"];
+    // final zoom = openMapUri.queryParameters["zoom"];
 
     if (lat == null || lon == null) {
       return kitLocation;

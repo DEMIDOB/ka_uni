@@ -21,8 +21,8 @@ class ModuleInfoTableView extends StatefulWidget {
 class _ModuleInfoTableViewState extends State<ModuleInfoTableView> {
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final mq = MediaQuery.of(context);
+    // final theme = Theme.of(context);
+    // final mq = MediaQuery.of(context);
 
     final lowerCaseCaption = widget.table.caption.toLowerCase();
 
