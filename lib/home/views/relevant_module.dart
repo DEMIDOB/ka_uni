@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:kit_mobile/common_ui/block_container.dart';
 import 'package:kit_mobile/ilias/views/ilias_page_view.dart';
 import 'package:kit_mobile/module/models/module.dart';
+import 'package:kit_mobile/state_management/KITProvider.dart';
+import 'package:provider/provider.dart';
 
 import '../../module/views/module_page.dart';
 
@@ -14,6 +16,7 @@ class RelevantModuleView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final vm = Provider.of<KITProvider>(context);
 
     return Stack(
       children: [
@@ -39,8 +42,9 @@ class RelevantModuleView extends StatelessWidget {
                     CupertinoButton(
                       padding: EdgeInsets.zero,
                       child: Text("ILIAS"),
-                      onPressed: () {
-                        Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) => IliasPageView(module)));
+                      onPressed: () async {
+                        // await vm.iliasManager.authorize();
+                        Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) => IliasPageView(module, PHPSESSID: vm.iliasManager.PHPSESSID)));
                       },
 
                     ),

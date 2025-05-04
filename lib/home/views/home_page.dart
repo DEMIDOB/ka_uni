@@ -7,11 +7,11 @@ import 'package:kit_mobile/home/views/relevant_modules.dart';
 import 'package:kit_mobile/timetable/views/timetable_weekly_view.dart';
 import 'package:provider/provider.dart';
 
+import '../../common_ui/block_container.dart';
+import '../../common_ui/kit_logo.dart';
 import '../../credentials/data/credentials_provider.dart';
 import '../../info/views/info_view.dart';
 import '../../state_management/KITProvider.dart';
-import '../../common_ui/block_container.dart';
-import '../../common_ui/kit_logo.dart';
 
 class KITHomePage extends StatefulWidget {
   const KITHomePage({super.key});
@@ -45,6 +45,12 @@ class _KITHomePageState extends State<KITHomePage> {
           child: const Icon(CupertinoIcons.arrow_left_square),
         ),
         actions: [
+          CupertinoButton(
+            child: Text("il"),
+            onPressed: () {
+              vm.iliasManager.authorize();
+            }
+          ),
           CupertinoButton(
             onPressed: () {
               Navigator.of(context).push(MaterialPageRoute(builder: (context) => InfoView()));

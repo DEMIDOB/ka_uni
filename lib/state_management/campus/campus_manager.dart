@@ -3,8 +3,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:html/parser.dart';
 import 'package:http/http.dart' as http;
-import 'package:kit_mobile/credentials/models/kit_credentials.dart';
-import 'package:kit_mobile/state_management/util/campus_rp_cookies_manager.dart';
+import 'package:kit_mobile/state_management/kit_loginer.dart';
 import 'package:requests_plus/requests_plus.dart';
 
 import '../../module/models/module.dart';
@@ -14,12 +13,9 @@ import '../../student/name.dart';
 import '../../student/student.dart';
 import '../../timetable/models/timetable_weekly.dart';
 
-class CampusManager {
-  final _cookiesManager = RPCookiesManager();
+class CampusManager extends KITLoginer {
 
-  String get JSESSIONID => _cookiesManager.JSESSIONID;
 
-  late KITCredentials credentials;
 
   List<HierarchicTableRow> moduleRows = [];
   Map<String, KITModule> rowModules = {}; // INDEXING AS row_id: module
@@ -27,7 +23,7 @@ class CampusManager {
   TimetableWeekly timetable = TimetableWeekly();
 
   // Indicators
-  bool profileReady = false;
+  // bool ready = false;
 
   Student student;
 
@@ -35,193 +31,27 @@ class CampusManager {
 
   CampusManager(this.student, this.notificationCallback);
 
-  applyLocalCookiesToUrl(String url) async {
-    await _cookiesManager.applyLocalCookiesToUrl(url);
-  }
-
-  Future<bool> fetchJSession() async {
-    String url = "https://idp.scc.kit.edu/idp/profile/SAML2/Redirect/SSO?execution=e1s1";
-
-    RequestsPlus.clearStoredCookies(url);
-    await RequestsPlus.get(url);
-    final cookies = await RequestsPlus.getStoredCookies(url);
-
-    if (!cookies.containsKey("JSESSIONID")) {
-      if (kDebugMode) {
-        print("Failed to obtain JSESSIONID!");
-      }
-      return false;
-    }
-
-    _cookiesManager.JSESSIONID = cookies["JSESSIONID"]!.value;
-    // JSESSIONID = _cookiesManager.JSESSIONID;
-    // notifyListeners();
-
-    return true;
-  }
-
   forceRefetchEverything() async {
     scheduleFetchingTimer?.cancel();
     scheduleFetchingTimer = null;
-    await _cookiesManager.clearCookiesAndCache();
+    await cookiesManager.clearCookiesAndCache();
     await fetchSchedule();
-  }
-
-  clearCookiesAndCache() async {
-    await _cookiesManager.clearCookiesAndCache();
-  }
-
-  _fetchScheduleStage0_Init({notify = true, retryIfFailed = true, secondRetryIfFailed = true}) async {
-    if (!credentials.isFormatValid) {
-      return -1;
-    }
-
-    scheduleFetchingTimer = null;
-
-    profileReady = false || profileReady;
-    _cookiesManager.clearCookiesAndCache();
-
-    // if (notify) {
-    //   notifyListeners();
-    // }
-
-    if (!(await fetchJSession())) {
-      return -2;
-    }
-
-    _cookiesManager.removeLocalCookie("path");
-    _cookiesManager.removeLocalCookie("secure");
-
-    return 0;
-  }
-
-  Future<http.Response> _fetchScheduleStage1_TryToOpenLoginPage() async {
-    String url = "https://campus.studium.kit.edu/Shibboleth.sso/Login?target=https://campus.studium.kit.edu/exams/registration.php?login=1";
-
-    RequestsPlus.addCookie(url, "JSESSIONID", JSESSIONID);
-    await _cookiesManager.applyLocalCookiesToUrl(url);
-    var response = await RequestsPlus.get(url);
-    await _cookiesManager.extractCookiesFromJar(await RequestsPlus.getStoredCookies(url));
-
-    // sometimes, the server wants us to manually redirect us to the login page, idk why
-    if (_isManualRedirectRequired(response)) {
-      final currentResponse = await _handleNoJSResponse(response.body);
-      if (currentResponse == null) {
-        if (kDebugMode) {
-          print("Stage 1: Manual redirect has failed");
-        }
-        return response;
-      }
-      response = currentResponse;
-    } else if (kDebugMode) {
-      print("Stage 1: No manual redirect is required! Going forward...");
-    }
-
-    return response;
-  }
-
-  Future<http.Response?> _fetchScheduleStage2_(http.Response previousResponse) async {
-    var document = parse(previousResponse.body);
-    var forms = document.getElementsByTagName("form");
-    String url = "";
-    Map<String, dynamic> formData = {};
-    bool foundLoginForm = false;
-
-    for (var form in forms) {
-      if (form.innerHtml.toLowerCase().contains("login")) {
-        final String? action = form.attributes["action"];
-        if (action == null) {
-          if (kDebugMode) {
-            print("login form action is null. Reporting failure...");
-          }
-          return null;
-        }
-
-        // print(action);
-        url = "https://idp.scc.kit.edu$action";
-        final inputs = form.getElementsByTagName("input");
-
-        for (var input in inputs) {
-          String? name = input.attributes["name"];
-          if (name != null) {
-            formData[name] = input.attributes["value"] ?? "";
-          }
-        }
-
-        foundLoginForm = true;
-        break;
-      }
-    }
-
-    if (!foundLoginForm) {
-      if (kDebugMode) {
-        print("Failed to find the login form!");
-        print(previousResponse.body);
-      }
-      return null;
-    }
-
-    formData["_eventId_proceed"] = "";
-    formData["_shib_idp_revokeConsent"] = false;
-    formData["j_username"] = credentials.username;
-    formData["j_password"] = credentials.password;
-
-    if (kDebugMode) {
-      print("Successfully found the login form. Data provided: $formData");
-    }
-
-    await _cookiesManager.applyLocalCookiesToUrl(url);
-    var response = await RequestsPlus.post(url, body: formData);
-    await _cookiesManager.extractCookiesFromJar(await RequestsPlus.getStoredCookies(url));
-
-    if (_isManualRedirectRequired(response)) {
-      final currentResponse = await _handleNoJSResponse(response.body);
-      if (currentResponse == null) {
-        if (kDebugMode) {
-          print("Stage 2: Failed to handle NO-JS RelayState response!");
-        }
-        return response;
-      }
-
-      response = currentResponse;
-    } else if (kDebugMode) {
-      print("Stage 2: Skipped manual redirect");
-    }
-
-    if (response.statusCode == 302) {
-      if (kDebugMode) {
-        print("Stage 2: redirect required!");
-      }
-
-      if (response.headers.containsKey("location")) {
-        final location = response.headers["location"]!;
-        url = "https://idp.scc.kit.edu$location";
-        if (kDebugMode) {
-          print(url);
-        }
-        await _cookiesManager.applyLocalCookiesToUrl(url);
-        response = await RequestsPlus.get(url);
-        await _cookiesManager.extractCookiesFromJar(await RequestsPlus.getStoredCookies(url));
-      }
-    }
-
-    return response;
   }
 
   Future<http.Response?> _fetchScheduleStage3_ObtainSchedule(http.Response previousResponse) async {
     String url = "https://campus.studium.kit.edu/redirect.php?system=campus&url=/campus/student/contractview.asp";
 
     final allowedCookies = ["_shibsession_campus-prod-sp", "session-campus-prod-sp"];
-    _cookiesManager.filterCookies(allowedCookieNames: allowedCookies);
-    await _cookiesManager.applyLocalCookiesToUrl(url);
+    cookiesManager.filterCookies(allowedCookieNames: allowedCookies);
+    await cookiesManager.applyLocalCookiesToUrl(url);
     var response = await RequestsPlus.get(url);
-    await _cookiesManager.extractCookiesFromJar(await RequestsPlus.getStoredCookies(url));
+    await cookiesManager.extractCookiesFromJar(await RequestsPlus.getStoredCookies(url));
 
-    if (_isManualRedirectRequired(response)) {
+    if (isManualRedirectRequired(response)) {
       if (kDebugMode) {
         print("Stage 3: manual redirect is required");
       }
-      final currentResponse = await _handleNoJSResponse(response.body);
+      final currentResponse = await handleNoJSResponse(response.body);
       if (currentResponse == null) {
         if (kDebugMode) {
           print("Failed to handle NO-JS RelayState response!");
@@ -235,68 +65,6 @@ class CampusManager {
     return response;
   }
 
-  Future<http.Response?> _handleNoJSResponse(String body) async {
-    if (kDebugMode) {
-      print("Attempting to handle the no-js manual redirect...");
-    }
-
-    final document = parse(body);
-    final forms = document.getElementsByTagName("form");
-    Map<String, dynamic> formData = {};
-    String url = "";
-
-    for (var form in forms) {
-      if (form.innerHtml.toLowerCase().contains("relaystate")) {
-        final String? action = form.attributes["action"];
-        if (action == null) {
-          if (kDebugMode) {
-            print("Handling no-js redirect: action is null. Reporting failure...");
-          }
-          return null;
-        }
-
-        url = action;
-        final inputs = form.getElementsByTagName("input");
-
-        for (var input in inputs) {
-          String? name = input.attributes["name"];
-          if (name != null) {
-            formData[name] = input.attributes["value"] ?? "";
-          }
-        }
-
-        break;
-      }
-    }
-
-    if (url.isEmpty) {
-      if (kDebugMode) {
-        print("Handling no-js redirect: url is empty. Reporting failure...");
-      }
-      return null;
-    }
-
-    if (kDebugMode) {
-      print("Handling no-js redirect: url is $url, cookies: ${_cookiesManager.cookiesString}");
-      print("formData: ${formData.keys}");
-    }
-
-    await _cookiesManager.applyLocalCookiesToUrl(url);
-    var response = await RequestsPlus.post(url, body: formData, followRedirects: true);
-    await _cookiesManager.extractCookiesFromJar(await RequestsPlus.getStoredCookies(url));
-
-    if (response.statusCode == 302 && response.headers.containsKey("location")) {
-      url = response.headers["location"]!;
-      await _cookiesManager.applyLocalCookiesToUrl(url);
-      response = await RequestsPlus.get(url);
-    }
-
-    return response;
-  }
-
-  bool _isManualRedirectRequired(http.Response response) {
-    return response.body.contains("you must press the Continue button") || response.body.contains("relaystate");
-  }
 
   // fetchScheduleStage1_
   bool isFetchingSchedule = false;
@@ -306,35 +74,35 @@ class CampusManager {
   Timer? scheduleFetchingTimer;
   fetchSchedule({notify = true, retryIfFailed = true, secondRetryIfFailed = true, refreshSession = true, startRefreshTimer = true}) async {
     if (refreshSession) {
-      await _cookiesManager.clearCookiesAndCache();
+      await cookiesManager.clearCookiesAndCache();
     }
 
     isFetchingSchedule = true;
-    await _fetchScheduleStage0_Init(notify: notify, retryIfFailed: retryIfFailed, secondRetryIfFailed: secondRetryIfFailed);
-    http.Response response = await _fetchScheduleStage1_TryToOpenLoginPage();
+    await fetchStage0_Init(notify: notify, retryIfFailed: retryIfFailed, secondRetryIfFailed: secondRetryIfFailed);
+    http.Response currentResponse = await fetchStage1_TryToOpenLoginPage("https://campus.studium.kit.edu/Shibboleth.sso/Login?target=https://campus.studium.kit.edu/exams/registration.php?login=1");
 
     // stage 2
-    final stage2Response = await _fetchScheduleStage2_(response);
+    final stage2Response = await fetchStage2_(currentResponse);
     if (stage2Response == null) {
       if (kDebugMode) {
         print("Stage 2 failed!");
       }
     } else {
-      response = stage2Response;
+      currentResponse = stage2Response;
     }
 
     // stage 3
-    final stage3Response = await _fetchScheduleStage3_ObtainSchedule(response);
+    final stage3Response = await _fetchScheduleStage3_ObtainSchedule(currentResponse);
     if (stage3Response == null) {
       if (kDebugMode) {
         print("Stage 3 failed!");
       }
       return;
     }
-    response = stage3Response;
+    currentResponse = stage3Response;
 
     // parse the response
-    var document = parse(response.body);
+    var document = parse(currentResponse.body);
 
     String firstName = "", lastName = "", matrn = "";
     String degreeProgram = "";
@@ -412,7 +180,7 @@ class CampusManager {
       fetchAllModules();
     });
 
-    profileReady = true;
+    ready = true;
     notificationCallback();
 
     if (kDebugMode) {
@@ -461,7 +229,7 @@ class CampusManager {
   Future<KITModule> fetchModule(HierarchicTableRow row, {recursiveRetry = true}) async {
     final url = row.href;
 
-    await _cookiesManager.applyLocalCookiesToUrl(url);
+    await cookiesManager.applyLocalCookiesToUrl(url);
     final response = await RequestsPlus.get(url);
 
     var module = KITModule();
@@ -631,7 +399,7 @@ class CampusManager {
       print("Fetching timetable...");
     }
     final url = "https://campus.studium.kit.edu/redirect.php?system=campus&url=/campus/student/timetable.asp";
-    await _cookiesManager.applyLocalCookiesToUrl(url);
+    await cookiesManager.applyLocalCookiesToUrl(url);
     final response = await RequestsPlus.get(url);
 
     final timetableUpdate = TimetableWeekly.parseFromHtmlString(response.body);

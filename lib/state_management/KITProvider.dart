@@ -3,17 +3,12 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:kit_mobile/credentials/models/kit_credentials.dart';
 import 'package:kit_mobile/module_info_table/models/module_info_table_cell.dart';
-import 'package:kit_mobile/state_management/util/campus_rp_cookies_manager.dart';
+import 'package:kit_mobile/state_management/ilias/ilias_manager.dart';
 import 'package:kit_mobile/student/name.dart';
 
 import '../module/models/module.dart';
 import '../parsing/models/hierarchic_table_row.dart';
 import '../student/student.dart';
-
-import 'package:http/http.dart' as http;
-import 'package:html/parser.dart';
-import 'package:requests_plus/requests_plus.dart';
-
 import '../timetable/models/timetable_weekly.dart';
 import 'campus/campus_manager.dart';
 
@@ -29,12 +24,14 @@ class KITProvider extends ChangeNotifier {
   setCredentials(KITCredentials newCredentials) {
     // _credentials = newCredentials;
     campusManager.credentials = newCredentials;
+    iliasManager.credentials = newCredentials;
   }
 
   String get JSESSIONID => campusManager.JSESSIONID;
   late final CampusManager campusManager;
+  late final IliasManager iliasManager;
 
-  bool get profileReady => campusManager.profileReady;
+  bool get profileReady => campusManager.ready;
 
   TimetableWeekly get timetable => campusManager.timetable;
 
@@ -44,9 +41,11 @@ class KITProvider extends ChangeNotifier {
     }
     campusManager = CampusManager(student, notifyListeners);
     campusManager.fetchJSession();
+
+    iliasManager = IliasManager();
+    iliasManager.fetchJSession();
     // fetchSchedule();
   }
-
 
   forceRefetchEverything() async {
     campusManager.forceRefetchEverything();
@@ -59,7 +58,9 @@ class KITProvider extends ChangeNotifier {
   }
 
   fetchSchedule({notify = true, retryIfFailed = true, secondRetryIfFailed = true, refreshSession = true, startRefreshTimer = true}) async {
-    return await campusManager.fetchSchedule();
+    final fetchResult = await campusManager.fetchSchedule();
+    Future.delayed(Duration(seconds: 3), iliasManager.authorize);
+    return fetchResult;
   }
 
   Future<KITModule> getOrFetchModuleForRow(HierarchicTableRow row) async {

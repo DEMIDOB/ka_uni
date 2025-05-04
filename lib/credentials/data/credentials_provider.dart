@@ -132,8 +132,9 @@ class CredentialsProvider extends ChangeNotifier {
   logout(KITProvider vm) async {
     _clearCredentials();
     // i do not really like how this is implemented. I'll rewrite this in the future
-    vm.campusManager.profileReady = false;
+    vm.campusManager.ready = false;
     vm.campusManager.scheduleFetchingTimer?.cancel();
+    await vm.iliasManager.logout();
     vm.setCredentials(credentials);
     notifyListeners();
     vm.notifyListeners();
