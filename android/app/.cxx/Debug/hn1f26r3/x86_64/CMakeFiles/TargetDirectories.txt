@@ -1,2 +1,0 @@
-/Users/lamacaroine/StudioProjects/ka_uni/android/app/.cxx/Debug/hn1f26r3/x86_64/CMakeFiles/edit_cache.dir
-/Users/lamacaroine/StudioProjects/ka_uni/android/app/.cxx/Debug/hn1f26r3/x86_64/CMakeFiles/rebuild_cache.dir
