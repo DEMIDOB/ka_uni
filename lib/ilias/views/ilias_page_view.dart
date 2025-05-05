@@ -24,7 +24,8 @@ class _IliasPageViewWState extends State<IliasPageView> {
   void initState() {
     super.initState();
 
-    _controller = WebViewController();
+    _controller = WebViewController()
+      ..setJavaScriptMode(JavaScriptMode.unrestricted);
 
     _launchPage();
   }
