@@ -5,7 +5,6 @@ import 'package:html/parser.dart';
 import 'package:http/http.dart' as http;
 import 'package:kit_mobile/state_management/KITProvider.dart';
 import 'package:kit_mobile/state_management/kit_loginer.dart';
-import 'package:requests_plus/requests_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../module/models/module.dart';
@@ -36,7 +35,7 @@ class CampusManager extends KITLoginer {
   forceRefetchEverything() async {
     scheduleFetchingTimer?.cancel();
     scheduleFetchingTimer = null;
-    await cookiesManager.clearCookiesAndCache();
+    await clearCookiesAndCache();
     await fetchSchedule();
   }
 
@@ -44,10 +43,7 @@ class CampusManager extends KITLoginer {
     String url = "https://campus.studium.kit.edu/redirect.php?system=campus&url=/campus/student/contractview.asp";
 
     final allowedCookies = ["_shibsession_campus-prod-sp", "session-campus-prod-sp"];
-    cookiesManager.filterCookies(allowedCookieNames: allowedCookies);
-    await cookiesManager.applyLocalCookiesToUrl(url);
-    var response = await RequestsPlus.get(url);
-    await cookiesManager.extractCookiesFromJar(await RequestsPlus.getStoredCookies(url));
+    var response = await session.get(Uri.parse(url));
 
     if (isManualRedirectRequired(response)) {
       if (kDebugMode) {
@@ -75,10 +71,9 @@ class CampusManager extends KITLoginer {
 
   Timer? scheduleFetchingTimer;
   fetchSchedule({notify = true, retryIfFailed = true, secondRetryIfFailed = true, refreshSession = true, startRefreshTimer = true}) async {
-    cookiesManager.freeze();
 
     if (refreshSession) {
-      await cookiesManager.clearCookiesAndCache();
+      await clearCookiesAndCache();
     }
 
     isFetchingSchedule = true;
@@ -180,7 +175,6 @@ class CampusManager extends KITLoginer {
 
     student.set(name: Name(firstName: firstName, lastName: lastName), matriculationNumber: matrn, degreeProgram: degreeProgram, avgMark: rowsSorted[1]?.first.mark ?? "0,0", ectsAcquired: ectsAcquired);
 
-    cookiesManager.unfreeze();
     fetchTimetable().then((_) {
       fetchAllModules();
     });
@@ -246,8 +240,7 @@ class CampusManager extends KITLoginer {
   Future<KITModule> fetchModule(HierarchicTableRow row, {recursiveRetry = true}) async {
     final url = row.href;
 
-    await cookiesManager.applyLocalCookiesToUrl(url);
-    final response = await RequestsPlus.get(url);
+    final response = await session.get(Uri.parse(url));
 
     var module = KITModule();
 
@@ -408,7 +401,7 @@ class CampusManager extends KITLoginer {
 
     const url = "https://campus.kit.edu/sp/campus/student/specificModuleView.asp";
 
-    final response = await RequestsPlus.post(url, body: {action: cell.objectValue}, followRedirects: true);
+    final response = await session.post(Uri.parse(url), body: {action: cell.objectValue});
     final ok = !response.body.toLowerCase().contains("sitzung ist abgelaufen");
 
     for (final row in moduleRows) {
@@ -441,8 +434,7 @@ class CampusManager extends KITLoginer {
       print("Fetching timetable...");
     }
     final url = "https://campus.studium.kit.edu/redirect.php?system=campus&url=/campus/student/timetable.asp";
-    await cookiesManager.applyLocalCookiesToUrl(url);
-    final response = await RequestsPlus.get(url);
+    final response = await session.get(Uri.parse(url));
 
     final timetableUpdate = TimetableWeekly.parseFromHtmlString(response.body);
     if (timetableUpdate == null) {

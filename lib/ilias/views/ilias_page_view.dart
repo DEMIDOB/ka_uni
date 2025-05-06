@@ -44,7 +44,7 @@ class _IliasPageViewWState extends State<IliasPageView> {
     // final vm = Provider.of<KITProvider>(context);
     String link = widget.module.iliasLink ?? "";
     if (link.isEmpty) {
-      link = "https://ilias.studium.kit.edu/";
+      link = "https://ilias.studium.kit.edu/ilias.php?baseClass=ilmembershipoverviewgui";
     }
     _controller.loadRequest(Uri.parse(link));
   }

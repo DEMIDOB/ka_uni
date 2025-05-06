@@ -1,10 +1,10 @@
 import 'package:flutter/foundation.dart';
 import 'package:html/dom.dart';
 import 'package:html/parser.dart';
+import 'package:http/http.dart' as http;
 import 'package:kit_mobile/geo/kit_place.dart';
 import 'package:kit_mobile/parsing/util/remove_html_children.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:requests_plus/requests_plus.dart';
 
 enum TimetableAppointmentType {
   lecture,
@@ -53,7 +53,7 @@ class TimetableAppointment {
       return kitLocation;
     }
 
-    final response = await RequestsPlus.get(place.link);
+    final response = await http.get(Uri.parse(place.link));
     var document = parse(response.body);
     final targetDiv = document.getElementById("rwro_map-field");
     if (targetDiv == null) {
@@ -93,7 +93,7 @@ class TimetableAppointment {
     // queryParameters["h"] = "400";
     // queryParameters["z"] = zoom ?? "7";
     //
-    // final mapResponse = await RequestsPlus.get(url);
+    // final mapResponse = await session.get(Uri.parse(url));
     //
     // return mapResponse.body;
   }

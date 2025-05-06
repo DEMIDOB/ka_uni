@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:kit_mobile/common_ui/kit_progress_indicator.dart';
 import 'package:kit_mobile/home/views/hierarchic_table.dart';
 import 'package:kit_mobile/home/views/padded_title.dart';
 import 'package:kit_mobile/home/views/relevant_modules.dart';
@@ -213,6 +214,7 @@ class _KITHomePageState extends State<KITHomePage> {
                               key: _relevantModulesTitleKey,
                               title: "Aktuelle Module im ${KITProvider.currentSemesterString}"
                           ),
+                          !vm.campusManager.isFetchingModules ? SizedBox(width: 0, height: 0,) : KITProgressIndicator(),
                           Spacer(),
                           CupertinoButton(child: Icon(CupertinoIcons.refresh), onPressed: vm.forceRefetchEverything, padding: EdgeInsets.all(10),)
                         ],

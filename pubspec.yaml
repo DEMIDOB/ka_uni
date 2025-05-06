@@ -38,7 +38,6 @@ dependencies:
   html: ^0.15.4
   flutter_svg: ^2.0.10+1
   provider: ^6.1.2
-  requests_plus: ^4.8.6
   flutter_secure_storage: ^9.0.0
   flutter_widget_from_html: ^0.16.0
   carousel_slider: ^5.0.0
@@ -52,6 +51,7 @@ dependencies:
   webview_flutter: ^4.11.0
   synchronized: ^3.3.1
   shared_preferences: ^2.5.3
+  http_session: ^0.2.2
 dev_dependencies:
   flutter_test:
     sdk: flutter

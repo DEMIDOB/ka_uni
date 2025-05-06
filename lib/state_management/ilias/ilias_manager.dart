@@ -1,10 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:kit_mobile/state_management/kit_loginer.dart';
-import 'package:kit_mobile/state_management/util/campus_rp_cookies_manager.dart';
 
 class IliasManager extends KITLoginer {
-  final RPCookiesManager _cookiesManager = RPCookiesManager();
   String PHPSESSID = "";
   bool isBusy = false;
 
@@ -23,8 +21,9 @@ class IliasManager extends KITLoginer {
 
     // stage 2
     http.Response? stage2Response;
+
+    stage2Response = await fetchStage2_(stage1Response);
     try {
-      stage2Response = await fetchStage2_(stage1Response).timeout(Duration(seconds: 2));
     } catch (exc) {
       stage2Response = null;
     }
@@ -35,11 +34,11 @@ class IliasManager extends KITLoginer {
 
     }
 
-    if (retryIfFailed && !cookiesManager.cookiesString.contains("PHPSESSID")) {
+    if (retryIfFailed && !cookiesContains("PHPSESSID")) {
       await authorize(retryIfFailed: secondRetryIfFailed, secondRetryIfFailed: false);
       return;
     }
-    PHPSESSID = cookiesManager.cookiesString.substring(cookiesManager.cookiesString.indexOf("PHPSESSID"));
+    PHPSESSID = cookiesString.substring(cookiesString.indexOf("PHPSESSID"));
     PHPSESSID = PHPSESSID.substring(PHPSESSID.indexOf("=") + 1);
     PHPSESSID = PHPSESSID.substring(0, PHPSESSID.indexOf(";"));
 
@@ -47,7 +46,6 @@ class IliasManager extends KITLoginer {
   }
 
   logout() async {
-    _cookiesManager.clearCookiesAndCache();
     PHPSESSID = "";
   }
 }

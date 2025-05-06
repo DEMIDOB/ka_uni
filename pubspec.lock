@@ -97,6 +97,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.19.1"
+  cookie_store:
+    dependency: transitive
+    description:
+      name: cookie_store
+      sha256: fefa4115d74e6145da07ff8c2ee6ba27831863f3ff4c97afd5817989d1437c49
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.3.5"
   crypto:
     dependency: transitive
     description:
@@ -336,14 +344,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.15.4"
-  hex:
-    dependency: transitive
-    description:
-      name: hex
-      sha256: "4e7cd54e4b59ba026432a6be2dd9d96e4c5205725194997193bf871703b82c4a"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.2.0"
   html:
     dependency: "direct main"
     description:
@@ -368,6 +368,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.1.2"
+  http_session:
+    dependency: "direct main"
+    description:
+      name: http_session
+      sha256: a38e2a28b2cb234cc2b2f040bf7adccc3cd84de97ae4cee92e052f616d40dfaa
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.2.2"
   intl:
     dependency: transitive
     description:
@@ -648,22 +656,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "6.1.5"
-  quiver:
+  punycode:
     dependency: transitive
     description:
-      name: quiver
-      sha256: ea0b925899e64ecdfbf9c7becb60d5b50e706ade44a85b2363be2a22d88117d2
+      name: punycode
+      sha256: "39b874cc1f78b94e57db17e74b3f2ba2a96e25c0bebdcc8a571614dccda0ff0c"
       url: "https://pub.dev"
     source: hosted
-    version: "3.2.2"
-  requests_plus:
-    dependency: "direct main"
-    description:
-      name: requests_plus
-      sha256: b1d6e2c4fbe47643c46d3d27a773dbe9c1592464a8b7ed4d4ea20a3b1ea1bd3c
-      url: "https://pub.dev"
-    source: hosted
-    version: "4.8.6"
+    version: "1.0.0"
   rxdart:
     dependency: transitive
     description:

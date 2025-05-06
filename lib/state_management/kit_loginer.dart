@@ -1,46 +1,53 @@
 import 'package:flutter/foundation.dart';
 import 'package:html/parser.dart';
 import 'package:http/http.dart' as http;
-import 'package:kit_mobile/state_management/util/campus_rp_cookies_manager.dart';
-import 'package:requests_plus/requests_plus.dart';
+import 'package:http_session/http_session.dart';
 
 import '../credentials/models/kit_credentials.dart';
 
 class KITLoginer {
-  final cookiesManager = RPCookiesManager();
   late KITCredentials credentials;
 
   bool ready = false;
 
-  String get JSESSIONID => cookiesManager.JSESSIONID;
+  final HttpSession session = HttpSession(acceptBadCertificate: true, maxRedirects: 15);
+  String _JSESSIONID = "";
+  String get JSESSIONID => _JSESSIONID;
 
-  clearCookiesAndCache() async {
-    await cookiesManager.clearCookiesAndCache();
+  clearCookiesAndCache() {
+    session.clear();
   }
 
-  applyLocalCookiesToUrl(String url) async {
-    await cookiesManager.applyLocalCookiesToUrl(url);
+  String get cookiesString {
+    final cookies = session.cookieStore.cookies;
+    return cookies.map((c) => "${c.name}=${c.value}").join("; ");
+  }
+
+  bool cookiesContains(String cookieName) {
+    final cookies = session.cookieStore.cookies;
+
+    for (final cookie in cookies) {
+      if (cookie.name.contains(cookieName)) {
+        return true;
+      }
+    }
+
+    return false;
   }
 
   Future<bool> fetchJSession() async {
     String url = "https://idp.scc.kit.edu/idp/profile/SAML2/Redirect/SSO?execution=e1s1";
 
-    RequestsPlus.clearStoredCookies(url);
-    await RequestsPlus.get(url);
-    final cookies = await RequestsPlus.getStoredCookies(url);
-
-    if (!cookies.containsKey("JSESSIONID")) {
-      if (kDebugMode) {
-        print("Failed to obtain JSESSIONID!");
-      }
-      return false;
+    await session.get(Uri.parse(url));
+    if (cookiesContains("JSESSIONID")) {
+      return true;
     }
 
-    cookiesManager.JSESSIONID = cookies["JSESSIONID"]!.value;
-    // JSESSIONID = cookiesManager.JSESSIONID;
-    // notifyListeners();
+    if (kDebugMode) {
+      print("Failed to fetch JSESSIONID!");
+    }
 
-    return true;
+    return false;
   }
   
   fetchStage0_Init({notify = true, retryIfFailed = true, secondRetryIfFailed = true}) async {
@@ -51,7 +58,7 @@ class KITLoginer {
     // scheduleFetchingTimer = null;
 
     ready = false || ready;
-    cookiesManager.clearCookiesAndCache();
+    clearCookiesAndCache();
 
     // if (notify) {
     //   notifyListeners();
@@ -61,17 +68,11 @@ class KITLoginer {
       return -2;
     }
 
-    cookiesManager.removeLocalCookie("path");
-    cookiesManager.removeLocalCookie("secure");
-
     return 0;
   }
 
   Future<http.Response> fetchStage1_TryToOpenLoginPage(String url) async {
-    RequestsPlus.addCookie(url, "JSESSIONID", JSESSIONID);
-    await cookiesManager.applyLocalCookiesToUrl(url);
-    var response = await RequestsPlus.get(url);
-    await cookiesManager.extractCookiesFromJar(await RequestsPlus.getStoredCookies(url));
+    var response = await session.get(Uri.parse(url));
 
     // sometimes, the server wants us to manually redirect us to the login page, idk why
     if (isManualRedirectRequired(response)) {
@@ -109,6 +110,7 @@ class KITLoginer {
 
         url = "https://idp.scc.kit.edu$action";
         final inputs = form.getElementsByTagName("input");
+        print("xui: $url");
 
         for (var input in inputs) {
           String? name = input.attributes["name"];
@@ -131,17 +133,18 @@ class KITLoginer {
     }
 
     formData["_eventId_proceed"] = "";
-    formData["_shib_idp_revokeConsent"] = false;
+    formData["_shib_idp_revokeConsent"] = "false";
     formData["j_username"] = credentials.username;
     formData["j_password"] = credentials.password;
 
     if (kDebugMode) {
       print("Successfully found the login form. Data provided: $formData");
+      print("fucking next");
     }
 
-    await cookiesManager.applyLocalCookiesToUrl(url);
-    var response = await RequestsPlus.post(url, body: formData);
-    await cookiesManager.extractCookiesFromJar(await RequestsPlus.getStoredCookies(url));
+    var response = await session.post(Uri.parse(url), body: formData);
+    print(0/0);
+    print("XUIXUI $response.body");
 
     if (isManualRedirectRequired(response)) {
       final currentResponse = await handleNoJSResponse(response.body);
@@ -168,9 +171,8 @@ class KITLoginer {
         if (kDebugMode) {
           print(url);
         }
-        await cookiesManager.applyLocalCookiesToUrl(url);
-        response = await RequestsPlus.get(url);
-        await cookiesManager.extractCookiesFromJar(await RequestsPlus.getStoredCookies(url));
+
+        response = await session.get(Uri.parse(url));
       }
     }
 
@@ -188,7 +190,7 @@ class KITLoginer {
 
     final document = parse(body);
     final forms = document.getElementsByTagName("form");
-    Map<String, dynamic> formData = {};
+    Map<String, String> formData = {};
     String url = "";
 
     for (var form in forms) {
@@ -223,18 +225,15 @@ class KITLoginer {
     }
 
     if (kDebugMode) {
-      print("Handling no-js redirect: url is $url, cookies: ${cookiesManager.cookiesString}");
+      print("Handling no-js redirect: url is $url, cookies: ${session.cookieStore.cookies.toString()}");
       print("formData: ${formData.keys}");
     }
 
-    await cookiesManager.applyLocalCookiesToUrl(url);
-    var response = await RequestsPlus.post(url, body: formData, followRedirects: true);
-    await cookiesManager.extractCookiesFromJar(await RequestsPlus.getStoredCookies(url));
+    var response = await session.post(Uri.parse(url), body: formData);
 
     if (response.statusCode == 302 && response.headers.containsKey("location")) {
       url = response.headers["location"]!;
-      await cookiesManager.applyLocalCookiesToUrl(url);
-      response = await RequestsPlus.get(url);
+      response = await session.get(Uri.parse(url));
     }
 
     return response;
