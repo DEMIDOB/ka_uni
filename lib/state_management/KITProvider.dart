@@ -58,6 +58,9 @@ class KITProvider extends ChangeNotifier {
   }
 
   fetchSchedule({notify = true, retryIfFailed = true, secondRetryIfFailed = true, refreshSession = true, startRefreshTimer = true}) async {
+    if (kDebugMode) {
+      print("VM is asked to fetch schedule....");
+    }
     final fetchResult = await campusManager.fetchSchedule();
     Future.delayed(Duration(seconds: 1), iliasManager.authorize);
     return fetchResult;

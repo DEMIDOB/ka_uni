@@ -39,6 +39,12 @@ class IliasManager extends KITLoginer {
       await authorize(retryIfFailed: secondRetryIfFailed, secondRetryIfFailed: false);
       return;
     }
+    if (!cookiesManager.cookiesString.contains("PHPSESSID")) {
+      if (kDebugMode) {
+        print("ILIAS failed for now.");
+      }
+      return;
+    }
     PHPSESSID = cookiesManager.cookiesString.substring(cookiesManager.cookiesString.indexOf("PHPSESSID"));
     PHPSESSID = PHPSESSID.substring(PHPSESSID.indexOf("=") + 1);
     PHPSESSID = PHPSESSID.substring(0, PHPSESSID.indexOf(";"));

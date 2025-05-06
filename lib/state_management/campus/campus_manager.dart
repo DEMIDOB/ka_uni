@@ -75,7 +75,10 @@ class CampusManager extends KITLoginer {
 
   Timer? scheduleFetchingTimer;
   fetchSchedule({notify = true, retryIfFailed = true, secondRetryIfFailed = true, refreshSession = true, startRefreshTimer = true}) async {
-    cookiesManager.freeze();
+    if (kDebugMode) {
+      print("CM is asked to fetch schedule....");
+    }
+    // cookiesManager.freeze();
 
     if (refreshSession) {
       await cookiesManager.clearCookiesAndCache();

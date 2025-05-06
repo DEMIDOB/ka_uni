@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:requests_plus/requests_plus.dart';
 
@@ -31,7 +33,7 @@ class RPCookiesManager {
     });
   }
 
-  applyLocalCookiesToUrl(String url) async {
+  applyLocalCookiesToUrl(String url, {ignoreFreeze = false}) async {
     // if (!url.startsWith("https://campus.kit.edu")) {
     //   print("fuck off");
     //   return;
@@ -40,7 +42,7 @@ class RPCookiesManager {
     // for (var entry in _cookies.entries) {
     //   await RequestsPlus.addCookie(url, entry.key, entry.value);
     // }
-    if (isFrozen) {
+    if (isFrozen && !ignoreFreeze) {
       return;
     }
 
@@ -93,6 +95,7 @@ class RPCookiesManager {
     await RequestsPlus.clearStoredCookies("https://campus.studium.kit.edu/");
     await RequestsPlus.clearStoredCookies("https://idp.scc.kit.edu/");
     await RequestsPlus.clearStoredCookies("https://campus.kit.edu/");
+    await RequestsPlus.clearStoredCookies("https://ilias.studium.kit.edu/");
   }
 
   RPCookiesManager clone() => RPCookiesManager(initialCookies: _cookies);
