@@ -1,4 +1,5 @@
 import 'package:html/parser.dart';
+import 'package:kit_mobile/parsing/models/hierarchic_table_row.dart';
 
 import '../../module_info_table/models/module_info_table.dart';
 
@@ -13,6 +14,7 @@ class KITModule {
   String pointsAvailable = "0,0";
   String hierarchicalTableRowId = "";
   String? iliasLink = "";
+  HierarchicTableRow? row;
 
   List<ModuleInfoTable> tables = [];
 

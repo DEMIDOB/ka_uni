@@ -19,6 +19,12 @@ class HierarchicTableRow  {
   HierarchicTableRow({required this.level, required this.title, required this.href, required this.type, required this.statusStr, required this.mark, required this.pointsAcquired, required this.pointsMax});
 
   String get id => "${level}_${title}_$year";
+  
+  bool get isMarkEmpty => mark.isEmpty || mark.startsWith("0") || mark.startsWith("&");
+  
+  int get relevancyRank {
+    return isMarkEmpty ? 10 : 1;
+  }
 
   static HierarchicTableRow? parseTr(element, Map<int, List<HierarchicTableRow>> rowsSorted) {
     HierarchicTableRow? newRow;

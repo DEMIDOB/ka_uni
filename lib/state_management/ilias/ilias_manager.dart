@@ -3,8 +3,22 @@ import 'package:http/http.dart' as http;
 import 'package:kit_mobile/state_management/kit_loginer.dart';
 
 class IliasManager extends KITLoginer {
-  String PHPSESSID = "";
+  String _phpsessid = "";
   bool isBusy = false;
+
+  DateTime _lastUpdate = DateTime(2004);
+
+  Future<String> getPHPSESSID() async {
+    if (DateTime.now().isAfter(_lastUpdate.add(Duration(minutes: 30)))) {
+      if (kDebugMode) {
+        print("Refetching ilias session...");
+      }
+      await authorize();
+      _lastUpdate = DateTime.now();
+    }
+
+    return _phpsessid;
+  }
 
   Future<void> authorize({retryIfFailed = true, secondRetryIfFailed = true, refreshSession = true}) async {
 
@@ -38,14 +52,14 @@ class IliasManager extends KITLoginer {
       await authorize(retryIfFailed: secondRetryIfFailed, secondRetryIfFailed: false);
       return;
     }
-    PHPSESSID = cookiesString.substring(cookiesString.indexOf("PHPSESSID"));
-    PHPSESSID = PHPSESSID.substring(PHPSESSID.indexOf("=") + 1);
-    PHPSESSID = PHPSESSID.substring(0, PHPSESSID.indexOf(";"));
+    _phpsessid = cookiesString.substring(cookiesString.indexOf("PHPSESSID"));
+    _phpsessid = _phpsessid.substring(_phpsessid.indexOf("=") + 1);
+    _phpsessid = _phpsessid.substring(0, _phpsessid.indexOf(";"));
 
     isBusy = false;
   }
 
   logout() async {
-    PHPSESSID = "";
+    _phpsessid = "";
   }
 }

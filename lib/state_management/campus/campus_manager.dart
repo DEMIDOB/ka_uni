@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:async_locks/async_locks.dart';
 import 'package:flutter/foundation.dart';
 import 'package:html/parser.dart';
 import 'package:http/http.dart' as http;
@@ -195,7 +196,7 @@ class CampusManager extends KITLoginer {
     }
   }
 
-  Future<void> fetchAllModules() async {
+  Future<void> fetchAllModules({inParallel = true}) async {
     isFetchingModules = true;
 
     if (kDebugMode) {
@@ -204,7 +205,12 @@ class CampusManager extends KITLoginer {
 
     await prepareRelevantModuleRows();
     List<HierarchicTableRow> rowsToFetch = [], lessImportantRows = [];
-    for (final row in moduleRows) {
+    List<HierarchicTableRow> preSort = List<HierarchicTableRow>.from(moduleRows);
+    preSort.sort((row1, row2) {
+      return row1.relevancyRank - row2.relevancyRank;
+    });
+
+    for (final row in preSort) {
       if (relevantModuleRowIDs.contains(row.id)) {
         rowsToFetch.add(row);
       } else {
@@ -214,19 +220,36 @@ class CampusManager extends KITLoginer {
 
     rowsToFetch = rowsToFetch + lessImportantRows;
 
-    for (final row in rowsToFetch) {
-      if (row.level < 4) {
-        continue;
+
+    if (inParallel) {
+      List<Future<KITModule>> newModuleFutures = [];
+
+      for (final row in rowsToFetch) {
+        if (row.level < 4) {
+          continue;
+        }
+
+        final newModuleFuture = getOrFetchModuleForRow(row, retryIfFailed: false);
+        newModuleFutures.add(newModuleFuture);
       }
 
-      if (kDebugMode) print("Fetching ${row.title}");
-      // if (rowModules.containsKey(row.id) && !rowModules[row.id]!.requiresUpdate) {
-      //   if (kDebugMode) print("oh, actually not");
-      //   return;
-      // }
-      final newModule = await getOrFetchModuleForRow(row, retryIfFailed: false);
-      if (newModule.iliasLink != null) {
-        _addRelevantModuleRow(row);
+      final newModules = await Future.wait(newModuleFutures);
+
+      for (final newModule in newModules) {
+        if (newModule.iliasLink != null && newModule.row != null) {
+          _addRelevantModuleRow(newModule.row!);
+        }
+      }
+    } else {
+      for (final row in rowsToFetch) {
+        if (row.level < 4) {
+          continue;
+        }
+
+        final newModule = await getOrFetchModuleForRow(row, retryIfFailed: false);
+        if (newModule.iliasLink != null) {
+          _addRelevantModuleRow(row);
+        }
       }
     }
 
@@ -258,6 +281,7 @@ class CampusManager extends KITLoginer {
       module.title = row.title;
     }
 
+    module.row = row;
     module.hierarchicalTableRowId = row.id;
 
     final prevModuleData = rowModules[module.hierarchicalTableRowId];
@@ -287,9 +311,9 @@ class CampusManager extends KITLoginer {
       return module!;
     }
 
-    final completer = Completer();
-    Timer(const Duration(seconds: 1), () => completer.complete());
-    await completer.future;
+    // final completer = Completer();
+    // Timer(const Duration(seconds: 1), () => completer.complete());
+    // await completer.future;
 
     module = rowModules[row.id];
     if (_isModuleReady(module)) {
@@ -327,61 +351,61 @@ class CampusManager extends KITLoginer {
     }
   }
 
-  _addRelevantModuleRow(HierarchicTableRow row, {keepSorted = true}) {
-    if (kDebugMode) {
-      // print("Requested to add ${row.title} as relevant");
-    }
-    final module = rowModules[row.id];
-    if (module == null) {
-      if (kDebugMode) print("Somehow module is null :(");
-      return;
-    }
-
-    // final rowLevelAccepted = 3;
-    // if (row.level != rowLevelAccepted) {
-    //   return;
-    // }
-
-    // double-check if the module is relevant (there must be an ilias-course link)
-    if (module.iliasLink == null || module.iliasLink!.isEmpty) {
-      if (kDebugMode) print("ilias link is not there :(");
-      return;
-    }
-
-    // there is not so many of them
-    while (relevantModuleRowIDs.remove(row.id)) {
-      if (kDebugMode) print("There already exists this module");
-    }
-
-    if (keepSorted) {
-      if (kDebugMode) print("Sorting! (${row.mark})");
-
-      bool hasNumber = false;
-      for (final num in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]) {
-        if (row.mark.contains("$num")) {
-          if (kDebugMode) print("has number");
-          hasNumber = true;
-          break;
-        }
+  Lock _addRelevantModuleLock = Lock();
+  _addRelevantModuleRow(HierarchicTableRow row, {keepSorted = true}) async {
+    await _addRelevantModuleLock.run(() async {
+      final module = rowModules[row.id];
+      if (module == null) {
+        if (kDebugMode) print("Somehow module is null :(");
+        return;
       }
 
-      if (hasNumber) {
+      // final rowLevelAccepted = 3;
+      // if (row.level != rowLevelAccepted) {
+      //   return;
+      // }
+
+      // double-check if the module is relevant (there must be an ilias-course link)
+      if (module.iliasLink == null || module.iliasLink!.isEmpty) {
+        if (kDebugMode) print("${module.title} ilias link is not there :(");
+        return;
+      }
+
+      // there is not so many of them
+      while (relevantModuleRowIDs.remove(row.id)) {
+        if (kDebugMode) print("There already exists this module");
+      }
+
+      if (keepSorted) {
+        if (kDebugMode) print("Sorting! (${row.mark})");
+
+        bool hasNumber = false;
+        for (final num in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]) {
+          if (row.mark.contains("$num")) {
+            if (kDebugMode) print("has number");
+            hasNumber = true;
+            break;
+          }
+        }
+
+        if (hasNumber) {
+          relevantModuleRowIDs.add(row.id);
+        }
+        else {
+          int insertAt = 0;
+          while (insertAt < relevantModuleRowIDs.length && !module.hasFavoriteChild && rowModules[relevantModuleRowIDs[insertAt]]!.hasFavoriteChild) {
+            insertAt++;
+          }
+          relevantModuleRowIDs.insert(insertAt, row.id);
+        }
+      } else {
+        if (kDebugMode) print("Not soring -_-");
         relevantModuleRowIDs.add(row.id);
       }
-      else {
-        int insertAt = 0;
-        while (insertAt < relevantModuleRowIDs.length && !module.hasFavoriteChild && rowModules[relevantModuleRowIDs[insertAt]]!.hasFavoriteChild) {
-          insertAt++;
-        }
-        relevantModuleRowIDs.insert(insertAt, row.id);
-      }
-    } else {
-      if (kDebugMode) print("Not soring -_-");
-      relevantModuleRowIDs.add(row.id);
-    }
 
-    storeRelevantModuleRows();
-    notificationCallback();
+      storeRelevantModuleRows();
+      notificationCallback();
+    });
   }
 
   Future<bool> toggleIsFavorite(ModuleInfoTableCell cell, KITModule inModule, {visual=true}) async {

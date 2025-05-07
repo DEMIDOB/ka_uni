@@ -49,7 +49,7 @@ class RelevantModuleView extends StatelessWidget {
                       onPressed: () async {
                         // await vm.iliasManager.authorize();
                         final moduleToShow = await _getModuleToShow(vm);
-                        Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) => IliasPageView(moduleToShow, PHPSESSID: vm.iliasManager.PHPSESSID)));
+                        Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) => IliasPageView(moduleToShow, PHPSESSID: vm.iliasManager.getPHPSESSID())));
                       },
 
                     ),

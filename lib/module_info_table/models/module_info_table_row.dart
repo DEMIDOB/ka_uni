@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:html/dom.dart';
 
 import 'module_info_table_cell.dart';

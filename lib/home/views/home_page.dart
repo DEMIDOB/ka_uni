@@ -194,7 +194,7 @@ class _KITHomePageState extends State<KITHomePage> {
                                 CupertinoButton(
                                     child: Text("Zum ILIAS (Web)"),
                                     onPressed: () {
-                                      Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) => IliasPageView(KITModule(), PHPSESSID: vm.iliasManager.PHPSESSID)));
+                                      Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) => IliasPageView(KITModule(), PHPSESSID: vm.iliasManager.getPHPSESSID())));
                                     }
                                 )
                               ],
