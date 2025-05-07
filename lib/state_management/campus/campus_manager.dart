@@ -43,7 +43,7 @@ class CampusManager extends KITLoginer {
   Future<http.Response?> _fetchScheduleStage3_ObtainSchedule(http.Response previousResponse) async {
     String url = "https://campus.studium.kit.edu/redirect.php?system=campus&url=/campus/student/contractview.asp";
 
-    final allowedCookies = ["_shibsession_campus-prod-sp", "session-campus-prod-sp"];
+    // final allowedCookies = ["_shibsession_campus-prod-sp", "session-campus-prod-sp"];
     var response = await session.get(Uri.parse(url));
 
     if (isManualRedirectRequired(response)) {
