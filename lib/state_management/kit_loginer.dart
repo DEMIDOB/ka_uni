@@ -110,7 +110,6 @@ class KITLoginer {
 
         url = "https://idp.scc.kit.edu$action";
         final inputs = form.getElementsByTagName("input");
-        print("xui: $url");
 
         for (var input in inputs) {
           String? name = input.attributes["name"];
@@ -139,12 +138,9 @@ class KITLoginer {
 
     if (kDebugMode) {
       print("Successfully found the login form. Data provided: $formData");
-      print("fucking next");
     }
 
     var response = await session.post(Uri.parse(url), body: formData);
-    print(0/0);
-    print("XUIXUI $response.body");
 
     if (isManualRedirectRequired(response)) {
       final currentResponse = await handleNoJSResponse(response.body);

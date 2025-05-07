@@ -33,9 +33,6 @@ class ModuleInfoTableRow {
       if (cell.hasIliasLink) {
         // see assumption above
         row.iliasLink = cell.link;
-        if (kDebugMode) {
-          print("IGOR ${cell.link}");
-        }
       }
 
       row.hasFavoriteChild |= cell.isFavorite;
