@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:kit_mobile/common_ui/block_container.dart';
 import 'package:kit_mobile/home/views/home_page.dart';
 
 class KITNavContainer extends StatefulWidget {
