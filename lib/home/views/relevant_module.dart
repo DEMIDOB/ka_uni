@@ -74,7 +74,7 @@ class RelevantModuleView extends StatelessWidget {
                   child: BlockContainer(
                     padding: EdgeInsets.zero,
                     opacity: 0.8,
-                    child: Padding(padding: EdgeInsets.all(0), child: Icon(Icons.star, color: theme.primaryColor, size: 15,),) ,
+                    child: Padding(padding: EdgeInsets.all(0), child: Icon(Icons.star, color: theme.colorScheme.primary, size: 15,),) ,
                   )
                 ) : Text("")
               ],
