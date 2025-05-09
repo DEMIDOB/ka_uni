@@ -24,9 +24,6 @@ class CampusManager extends KITLoginer {
 
   TimetableWeekly timetable = TimetableWeekly();
 
-  // Indicators
-  // bool ready = false;
-
   Student student;
 
   Function() notificationCallback;
@@ -72,6 +69,13 @@ class CampusManager extends KITLoginer {
 
   Timer? scheduleFetchingTimer;
   fetchSchedule({notify = true, retryIfFailed = true, secondRetryIfFailed = true, refreshSession = true, startRefreshTimer = true}) async {
+    if (isFetchingSchedule) {
+      // TODO: notify user (haptic?)
+      if (kDebugMode) {
+        print("Rejected fetchSchedule call: already being fetched");
+      }
+      return;
+    }
 
     if (refreshSession) {
       await clearCookiesAndCache();
@@ -327,10 +331,6 @@ class CampusManager extends KITLoginer {
     if (_isModuleReady(module)) {
       return module!;
     }
-
-    // final completer = Completer();
-    // Timer(const Duration(seconds: 1), () => completer.complete());
-    // await completer.future;
 
     module = rowModules[row.id];
     if (_isModuleReady(module)) {
