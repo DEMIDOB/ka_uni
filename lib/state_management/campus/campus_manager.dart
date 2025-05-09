@@ -196,30 +196,10 @@ class CampusManager extends KITLoginer {
     }
   }
 
-  Future<void> fetchAllModules({inParallel = true}) async {
-    isFetchingModules = true;
-
-    if (kDebugMode) {
-      print("Fetching all modules");
+  Future<void> fetchModulesForRows(List<HierarchicTableRow> rowsToFetch, {inParallel = true}) async {
+    if (rowsToFetch.isEmpty) {
+      return;
     }
-
-    await prepareRelevantModuleRows();
-    List<HierarchicTableRow> rowsToFetch = [], lessImportantRows = [];
-    List<HierarchicTableRow> preSort = List<HierarchicTableRow>.from(moduleRows);
-    preSort.sort((row1, row2) {
-      return row1.relevancyRank - row2.relevancyRank;
-    });
-
-    for (final row in preSort) {
-      if (relevantModuleRowIDs.contains(row.id)) {
-        rowsToFetch.add(row);
-      } else {
-        lessImportantRows.add(row);
-      }
-    }
-
-    rowsToFetch = rowsToFetch + lessImportantRows;
-
 
     if (inParallel) {
       List<Future<KITModule>> newModuleFutures = [];
@@ -252,6 +232,43 @@ class CampusManager extends KITLoginer {
         }
       }
     }
+  }
+
+  Future<void> fetchAllModules({inParallel = true}) async {
+    isFetchingModules = true;
+
+    if (kDebugMode) {
+      print("Fetching all modules");
+    }
+
+    await prepareRelevantModuleRows();
+    List<HierarchicTableRow> rowsToFetch = [], lessImportantRows = [];
+    List<HierarchicTableRow> preSort = List<HierarchicTableRow>.from(moduleRows);
+    preSort.sort((row1, row2) {
+      return -(row1.relevancyRank - row2.relevancyRank);
+    });
+
+    for (final row in preSort) {
+      if (relevantModuleRowIDs.contains(row.id)) {
+        rowsToFetch.add(row);
+      } else {
+        lessImportantRows.add(row);
+      }
+    }
+
+    // rowsToFetch = rowsToFetch + lessImportantRows;
+
+    if (kDebugMode) {
+      for (final row in rowsToFetch) {
+        print("Fethcing ${row.title}");
+      }
+    }
+
+    await fetchModulesForRows(rowsToFetch, inParallel: inParallel);
+    if (kDebugMode) {
+      print("Fetched the most important rows!");
+    }
+    await fetchModulesForRows(lessImportantRows, inParallel: inParallel);
 
     isFetchingModules = false;
     allModulesFetched = true;
