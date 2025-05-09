@@ -110,7 +110,7 @@ class CredentialsProvider extends ChangeNotifier {
     }
 
     vm.setCredentials(credentials);
-    await vm.iliasManager.authorize();
+    // await vm.iliasManager.authorize();
     await vm.fetchSchedule(secondRetryIfFailed: false);
 
     if (!vm.profileReady) {
