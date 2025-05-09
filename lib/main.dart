@@ -5,6 +5,7 @@ import 'package:kit_mobile/state_management/KITProvider.dart';
 import 'package:provider/provider.dart';
 
 import 'home/views/home_page.dart';
+import 'navigation/views/kit_nav_container.dart';
 
 const isAlpha = true;
 
@@ -22,9 +23,10 @@ class MyApp extends StatelessWidget {
 
     var themeData = ThemeData(
       colorScheme: ColorScheme.fromSeed(
-          seedColor: mainColor
+        seedColor: mainColor,
       ),
       useMaterial3: true,
+      scaffoldBackgroundColor: Colors.white,
     );
 
     var textTheme = themeData.textTheme.copyWith(
@@ -34,7 +36,11 @@ class MyApp extends StatelessWidget {
       headlineMedium: themeData.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
     );
 
-    themeData = themeData.copyWith(textTheme: textTheme);
+    final bottomSheetThemeData = themeData.bottomSheetTheme.copyWith(
+      backgroundColor: Color.fromRGBO(0, 0, 0, 0)
+    );
+
+    themeData = themeData.copyWith(textTheme: textTheme, bottomSheetTheme: bottomSheetThemeData);
 
     var darkThemeData = ThemeData.dark();
 
@@ -56,7 +62,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider<CredentialsProvider>(create: (ctx) => CredentialsProvider(),)
       ],
       child: MaterialApp(
-        title: 'KIT mobile',
+        title: "KA.Uni",
         theme: themeData,
         darkTheme: darkThemeData,
         home: KITApp()
@@ -75,7 +81,7 @@ class KITApp extends StatelessWidget {
       transitionBuilder: (Widget child, Animation<double> animation) {
         return FadeTransition(opacity: animation, child: child);
       },
-      child: Provider.of<KITProvider>(context).profileReady ? KITHomePage() : LoginPage(),
+      child: Provider.of<KITProvider>(context).profileReady ? KITNavContainer() : LoginPage(),
     );
   }
 
