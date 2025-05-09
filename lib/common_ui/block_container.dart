@@ -27,7 +27,7 @@ class BlockContainer extends StatelessWidget {
           // color: Colors.white,
           boxShadow: [
             BoxShadow(
-              color: theme.colorScheme.onSurface.withOpacity(theme.isDarkMode ? 0 : 0.2), // 0.25
+              color: theme.colorScheme.onSurface.withValues(alpha: theme.isDarkMode ? 0 : 0.2), // 0.25
               spreadRadius: 0.5, // 1
               blurRadius: 4, // 2
             )
