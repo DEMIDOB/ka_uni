@@ -34,8 +34,7 @@ class _KITHomePageState extends State<KITHomePage> {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        shadowColor: Colors.black38,
+        // backgroundColor: Theme.of(context).colorScheme.surface,
         title: const Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -214,7 +213,7 @@ class _KITHomePageState extends State<KITHomePage> {
                               key: _relevantModulesTitleKey,
                               title: "Aktuelle Module im ${KITProvider.currentSemesterString}"
                           ),
-                          !vm.campusManager.isFetchingModules ? SizedBox(width: 0, height: 0,) : KITProgressIndicator(),
+                          (vm.campusManager.isFetchingSchedule || vm.campusManager.isFetchingModules) ? KITProgressIndicator() : SizedBox(width: 0, height: 0,),
                           Spacer(),
                           CupertinoButton(child: Icon(CupertinoIcons.refresh), onPressed: vm.forceRefetchEverything, padding: EdgeInsets.all(10),)
                         ],

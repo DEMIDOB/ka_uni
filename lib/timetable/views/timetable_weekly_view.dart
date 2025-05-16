@@ -30,10 +30,10 @@ class _TimetableWeeklyViewState extends State<TimetableWeeklyView> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+    // final theme = Theme.of(context);
     final mq = MediaQuery.of(context);
 
-    final emptyDay = TimetableDaily();
+    // final emptyDay = TimetableDaily();
 
     return Stack(
       children: [
@@ -116,11 +116,23 @@ class _TimetableWeeklyViewState extends State<TimetableWeeklyView> {
       children: [
         Column(
           children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(dateTitle, style: theme.textTheme.titleLarge,),
-              ],
+            Container(
+              padding: EdgeInsets.only(left: 10, right: 10, top: 10),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Text(dateTitle, style: theme.textTheme.titleLarge,),
+
+                  // Spacer(),
+
+                  dateTitle.contains("Heute") ? GestureDetector(
+                    onTap: () { },
+                    child: Text("Bearbeiten", style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.primary),),
+                    // child: Icon(CupertinoIcons.pencil_circle),
+                  ) : SizedBox(width: 0, height: 0,)
+                ],
+              ),
             ),
             Padding(padding: EdgeInsets.all(5)),
             BlockContainer(

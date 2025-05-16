@@ -40,6 +40,10 @@ class MyApp extends StatelessWidget {
     );
 
     themeData = themeData.copyWith(textTheme: textTheme, bottomSheetTheme: bottomSheetThemeData);
+    themeData = themeData.copyWith(appBarTheme: themeData.appBarTheme.copyWith(
+      backgroundColor: Colors.white,
+      shadowColor: Colors.black38,
+    ));
 
     var darkThemeData = ThemeData.dark();
 
