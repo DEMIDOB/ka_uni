@@ -368,7 +368,7 @@ class CampusManager extends KITLoginer {
     }
   }
 
-  Lock _addRelevantModuleLock = Lock();
+  final Lock _addRelevantModuleLock = Lock();
   _addRelevantModuleRow(HierarchicTableRow row, {keepSorted = true}) async {
     await _addRelevantModuleLock.run(() async {
       final module = rowModules[row.id];

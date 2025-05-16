@@ -118,7 +118,10 @@ class LoginPageState extends State<LoginPage> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            CupertinoButton(child: Text("Was ist das?"), onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) => InfoView()))),
+                            CupertinoButton(
+                              child: Icon(CupertinoIcons.info),
+                              onPressed: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) => InfoView()))
+                            ),
                             CupertinoButton(child: Text("Einloggen"), onPressed: () => _submitLogin(credsVM, vm))
                           ],
                         )

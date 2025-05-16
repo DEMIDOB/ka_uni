@@ -11,7 +11,7 @@ class KITLoginer {
   bool ready = false;
 
   final HttpSession session = HttpSession(acceptBadCertificate: true, maxRedirects: 15);
-  String _JSESSIONID = "";
+  final String _JSESSIONID = "";
   String get JSESSIONID => _JSESSIONID;
 
   clearCookiesAndCache() {

@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:kit_mobile/home/views/home_page.dart';
 
 class KITNavContainer extends StatefulWidget {
+  const KITNavContainer({super.key});
+
   @override
   State<StatefulWidget> createState() {
     return _KITNavContainerState();

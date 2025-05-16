@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:kit_mobile/common_ui/cupertino_bordered_button.dart';
 import 'package:kit_mobile/common_ui/kit_progress_indicator.dart';
 import 'package:kit_mobile/home/views/hierarchic_table.dart';
 import 'package:kit_mobile/home/views/padded_title.dart';
@@ -174,28 +175,58 @@ class _KITHomePageState extends State<KITHomePage> {
                             const Padding(padding: EdgeInsets.all(10)),
 
                             Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
-                                CupertinoButton(
-                                    child: Row(
-                                      children: [
-                                        Text("Zu Modulen"),
-                                        SizedBox(width: 5,),
-                                        Icon(CupertinoIcons.down_arrow)
-                                      ],
-                                    ),
-                                    onPressed: () {
-                                      Scrollable.ensureVisible(_relevantModulesTitleKey.currentContext!);
-                                    }
-                                ),
+                               CupertinoBorderedButton(
+                                 title: "Module",
+                                 icon: CupertinoIcons.arrow_turn_left_down,
+                                 onPressed: () {
+                                   Scrollable.ensureVisible(_relevantModulesTitleKey.currentContext!);
+                                 }
+                               ),
 
-                                CupertinoButton(
-                                    child: Text("Zum ILIAS (Web)"),
+                                CupertinoBorderedButton(
+                                    title: "Stundenplan",
+                                    icon: CupertinoIcons.pencil_circle,
                                     onPressed: () {
                                       Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) => IliasPageView(KITModule(), PHPSESSID: vm.iliasManager.getPHPSESSID())));
                                     }
-                                )
+                                ),
+
+                                CupertinoBorderedButton(
+                                    title: "ILIAS",
+                                    icon: CupertinoIcons.globe,
+                                    onPressed: () {
+                                      Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) => IliasPageView(KITModule(), PHPSESSID: vm.iliasManager.getPHPSESSID())));
+                                    }
+                                ),
+
+                                // CupertinoButton(
+                                //   child: Row(
+                                //     children: [
+                                //       Text("Stundenplan"),
+                                //       SizedBox(width: 5),
+                                //       Icon(CupertinoIcons.pencil_circle)
+                                //     ],
+                                //   ),
+                                //   onPressed: () {
+                                //
+                                //   },
+                                // ),
+                                //
+                                // CupertinoButton(
+                                //     child: Row(
+                                //       children: [
+                                //         Text("ILIAS"),
+                                //         SizedBox(width: 5),
+                                //         Icon(CupertinoIcons.globe)
+                                //       ],
+                                //     ),
+                                //     onPressed: () {
+                                //       Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) => IliasPageView(KITModule(), PHPSESSID: vm.iliasManager.getPHPSESSID())));
+                                //     }
+                                // )
                               ],
                             ),
                           ],
@@ -215,7 +246,7 @@ class _KITHomePageState extends State<KITHomePage> {
                           ),
                           (vm.campusManager.isFetchingSchedule || vm.campusManager.isFetchingModules) ? KITProgressIndicator() : SizedBox(width: 0, height: 0,),
                           Spacer(),
-                          CupertinoButton(child: Icon(CupertinoIcons.refresh), onPressed: vm.forceRefetchEverything, padding: EdgeInsets.all(10),)
+                          CupertinoButton(onPressed: vm.forceRefetchEverything, padding: EdgeInsets.all(10),child: Icon(CupertinoIcons.refresh),)
                         ],
                       ),
                       Container(

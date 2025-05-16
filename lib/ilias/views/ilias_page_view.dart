@@ -63,11 +63,11 @@ class _IliasPageViewWState extends State<IliasPageView> {
 
     return FutureBuilder(future: widget.PHPSESSID, builder: (context, snapshot) {
       if (!snapshot.hasData) {
-        return Center(
-          child: Scaffold(
-            appBar: AppBar(title: Text("ILIAS"),),
-            body: KITProgressIndicator(),
-          ),
+        return Scaffold(
+          appBar: AppBar(title: Text("ILIAS"),),
+          body: Center(
+            child: KITProgressIndicator(),
+          )
         );
       }
 

@@ -11,7 +11,7 @@ class RelevantModulesView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final vm = Provider.of<KITProvider>(context);
-    return Container(
+    return SizedBox(
       height: 300,
       child: GridView.count(crossAxisCount: 2,
         scrollDirection: Axis.horizontal,
