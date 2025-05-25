@@ -47,7 +47,7 @@ class _InfoViewState extends State<InfoView> {
                 "assets/images/GitHub.svg",
                 colorFilter: ColorFilter.mode(
                     theme.colorScheme.primary, BlendMode.srcIn),
-              ), // TODO: Deal with that "deprecated" color argument
+              ),
             ),
             onPressed: () =>
                 launchUrl(Uri.parse("https://github.com/DEMIDOB/ka_uni")),
