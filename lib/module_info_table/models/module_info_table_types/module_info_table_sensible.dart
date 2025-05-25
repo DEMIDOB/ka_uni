@@ -35,7 +35,7 @@ class ModuleInfoTableSensible extends StatelessWidget {
           children: table.rows.map((row) {
             final appointmentCell = row.appointmentCell;
             if (appointmentCell != null) {
-              return AppointmentCell(cellData: appointmentCell!);
+              return AppointmentCell(cellData: appointmentCell);
             }
 
             ++rowsDrawn;

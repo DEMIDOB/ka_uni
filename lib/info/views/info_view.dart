@@ -16,7 +16,6 @@ class InfoView extends StatefulWidget {
   State<StatefulWidget> createState() {
     return _InfoViewState();
   }
-
 }
 
 class _InfoViewState extends State<InfoView> {
@@ -42,16 +41,20 @@ class _InfoViewState extends State<InfoView> {
         actions: [
           CupertinoButton(
             child: SizedBox(
-              width: 20 ,
+              width: 20,
               height: 20,
-              child: SvgPicture.asset("assets/images/GitHub.svg", color: theme.colorScheme.primary,), // TODO: Deal with that "deprecated" color argument
+              child: SvgPicture.asset(
+                "assets/images/GitHub.svg",
+                colorFilter: ColorFilter.mode(
+                    theme.colorScheme.primary, BlendMode.srcIn),
+              ), // TODO: Deal with that "deprecated" color argument
             ),
-            onPressed: () => launchUrl(Uri.parse("https://github.com/DEMIDOB/ka_uni")),
+            onPressed: () =>
+                launchUrl(Uri.parse("https://github.com/DEMIDOB/ka_uni")),
           )
         ],
         centerTitle: true,
       ),
-
       body: ListView(
         children: [
           Container(
@@ -62,12 +65,12 @@ class _InfoViewState extends State<InfoView> {
               child: Text(
                 greeting,
                 textAlign: TextAlign.center,
-                style: theme.textTheme.headlineLarge?.copyWith(fontWeight: FontWeight.bold),
+                style: theme.textTheme.headlineLarge
+                    ?.copyWith(fontWeight: FontWeight.bold),
                 maxLines: 2,
               ),
             ),
           ),
-
           Container(
             padding: const EdgeInsets.all(10.0),
             child: Column(
@@ -77,27 +80,36 @@ class _InfoViewState extends State<InfoView> {
                     SizedBox(
                       width: mq.size.width - 30,
                       child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-                        child: Text("Wir sind sehr froh, dass du sich für diese "
-                            "App interessiert! Von Studenten für Studenten: Diese App dient dazu, dein Studentenleben "
-                            "am KIT freundlicher und einfacher zu machen. ", maxLines: 10, textAlign: TextAlign.center,),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 15, vertical: 10),
+                        child: Text(
+                          "Wir sind sehr froh, dass du sich für diese "
+                          "App interessiert! Von Studenten für Studenten: Diese App dient dazu, dein Studentenleben "
+                          "am KIT freundlicher und einfacher zu machen. ",
+                          maxLines: 10,
+                          textAlign: TextAlign.center,
+                        ),
                       ),
                     ),
                   ],
                 ),
 
-                CupertinoButton(child: Text("Privacy Policy"), onPressed: () {
-                  FlutterWebBrowser.openWebPage(url: "https://dandemidov.com/ka_uni/privacy_policy/");
-                }),
+                CupertinoButton(
+                    child: Text("Privacy Policy"),
+                    onPressed: () {
+                      FlutterWebBrowser.openWebPage(
+                          url: "https://dandemidov.com/ka_uni/privacy_policy/");
+                    }),
 
                 InfoViewFaqSection(
-                  title: "Wie kann ich mir sicher sein, dass meine Daten nicht gestolen werden?",
-                  body: "Alles wird nur auf deinem Gerät verarbeitet, als würdest"
-                      " du das Campus-Portal in deinem Web-Browser benutzen. "
-                      "Die App ist auch open-source. Das heißt, du kannst sich den Code anschauen, "
-                      "um sicherzustellen, dass alles in Ordnung ist. "
-                      "Du kannst auch das Repo klonen und deine eigene Version benutzen."
-                ),
+                    title:
+                        "Wie kann ich mir sicher sein, dass meine Daten nicht gestolen werden?",
+                    body:
+                        "Alles wird nur auf deinem Gerät verarbeitet, als würdest"
+                        " du das Campus-Portal in deinem Web-Browser benutzen. "
+                        "Die App ist auch open-source. Das heißt, du kannst sich den Code anschauen, "
+                        "um sicherzustellen, dass alles in Ordnung ist. "
+                        "Du kannst auch das Repo klonen und deine eigene Version benutzen."),
 
                 // !isAlpha ? Text("") : Container(
                 //   padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
@@ -117,16 +129,15 @@ class _InfoViewState extends State<InfoView> {
 
                 const InfoViewFaqSection(
                     title: "Kann ich zur Entwicklung beitragen?",
-                    body: "Ja! Wir würden uns darüber sehr freuen! Wenn du sich mit Flutter auskennst und beitragen möchtest, kontaktiere uns per Telegram: @XtremeUserInterfaces."
-                ),
+                    body:
+                        "Ja! Wir würden uns darüber sehr freuen! Wenn du sich mit Flutter auskennst und beitragen möchtest, kontaktiere uns per Telegram: @XtremeUserInterfaces."),
 
                 const InfoViewFaqSection(
-                  title: "Wie geht es weiter?",
-                  body: "Viele Features sind geplannt, wie z.B. ILIAS, Benachrichtigungen über Änderungen und noch mehr! "
-                      "Daran arbeiten wir jetzt. Wenn du Ideen hast, welche Features es noch in der App "
-                      "geben soll und/oder wie wir die App noch verbessern könnten, dann schreibe uns gerne!"
-                ),
-
+                    title: "Wie geht es weiter?",
+                    body:
+                        "Viele Features sind geplannt, wie z.B. ILIAS, Benachrichtigungen über Änderungen und noch mehr! "
+                        "Daran arbeiten wir jetzt. Wenn du Ideen hast, welche Features es noch in der App "
+                        "geben soll und/oder wie wir die App noch verbessern könnten, dann schreibe uns gerne!"),
               ],
             ),
           )
@@ -134,13 +145,13 @@ class _InfoViewState extends State<InfoView> {
       ),
     );
   }
-
 }
 
 class InfoViewFaqSection extends StatelessWidget {
   final String title, body;
 
-  const InfoViewFaqSection({super.key, required this.title, required this.body});
+  const InfoViewFaqSection(
+      {super.key, required this.title, required this.body});
 
   @override
   Widget build(BuildContext context) {
@@ -152,15 +163,19 @@ class InfoViewFaqSection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(title, style: theme.textTheme.titleMedium,),
-
+          Text(
+            title,
+            style: theme.textTheme.titleMedium,
+          ),
           SizedBox(
             width: mq.size.width - 20,
-            child: Text(body, maxLines: 10,),
+            child: Text(
+              body,
+              maxLines: 10,
+            ),
           )
         ],
       ),
     );
   }
-
 }

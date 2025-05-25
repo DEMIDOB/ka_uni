@@ -23,7 +23,7 @@ class TimetableDailyView extends StatelessWidget {
           children: tt.appointments.map((appointment) {
             return Container(
               decoration: BoxDecoration(
-                border: appointment.begin.hour < 17 ? Border(bottom: BorderSide(color: theme.brightness == Brightness.light ? Colors.black12 : Colors.white.withOpacity(0.15))) : null,
+                border: appointment.begin.hour < 17 ? Border(bottom: BorderSide(color: theme.brightness == Brightness.light ? Colors.black12 : Colors.white.withValues(alpha: 0.15))) : null,
               ),
               // color: Colors.red,
               child: SizedBox(
