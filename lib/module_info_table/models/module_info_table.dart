@@ -1,6 +1,7 @@
 import 'package:html/parser.dart';
 import 'package:kit_mobile/module/models/module.dart';
 import 'package:kit_mobile/module_info_table/models/module_info_table_cell.dart';
+import 'package:kit_mobile/module_info_table/models/module_info_table_type.dart';
 
 import '../../parsing/util/remove_html_children.dart';
 import 'module_info_table_row.dart';
@@ -9,7 +10,15 @@ class ModuleInfoTable {
   int numCols = 0;
   int numRows = 0;
 
-  String caption = "";
+  late ModuleInfoTableType _type;
+  ModuleInfoTableType get type => _type;
+
+  String _caption = "";
+  set caption(newValue) {
+    _caption = newValue;
+    _type = ModuleInfoTableType.fromCaption(_caption);
+  }
+  String get caption => _caption;
 
   List<String> colTitles = [];
   List<ModuleInfoTableRow> rows = [];

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_web_browser/flutter_web_browser.dart';
 import 'package:kit_mobile/common_ui/kit_logo.dart';
-import 'package:kit_mobile/state_management/KITProvider.dart';
+import 'package:kit_mobile/state_management/kit_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 

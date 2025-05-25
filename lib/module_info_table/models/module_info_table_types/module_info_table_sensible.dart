@@ -1,8 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:kit_mobile/module_info_table/views/appointment_cell.dart';
 import 'package:provider/provider.dart';
 
-import '../../../state_management/KITProvider.dart';
+import '../../../state_management/kit_provider.dart';
+import '../../../toasts/models/toasts_provider.dart';
 import '../module_info_table.dart';
 
 class ModuleInfoTableSensible extends StatelessWidget {
@@ -15,6 +18,7 @@ class ModuleInfoTableSensible extends StatelessWidget {
     final theme = Theme.of(context);
     final mq = MediaQuery.of(context);
     final vm = Provider.of<KITProvider>(context);
+    final toastsProvider = Provider.of<ToastsProvider>(context);
 
     final termCellIndex = table.colTitles.indexOf("Semester");
     final titleCellIndex = table.colTitles.indexOf("Titel");
@@ -31,17 +35,7 @@ class ModuleInfoTableSensible extends StatelessWidget {
           children: table.rows.map((row) {
             final appointmentCell = row.appointmentCell;
             if (appointmentCell != null) {
-              return Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(5),
-                    child: Icon(CupertinoIcons.arrow_turn_down_right, size: 15, color: theme.colorScheme.primary,),
-                  ),
-                  Text(appointmentCell.dateStr),
-                  const SizedBox(width: 15,),
-                  Text(appointmentCell.timeStr)
-                ],
-              );
+              return AppointmentCell(cellData: appointmentCell!);
             }
 
             ++rowsDrawn;
@@ -71,16 +65,9 @@ class ModuleInfoTableSensible extends StatelessWidget {
                         onPressed: () async {
                           final toggleSuccessful = await vm.toggleIsFavorite(row.favoriteToggleCell!, table.parentModule);
                           if (!toggleSuccessful) {
-                            // Fluttertoast.showToast(
-                            //     msg: "Fehler!",
-                            //     toastLength: Toast.LENGTH_SHORT,
-                            //     gravity: ToastGravity.CENTER,
-                            //     timeInSecForIosWeb: 1,
-                            //     backgroundColor: Colors.red,
-                            //     textColor: Colors.white,
-                            //     fontSize: 16.0
-                            // );
+                            toastsProvider.showTextToast("Fehler!");
                           } else {
+                            toastsProvider.showTextToast(row.favoriteToggleCell!.isFavorite ? "Wurde zum Stundenplan hinzugefügt!" : "Wurde vom Stundenplan entfernt!");
                             // Fluttertoast.showToast(
                             //     msg: row.favoriteToggleCell!.isFavorite ? "Wurde zum Stundenplan hinzugefügt!" : "Wurde vom Stundenplan entfernt!",
                             //     toastLength: Toast.LENGTH_SHORT,

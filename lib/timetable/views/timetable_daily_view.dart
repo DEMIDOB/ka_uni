@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:kit_mobile/common_ui/block_container.dart';
 import 'package:kit_mobile/timetable/models/timetable_appointment.dart';
-import 'package:kit_mobile/timetable/views/timetable_appointment_page.dart';
+import 'package:kit_mobile/timetable/pages/timetable_appointment_page.dart';
 
 import '../models/timetable_daily.dart';
 

@@ -8,7 +8,7 @@ import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:kit_mobile/common_ui/alpha_badge.dart';
 import 'package:kit_mobile/credentials/data/credentials_provider.dart';
 import 'package:kit_mobile/credentials/models/auth_result.dart';
-import 'package:kit_mobile/state_management/KITProvider.dart';
+import 'package:kit_mobile/state_management/kit_provider.dart';
 import 'package:provider/provider.dart';
 
 import '../../../common_ui/kit_progress_indicator.dart';

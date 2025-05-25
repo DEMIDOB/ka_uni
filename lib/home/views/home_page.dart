@@ -8,14 +8,16 @@ import 'package:kit_mobile/home/views/padded_title.dart';
 import 'package:kit_mobile/home/views/relevant_modules.dart';
 import 'package:kit_mobile/ilias/views/ilias_page_view.dart';
 import 'package:kit_mobile/module/models/module.dart';
+import 'package:kit_mobile/timetable/pages/timetable_edit_page.dart';
 import 'package:kit_mobile/timetable/views/timetable_weekly_view.dart';
+import 'package:kit_mobile/toasts/models/toasts_provider.dart';
 import 'package:provider/provider.dart';
 
 import '../../common_ui/block_container.dart';
 import '../../common_ui/kit_logo.dart';
 import '../../credentials/data/credentials_provider.dart';
 import '../../info/views/info_view.dart';
-import '../../state_management/KITProvider.dart';
+import '../../state_management/kit_provider.dart';
 
 class KITHomePage extends StatefulWidget {
   const KITHomePage({super.key});
@@ -31,6 +33,7 @@ class _KITHomePageState extends State<KITHomePage> {
   Widget build(BuildContext context) {
     final credsVM = Provider.of<CredentialsProvider>(context);
     final vm = Provider.of<KITProvider>(context);
+    final toastsProvider = Provider.of<ToastsProvider>(context);
     final theme = Theme.of(context);
 
     return Scaffold(
@@ -88,16 +91,19 @@ class _KITHomePageState extends State<KITHomePage> {
                                         child: SvgPicture.asset("assets/images/Fan.svg", width: 150, fit: BoxFit.none,),
                                       ),
 
-                                      Container(
-                                        padding: EdgeInsets.symmetric(horizontal: 15),
-                                        child: Row(
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Hero(tag: "student_name_repr", child: Text(vm.student.name.repr, style: theme.textTheme.headlineSmall)),
-                                            Text(vm.student.matriculationNumber),
-                                          ],
+                                      GestureDetector(
+                                        onLongPress: () async => toastsProvider.showTextToast("Hi :)"),
+                                        child: Container(
+                                          padding: EdgeInsets.symmetric(horizontal: 15),
+                                          child: Row(
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Hero(tag: "student_name_repr", child: Text(vm.student.name.repr, style: theme.textTheme.headlineSmall)),
+                                              Text(vm.student.matriculationNumber),
+                                            ],
+                                          ),
                                         ),
-                                      ),
+                                      )
                                     ],
                                   ),
                                 ),
@@ -190,7 +196,7 @@ class _KITHomePageState extends State<KITHomePage> {
                                     title: "Stundenplan",
                                     icon: CupertinoIcons.pencil_circle,
                                     onPressed: () {
-                                      Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) => IliasPageView(KITModule(), PHPSESSID: vm.iliasManager.getPHPSESSID())));
+                                      Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) => TimetableEditPage()));
                                     }
                                 ),
 

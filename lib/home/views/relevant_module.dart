@@ -4,7 +4,7 @@ import 'package:kit_mobile/common_ui/block_container.dart';
 import 'package:kit_mobile/ilias/views/ilias_page_view.dart';
 import 'package:kit_mobile/module/models/module.dart';
 import 'package:kit_mobile/parsing/models/hierarchic_table_row.dart';
-import 'package:kit_mobile/state_management/KITProvider.dart';
+import 'package:kit_mobile/state_management/kit_provider.dart';
 import 'package:provider/provider.dart';
 
 import '../../module/views/module_page.dart';

@@ -24,13 +24,8 @@ class _ModuleInfoTableViewState extends State<ModuleInfoTableView> {
     // final theme = Theme.of(context);
     // final mq = MediaQuery.of(context);
 
-    final lowerCaseCaption = widget.table.caption.toLowerCase();
-
     // we draw a nicer view if the table is of one of the following types
-    if (lowerCaseCaption.contains("prüfung") ||
-        lowerCaseCaption.contains("teilleistungen") ||
-        lowerCaseCaption.contains("veranstaltungen")) {
-
+    if (widget.table.type.isSensible) {
       final titleCellIndex = widget.table.colTitles.indexOf("Titel");
 
       // ...making sure that there is a sensible title

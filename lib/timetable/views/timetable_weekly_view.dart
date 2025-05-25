@@ -7,7 +7,7 @@ import 'package:kit_mobile/timetable/models/timetable_weekly.dart';
 import 'package:kit_mobile/timetable/views/timetable_daily_view.dart';
 import 'package:provider/provider.dart';
 
-import '../../state_management/KITProvider.dart';
+import '../../state_management/kit_provider.dart';
 
 class TimetableWeeklyView extends StatefulWidget {
   const TimetableWeeklyView({super.key});
@@ -126,11 +126,11 @@ class _TimetableWeeklyViewState extends State<TimetableWeeklyView> {
 
                   // Spacer(),
 
-                  dateTitle.contains("Heute") ? GestureDetector(
-                    onTap: () { },
-                    child: Text("Bearbeiten", style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.primary),),
-                    // child: Icon(CupertinoIcons.pencil_circle),
-                  ) : SizedBox(width: 0, height: 0,)
+                  // dateTitle.contains("Heute") ? GestureDetector(
+                  //   onTap: () { },
+                  //   child: Text("Bearbeiten", style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.primary),),
+                  //   // child: Icon(CupertinoIcons.pencil_circle),
+                  // ) : SizedBox(width: 0, height: 0,)
                 ],
               ),
             ),

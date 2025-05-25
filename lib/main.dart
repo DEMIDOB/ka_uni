@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:kit_mobile/credentials/data/credentials_provider.dart';
 import 'package:kit_mobile/credentials/views/login_view.dart';
-import 'package:kit_mobile/state_management/KITProvider.dart';
+import 'package:kit_mobile/state_management/kit_provider.dart';
+import 'package:kit_mobile/toasts/models/toasts_provider.dart';
+import 'package:kit_mobile/toasts/views/toasts_overlay.dart';
 import 'package:provider/provider.dart';
 
 import 'navigation/views/kit_nav_container.dart';
@@ -62,12 +64,21 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider<KITProvider>(create: (ctx) => KITProvider()),
-        ChangeNotifierProvider<CredentialsProvider>(create: (ctx) => CredentialsProvider(),)
+        ChangeNotifierProvider<CredentialsProvider>(create: (ctx) => CredentialsProvider(),),
+        ChangeNotifierProvider<ToastsProvider>(create: (ctx) => ToastsProvider(),)
       ],
       child: MaterialApp(
         title: "KA.Uni",
         theme: themeData,
         darkTheme: darkThemeData,
+        builder: (context, child) {
+          return Stack(
+            children: [
+              child ?? SizedBox(),
+              ToastsOverlay()
+            ],
+          );
+        },
         home: KITApp()
       )
     );

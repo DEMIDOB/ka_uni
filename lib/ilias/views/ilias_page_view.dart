@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:kit_mobile/common_ui/block_container.dart';
 import 'package:kit_mobile/common_ui/kit_progress_indicator.dart';
 import 'package:kit_mobile/module/models/module.dart';
+import 'package:kit_mobile/toasts/models/toasts_provider.dart';
+import 'package:provider/provider.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class IliasPageView extends StatefulWidget {
@@ -59,6 +61,8 @@ class _IliasPageViewWState extends State<IliasPageView> {
   @override
   Widget build(BuildContext context) {
     final mq = MediaQuery.of(context);
+    final toastsProvider = Provider.of<ToastsProvider>(context);
+
     final appBarHeight = AppBar().preferredSize.height;
 
     return FutureBuilder(future: widget.PHPSESSID, builder: (context, snapshot) {
@@ -72,7 +76,14 @@ class _IliasPageViewWState extends State<IliasPageView> {
       }
 
       return Scaffold(
-          appBar: AppBar(title: Text(widget.module.title.isEmpty ? "ILIAS" : "ILIAS: ${widget.module.title}"),),
+          appBar: AppBar(
+            title: Text(widget.module.title.isEmpty ? "ILIAS" : "ILIAS: ${widget.module.title}"),
+            actions: [
+              CupertinoButton(child: Icon(CupertinoIcons.info), onPressed: () {
+                toastsProvider.showTextToast("message");
+              })
+            ],
+          ),
           bottomSheet: null,
           body: Column(
             children: [

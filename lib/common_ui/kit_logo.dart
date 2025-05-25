@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:kit_mobile/state_management/KITProvider.dart';
+import 'package:kit_mobile/state_management/kit_provider.dart';
 import 'package:provider/provider.dart';
 
 import '../main.dart';

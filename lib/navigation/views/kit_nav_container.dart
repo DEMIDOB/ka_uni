@@ -31,7 +31,12 @@ class _KITNavContainerState extends State<KITNavContainer> {
       //     ),
       //   ),
       // ),
-      body: KITHomePage(),
+      body: Stack(
+        children: [
+          KITHomePage(),
+          // ToastsOverlay(),
+        ],
+      ),
     );
   }
 

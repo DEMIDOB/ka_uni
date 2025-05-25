@@ -6,7 +6,7 @@ import 'package:kit_mobile/module_info_table/views/module_info_table_view.dart';
 import 'package:provider/provider.dart';
 
 import '../../ilias/views/ilias_page_view.dart';
-import '../../state_management/KITProvider.dart';
+import '../../state_management/kit_provider.dart';
 import '../models/module.dart';
 
 class ModuleView extends StatefulWidget {

@@ -3,7 +3,7 @@ import 'package:kit_mobile/home/views/relevant_module.dart';
 import 'package:kit_mobile/module/models/module.dart';
 import 'package:provider/provider.dart';
 
-import '../../state_management/KITProvider.dart';
+import '../../state_management/kit_provider.dart';
 
 class RelevantModulesView extends StatelessWidget {
   const RelevantModulesView({super.key});
