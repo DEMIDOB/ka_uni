@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:async_locks/async_locks.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:html/parser.dart';
 import 'package:http/http.dart' as http;
 import 'package:kit_mobile/state_management/kit_loginer.dart';
@@ -51,7 +52,6 @@ class CampusManager extends KITLoginer {
     String url =
         "https://campus.studium.kit.edu/redirect.php?system=campus&url=/campus/student/contractview.asp";
 
-    // final allowedCookies = ["_shibsession_campus-prod-sp", "session-campus-prod-sp"];
     var response = await session.get(Uri.parse(url));
 
     if (isManualRedirectRequired(response)) {
@@ -79,7 +79,9 @@ class CampusManager extends KITLoginer {
       refreshSession = true,
       startRefreshTimer = true}) async {
     if (isFetchingSchedule) {
-      // TODO: notify user (haptic?)
+      await HapticFeedback.lightImpact();
+      Future.delayed(Duration(milliseconds: 200))
+          .whenComplete(HapticFeedback.mediumImpact);
       if (kDebugMode) {
         print("Rejected fetchSchedule call: already being fetched");
       }
