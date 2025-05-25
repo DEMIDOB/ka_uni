@@ -252,7 +252,14 @@ class _KITHomePageState extends State<KITHomePage> {
                           ),
                           (vm.campusManager.isFetchingSchedule || vm.campusManager.isFetchingModules) ? KITProgressIndicator() : SizedBox(width: 0, height: 0,),
                           Spacer(),
-                          CupertinoButton(onPressed: vm.forceRefetchEverything, padding: EdgeInsets.all(10),child: Icon(CupertinoIcons.refresh),)
+                          CupertinoButton(
+                            onPressed: () {
+                              toastsProvider.showTextToast("Module werden neu geladen...");
+                              vm.forceRefetchEverything();
+                            },
+                            padding: EdgeInsets.all(10),
+                            child: Icon(CupertinoIcons.refresh),
+                          )
                         ],
                       ),
                       Container(
