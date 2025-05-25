@@ -4,8 +4,8 @@ import 'package:async_locks/async_locks.dart';
 import 'package:flutter/foundation.dart';
 import 'package:html/parser.dart';
 import 'package:http/http.dart' as http;
-import 'package:kit_mobile/state_management/kit_provider.dart';
 import 'package:kit_mobile/state_management/kit_loginer.dart';
+import 'package:kit_mobile/state_management/kit_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../module/models/module.dart';
@@ -16,9 +16,6 @@ import '../../student/student.dart';
 import '../../timetable/models/timetable_weekly.dart';
 
 class CampusManager extends KITLoginer {
-
-
-
   List<HierarchicTableRow> moduleRows = [];
   Map<String, KITModule> rowModules = {}; // INDEXING AS row_id: module
 
@@ -27,6 +24,18 @@ class CampusManager extends KITLoginer {
   Student student;
 
   Function() notificationCallback;
+
+  bool isFetchingSchedule = false;
+  bool isFetchingModules = false;
+  bool allModulesFetched = false;
+
+  Timer? scheduleFetchingTimer;
+
+  bool _isModuleReady(KITModule? module) => module != null && !module.isEmpty;
+
+  List<String> relevantModuleRowIDs = [];
+  String get _relevantModuleRowsStorageKey =>
+      "RMR ${KITProvider.currentSemesterString}";
 
   CampusManager(this.student, this.notificationCallback);
 
@@ -37,8 +46,10 @@ class CampusManager extends KITLoginer {
     await fetchSchedule();
   }
 
-  Future<http.Response?> _fetchScheduleStage3_ObtainSchedule(http.Response previousResponse) async {
-    String url = "https://campus.studium.kit.edu/redirect.php?system=campus&url=/campus/student/contractview.asp";
+  Future<http.Response?> _fetchScheduleStage3_ObtainSchedule(
+      http.Response previousResponse) async {
+    String url =
+        "https://campus.studium.kit.edu/redirect.php?system=campus&url=/campus/student/contractview.asp";
 
     // final allowedCookies = ["_shibsession_campus-prod-sp", "session-campus-prod-sp"];
     var response = await session.get(Uri.parse(url));
@@ -61,14 +72,12 @@ class CampusManager extends KITLoginer {
     return response;
   }
 
-
-  // fetchScheduleStage1_
-  bool isFetchingSchedule = false;
-  bool isFetchingModules = false;
-  bool allModulesFetched = false;
-
-  Timer? scheduleFetchingTimer;
-  fetchSchedule({notify = true, retryIfFailed = true, secondRetryIfFailed = true, refreshSession = true, startRefreshTimer = true}) async {
+  fetchSchedule(
+      {notify = true,
+      retryIfFailed = true,
+      secondRetryIfFailed = true,
+      refreshSession = true,
+      startRefreshTimer = true}) async {
     if (isFetchingSchedule) {
       // TODO: notify user (haptic?)
       if (kDebugMode) {
@@ -82,8 +91,12 @@ class CampusManager extends KITLoginer {
     }
 
     isFetchingSchedule = true;
-    await fetchStage0_Init(notify: notify, retryIfFailed: retryIfFailed, secondRetryIfFailed: secondRetryIfFailed);
-    http.Response currentResponse = await fetchStage1_TryToOpenLoginPage("https://campus.studium.kit.edu/Shibboleth.sso/Login?target=https://campus.studium.kit.edu/exams/registration.php?login=1");
+    await fetchStage0_Init(
+        notify: notify,
+        retryIfFailed: retryIfFailed,
+        secondRetryIfFailed: secondRetryIfFailed);
+    http.Response currentResponse = await fetchStage1_TryToOpenLoginPage(
+        "https://campus.studium.kit.edu/Shibboleth.sso/Login?target=https://campus.studium.kit.edu/exams/registration.php?login=1");
 
     // stage 2
     final stage2Response = await fetchStage2_(currentResponse);
@@ -96,7 +109,8 @@ class CampusManager extends KITLoginer {
     }
 
     // stage 3
-    final stage3Response = await _fetchScheduleStage3_ObtainSchedule(currentResponse);
+    final stage3Response =
+        await _fetchScheduleStage3_ObtainSchedule(currentResponse);
     if (stage3Response == null) {
       if (kDebugMode) {
         print("Stage 3 failed!");
@@ -117,7 +131,11 @@ class CampusManager extends KITLoginer {
       final divs = element.getElementsByTagName("div");
       if (divs.isNotEmpty) {
         var nameAndMatrn = divs[0].innerHtml;
-        nameAndMatrn = nameAndMatrn.replaceAll("\n", "").replaceAll(" ", "").replaceAll("(", ",").replaceAll(")", "");
+        nameAndMatrn = nameAndMatrn
+            .replaceAll("\n", "")
+            .replaceAll(" ", "")
+            .replaceAll("(", ",")
+            .replaceAll(")", "");
         final nameAndMatrnSplit = nameAndMatrn.split(",");
         if (nameAndMatrnSplit.isNotEmpty) {
           lastName = nameAndMatrnSplit.removeAt(0);
@@ -143,7 +161,6 @@ class CampusManager extends KITLoginer {
           print(exc);
         }
       }
-
     });
 
     _clearRows(clearRelevants: student.name.firstName.isEmpty);
@@ -169,7 +186,8 @@ class CampusManager extends KITLoginer {
       }
 
       if (retryIfFailed) {
-        await fetchSchedule(retryIfFailed: secondRetryIfFailed, secondRetryIfFailed: false);
+        await fetchSchedule(
+            retryIfFailed: secondRetryIfFailed, secondRetryIfFailed: false);
       }
 
       return;
@@ -178,7 +196,12 @@ class CampusManager extends KITLoginer {
     degreeProgram = rowsSorted[1]?.first.title ?? "";
     ectsAcquired = rowsSorted[1]?.first.pointsAcquired ?? "";
 
-    student.set(name: Name(firstName: firstName, lastName: lastName), matriculationNumber: matrn, degreeProgram: degreeProgram, avgMark: rowsSorted[1]?.first.mark ?? "0,0", ectsAcquired: ectsAcquired);
+    student.set(
+        name: Name(firstName: firstName, lastName: lastName),
+        matriculationNumber: matrn,
+        degreeProgram: degreeProgram,
+        avgMark: rowsSorted[1]?.first.mark ?? "0,0",
+        ectsAcquired: ectsAcquired);
 
     fetchTimetable().then((_) {
       fetchAllModules();
@@ -200,7 +223,8 @@ class CampusManager extends KITLoginer {
     }
   }
 
-  Future<void> fetchModulesForRows(List<HierarchicTableRow> rowsToFetch, {inParallel = true}) async {
+  Future<void> fetchModulesForRows(List<HierarchicTableRow> rowsToFetch,
+      {inParallel = true}) async {
     if (rowsToFetch.isEmpty) {
       return;
     }
@@ -213,7 +237,8 @@ class CampusManager extends KITLoginer {
           continue;
         }
 
-        final newModuleFuture = getOrFetchModuleForRow(row, retryIfFailed: false);
+        final newModuleFuture =
+            getOrFetchModuleForRow(row, retryIfFailed: false);
         newModuleFutures.add(newModuleFuture);
       }
 
@@ -230,7 +255,8 @@ class CampusManager extends KITLoginer {
           continue;
         }
 
-        final newModule = await getOrFetchModuleForRow(row, retryIfFailed: false);
+        final newModule =
+            await getOrFetchModuleForRow(row, retryIfFailed: false);
         if (newModule.iliasLink != null) {
           _addRelevantModuleRow(row);
         }
@@ -247,7 +273,8 @@ class CampusManager extends KITLoginer {
 
     await prepareRelevantModuleRows();
     List<HierarchicTableRow> rowsToFetch = [], lessImportantRows = [];
-    List<HierarchicTableRow> preSort = List<HierarchicTableRow>.from(moduleRows);
+    List<HierarchicTableRow> preSort =
+        List<HierarchicTableRow>.from(moduleRows);
     preSort.sort((row1, row2) {
       return -(row1.relevancyRank - row2.relevancyRank);
     });
@@ -281,7 +308,8 @@ class CampusManager extends KITLoginer {
     }
   }
 
-  Future<KITModule> fetchModule(HierarchicTableRow row, {recursiveRetry = true}) async {
+  Future<KITModule> fetchModule(HierarchicTableRow row,
+      {recursiveRetry = true}) async {
     final url = row.href;
 
     final response = await session.get(Uri.parse(url));
@@ -313,7 +341,8 @@ class CampusManager extends KITLoginer {
 
     if (module.isEmpty && recursiveRetry) {
       if (kDebugMode) {
-        print("Failed to fetch the module. Possible reason: session expired. Retrying...");
+        print(
+            "Failed to fetch the module. Possible reason: session expired. Retrying...");
       }
       await forceRefetchEverything();
       return fetchModule(row, recursiveRetry: false);
@@ -325,7 +354,8 @@ class CampusManager extends KITLoginer {
     return module;
   }
 
-  Future<KITModule> getOrFetchModuleForRow(HierarchicTableRow row, {retryIfFailed = true}) async {
+  Future<KITModule> getOrFetchModuleForRow(HierarchicTableRow row,
+      {retryIfFailed = true}) async {
     var module = rowModules[row.id];
 
     if (_isModuleReady(module)) {
@@ -341,11 +371,6 @@ class CampusManager extends KITLoginer {
     return fetchModule(row, recursiveRetry: retryIfFailed);
   }
 
-  bool _isModuleReady(KITModule? module) => module != null && !module.isEmpty;
-
-  List<String> relevantModuleRowIDs = [];
-  String get _relevantModuleRowsStorageKey => "RMR ${KITProvider.currentSemesterString}";
-
   Future<void> prepareRelevantModuleRows() async {
     final prefs = await SharedPreferences.getInstance();
     final stored = prefs.getStringList(_relevantModuleRowsStorageKey);
@@ -357,7 +382,8 @@ class CampusManager extends KITLoginer {
 
   storeRelevantModuleRows() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setStringList(_relevantModuleRowsStorageKey, relevantModuleRowIDs);
+    await prefs.setStringList(
+        _relevantModuleRowsStorageKey, relevantModuleRowIDs);
   }
 
   resetRelevantModules() async {
@@ -407,10 +433,11 @@ class CampusManager extends KITLoginer {
 
         if (hasNumber) {
           relevantModuleRowIDs.add(row.id);
-        }
-        else {
+        } else {
           int insertAt = 0;
-          while (insertAt < relevantModuleRowIDs.length && !module.hasFavoriteChild && rowModules[relevantModuleRowIDs[insertAt]]!.hasFavoriteChild) {
+          while (insertAt < relevantModuleRowIDs.length &&
+              !module.hasFavoriteChild &&
+              rowModules[relevantModuleRowIDs[insertAt]]!.hasFavoriteChild) {
             insertAt++;
           }
           relevantModuleRowIDs.insert(insertAt, row.id);
@@ -425,7 +452,8 @@ class CampusManager extends KITLoginer {
     });
   }
 
-  Future<bool> toggleIsFavorite(ModuleInfoTableCell cell, KITModule inModule, {visual=true}) async {
+  Future<bool> toggleIsFavorite(ModuleInfoTableCell cell, KITModule inModule,
+      {visual = true}) async {
     if (cell.objectValue.isEmpty) {
       if (kDebugMode) {
         print("Failed to toggle a non-toggable cell ${cell.body}");
@@ -433,16 +461,19 @@ class CampusManager extends KITLoginer {
       return false;
     }
 
-    String action = cell.isFavorite ? "removeeventfavorite" : "addeventfavorite";
+    String action =
+        cell.isFavorite ? "removeeventfavorite" : "addeventfavorite";
     bool newSupposedValue = !cell.isFavorite;
     if (visual) {
       cell.isFavorite = newSupposedValue;
       notificationCallback();
     }
 
-    const url = "https://campus.kit.edu/sp/campus/student/specificModuleView.asp";
+    const url =
+        "https://campus.kit.edu/sp/campus/student/specificModuleView.asp";
 
-    final response = await session.post(Uri.parse(url), body: {action: cell.objectValue});
+    final response =
+        await session.post(Uri.parse(url), body: {action: cell.objectValue});
     final ok = !response.body.toLowerCase().contains("sitzung ist abgelaufen");
 
     for (final row in moduleRows) {
@@ -462,19 +493,19 @@ class CampusManager extends KITLoginer {
   }
 
   // Rows:
-  _clearRows({clearRelevants=false}) {
+  _clearRows({clearRelevants = false}) {
     moduleRows = [];
     if (clearRelevants) {
       relevantModuleRowIDs = [];
     }
   }
 
-
   Future<void> fetchTimetable({retryIfFailed = true}) async {
     if (kDebugMode) {
       print("Fetching timetable...");
     }
-    final url = "https://campus.studium.kit.edu/redirect.php?system=campus&url=/campus/student/timetable.asp";
+    final url =
+        "https://campus.studium.kit.edu/redirect.php?system=campus&url=/campus/student/timetable.asp";
     final response = await session.get(Uri.parse(url));
 
     final timetableUpdate = TimetableWeekly.parseFromHtmlString(response.body);
@@ -490,5 +521,4 @@ class CampusManager extends KITLoginer {
     timetable = timetableUpdate;
     notificationCallback();
   }
-
 }
