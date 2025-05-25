@@ -10,11 +10,18 @@ class ToastsProvider extends ChangeNotifier {
   static const _defaultBackgroundColor = Colors.grey;
   static const _defaultForegroundColor = Colors.black;
 
+  Color backgroundColor = _defaultBackgroundColor;
+  Color? foregroundColor;
+  String message = "You are not supposed to see this ;)";
+
   showTextToast(String message, {
     Duration duration = _defaultDuration,
     backgroundColor = _defaultBackgroundColor,
-    foregroundColor = _defaultForegroundColor}) async {
+    Color? foregroundColor}) async {
     if (isShowing) {
+      if (kDebugMode) {
+        print("Rejected showing $message");
+      }
       return;
     }
 
@@ -49,8 +56,4 @@ class ToastsProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
-
-  Color backgroundColor = _defaultBackgroundColor;
-  Color foregroundColor = _defaultForegroundColor;
-  String message = "You are not supposed to see this ;)";
 }
