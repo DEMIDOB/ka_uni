@@ -83,7 +83,7 @@ class _InfoViewState extends State<InfoView> {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 15, vertical: 10),
                         child: Text(
-                          "Wir sind sehr froh, dass du sich für diese "
+                          "Wir sind sehr froh, dass du dich für diese "
                           "App interessiert! Von Studenten für Studenten: Diese App dient dazu, dein Studentenleben "
                           "am KIT freundlicher und einfacher zu machen. ",
                           maxLines: 10,
@@ -107,7 +107,7 @@ class _InfoViewState extends State<InfoView> {
                     body:
                         "Alles wird nur auf deinem Gerät verarbeitet, als würdest"
                         " du das Campus-Portal in deinem Web-Browser benutzen. "
-                        "Die App ist auch open-source. Das heißt, du kannst sich den Code anschauen, "
+                        "Die App ist auch open-source. Das heißt, du kannst dir den Code anschauen, "
                         "um sicherzustellen, dass alles in Ordnung ist. "
                         "Du kannst auch das Repo klonen und deine eigene Version benutzen."),
 
@@ -130,7 +130,7 @@ class _InfoViewState extends State<InfoView> {
                 const InfoViewFaqSection(
                     title: "Kann ich zur Entwicklung beitragen?",
                     body:
-                        "Ja! Wir würden uns darüber sehr freuen! Wenn du sich mit Flutter auskennst und beitragen möchtest, kontaktiere uns per Telegram: @XtremeUserInterfaces."),
+                        "Ja! Wir würden uns darüber sehr freuen! Wenn du dich mit Flutter auskennst und beitragen möchtest, kontaktiere uns per Telegram: @XtremeUserInterfaces."),
 
                 const InfoViewFaqSection(
                     title: "Wie geht es weiter?",
