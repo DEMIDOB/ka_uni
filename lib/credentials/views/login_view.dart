@@ -12,6 +12,7 @@ import 'package:kit_mobile/state_management/kit_provider.dart';
 import 'package:provider/provider.dart';
 
 import '../../../common_ui/kit_progress_indicator.dart';
+import '../../constants.dart';
 import '../../info/views/info_view.dart';
 
 class LoginPage extends StatefulWidget {
@@ -41,7 +42,7 @@ class LoginPageState extends State<LoginPage> {
           darkColor: CupertinoColors.darkBackgroundGray,
         ),
         border: Border.all(color: Colors.grey.withValues(alpha: 0.2)),
-        borderRadius: BorderRadius.all(Radius.circular(5.0)));
+        borderRadius: BorderRadius.all(cupertinoInputBorderRadius));
 
     if (credsVM.credentialsLoaded && _usernameInputController.text.isEmpty) {
       _usernameInputController.text = credsVM.credentials.username;

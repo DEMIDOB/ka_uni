@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:kit_mobile/credentials/models/kit_credentials.dart';
+import 'package:kit_mobile/geo/network/KITTopographyManager.dart';
 import 'package:kit_mobile/module_info_table/models/module_info_table_cell.dart';
 import 'package:kit_mobile/state_management/ilias/ilias_manager.dart';
 import 'package:kit_mobile/student/name.dart';
@@ -30,6 +31,7 @@ class KITProvider extends ChangeNotifier {
   String get JSESSIONID => campusManager.JSESSIONID;
   late final CampusManager campusManager;
   late final IliasManager iliasManager;
+  late final KITTopographyManager topographyManager;
 
   bool get profileReady => campusManager.ready;
 
@@ -45,6 +47,9 @@ class KITProvider extends ChangeNotifier {
     iliasManager = IliasManager();
     iliasManager.fetchJSession();
     // fetchSchedule();
+
+    topographyManager = KITTopographyManager();
+    topographyManager.fetchPlaces();
   }
 
   forceRefetchEverything() async {

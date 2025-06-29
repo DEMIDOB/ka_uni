@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:kit_mobile/state_management/kit_provider.dart';
+import 'package:kit_mobile/toasts/models/toasts_provider.dart';
 import 'package:provider/provider.dart';
 
 import '../main.dart';
@@ -14,13 +15,14 @@ class KITLogo extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final vm = Provider.of<KITProvider>(context);
+    final toastsProvider = Provider.of<ToastsProvider>(context);
 
     return SizedBox(
       // width: width,
       // height: 28,
       child: GestureDetector(
-        onLongPress: () {
-          vm.campusManager.resetRelevantModules();
+        onLongPress: () async {
+          toastsProvider.showTextToast("Currywerk ist ueberschaetzt");
         },
         child: Row(
           children: [

@@ -6,6 +6,7 @@ import 'package:kit_mobile/toasts/models/toasts_provider.dart';
 import 'package:kit_mobile/toasts/views/toasts_overlay.dart';
 import 'package:provider/provider.dart';
 
+import 'constants.dart';
 import 'navigation/views/kit_nav_container.dart';
 
 const isAlpha = true;
@@ -20,14 +21,14 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    final mainColor = Color.fromARGB(1, 0, 150, 130);
 
     var themeData = ThemeData(
       colorScheme: ColorScheme.fromSeed(
         seedColor: mainColor,
       ),
       useMaterial3: true,
-      scaffoldBackgroundColor: Colors.white,
+      scaffoldBackgroundColor: appleGrey,
+      cardColor: Colors.white,
     );
 
     var textTheme = themeData.textTheme.copyWith(
@@ -41,11 +42,18 @@ class MyApp extends StatelessWidget {
       backgroundColor: Color.fromRGBO(0, 0, 0, 0)
     );
 
-    themeData = themeData.copyWith(textTheme: textTheme, bottomSheetTheme: bottomSheetThemeData);
-    themeData = themeData.copyWith(appBarTheme: themeData.appBarTheme.copyWith(
-      backgroundColor: Colors.white,
-      shadowColor: Colors.black38,
-    ));
+    themeData = themeData.copyWith(
+      textTheme: textTheme,
+      bottomSheetTheme: bottomSheetThemeData
+    );
+    themeData = themeData.copyWith(
+      appBarTheme: themeData.appBarTheme.copyWith(
+        backgroundColor: appleGrey,
+        surfaceTintColor: appleGrey,
+        shadowColor: Colors.black38,
+        // titleTextStyle: textTheme.titleLarge?.copyWith(fontWeight: FontWeight.normal)
+      ),
+    );
 
     var darkThemeData = ThemeData.dark();
 
@@ -58,7 +66,12 @@ class MyApp extends StatelessWidget {
         headlineMedium: darkThemeData.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
       ),
       scaffoldBackgroundColor: Colors.black,
-      appBarTheme: darkThemeData.appBarTheme,
+      appBarTheme: darkThemeData.appBarTheme.copyWith(
+        backgroundColor: Colors.black,
+        surfaceTintColor: Colors.black,
+      ),
+      cardColor: appleDarkGrey,
+      bottomSheetTheme: bottomSheetThemeData
     );
 
     return MultiProvider(

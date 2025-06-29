@@ -1,9 +1,11 @@
 import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:kit_mobile/common_ui/block_container.dart';
 import 'package:kit_mobile/common_ui/kit_progress_indicator.dart';
+import 'package:kit_mobile/constants.dart';
 import 'package:kit_mobile/module/models/module.dart';
 import 'package:kit_mobile/toasts/models/toasts_provider.dart';
 import 'package:provider/provider.dart';
@@ -63,7 +65,7 @@ class _IliasPageViewWState extends State<IliasPageView> {
     final mq = MediaQuery.of(context);
     final toastsProvider = Provider.of<ToastsProvider>(context);
 
-    final appBarHeight = AppBar().preferredSize.height;
+    final appBarHeight = AppBar().preferredSize.height * 1.5;
 
     return FutureBuilder(future: widget.PHPSESSID, builder: (context, snapshot) {
       if (!snapshot.hasData) {
@@ -79,20 +81,29 @@ class _IliasPageViewWState extends State<IliasPageView> {
           appBar: AppBar(
             title: Text(widget.module.title.isEmpty ? "ILIAS" : "ILIAS: ${widget.module.title}"),
             actions: [
-              CupertinoButton(child: Icon(CupertinoIcons.info), onPressed: () {
-                toastsProvider.showTextToast("message");
+              CupertinoButton(child: Icon(CupertinoIcons.floppy_disk), onPressed: () async {
+                // toastsProvider.showTextToast("message");
+                if (kDebugMode) {
+                  print(await _controller.currentUrl());
+                }
               })
             ],
           ),
-          bottomSheet: null,
           body: Column(
             children: [
               SizedBox(
                 width: mq.size.width,
                 height: mq.size.height - (Platform.isAndroid ? 100 : 150) - appBarHeight,
-                child: WebViewWidget(controller: _controller),
+                child: BlockContainer(
+                  // padding: EdgeInsets.all(15),
+                  innerPadding: EdgeInsets.zero,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(appBorderRadius.x),
+                    child: WebViewWidget(controller: _controller),
+                  ),
+                ),
               ),
-              BlockContainer(
+              Container(
                 padding: EdgeInsets.all(5),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,

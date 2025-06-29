@@ -1,6 +1,16 @@
+import 'dart:ui';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:kit_mobile/constants.dart';
 import 'package:kit_mobile/home/views/home_page.dart';
+import 'package:kit_mobile/ilias/views/ilias_page_view.dart';
+import 'package:kit_mobile/settings/views/settings_page.dart';
+import 'package:kit_mobile/state_management/kit_provider.dart';
+import 'package:provider/provider.dart';
+
+import '../../extensions/theme_data_extension.dart';
+import '../../module/models/module.dart';
 
 class KITNavContainer extends StatefulWidget {
   const KITNavContainer({super.key});
@@ -12,29 +22,55 @@ class KITNavContainer extends StatefulWidget {
 
 }
 
+const bottomNavigationBorderRadius = BorderRadius.all(appBorderRadius);
+
 class _KITNavContainerState extends State<KITNavContainer> {
   int _selectedPage = 1;
 
   @override
   Widget build(BuildContext context) {
+    final vm = Provider.of<KITProvider>(context);
+    final theme = Theme.of(context);
+    final mq = MediaQuery.of(context);
+
     return Scaffold(
-      // bottomSheet: SafeArea(
-      //   child: Padding(
-      //     padding: EdgeInsets.symmetric(vertical: 10, horizontal: 50),
-      //     child: BlockContainer(
-      //       child: Row(
-      //         mainAxisAlignment: MainAxisAlignment.spaceAround,
-      //         children: [
-      //           customBottomNavBarButton(1, CupertinoIcons.home)
-      //         ],
-      //       )
-      //     ),
-      //   ),
-      // ),
+      bottomSheet: SafeArea(
+        child: Padding(
+          padding: EdgeInsets.symmetric(vertical: 20, horizontal: 50),
+          child: ClipRRect(
+              borderRadius: bottomNavigationBorderRadius,
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                child: Container(
+
+                  decoration: BoxDecoration(
+                    color: theme.isLightMode ? navigationLightBackground : theme.cardColor.withValues(alpha: 0.3),
+                    border: Border.all(
+                      color: Colors.grey.withValues(alpha: 0.15),
+                    ),
+                    borderRadius: bottomNavigationBorderRadius,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      customBottomNavBarButton(0, CupertinoIcons.settings),
+                      customBottomNavBarButton(1, CupertinoIcons.home, title: "Dashboard"),
+                      customBottomNavBarButton(2, CupertinoIcons.rectangle_paperclip, title: "ILIAS")
+                    ],
+                  ),
+                ),
+              )
+          ),
+        ),
+      ),
       body: Stack(
         children: [
-          KITHomePage(),
-          // ToastsOverlay(),
+          [
+            SettingsPage(),
+            KITHomePage(),
+            IliasPageView(KITModule(), PHPSESSID: vm.iliasManager.getPHPSESSID()),
+          ][_selectedPage],
+
         ],
       ),
     );
@@ -43,14 +79,12 @@ class _KITNavContainerState extends State<KITNavContainer> {
   Widget customBottomNavBarButton(int targetIdx, IconData icon, {String title = ""}) {
     return CupertinoButton(
       padding: EdgeInsets.zero,
-      child: SizedBox(
-        height: 50,
-        child: Column(
-          children: [
-            Icon(icon),
-            title == "" ? SizedBox(width: 0, height: 0) : Text(title)
-          ],
-        ),
+      child: Row(
+        children: [
+          Icon(icon, color: targetIdx == _selectedPage ? null : Colors.grey,),
+          // SizedBox(width: 5,),
+          // Text(title)
+        ],
       ),
       onPressed: () => setState(() {
         _selectedPage = targetIdx;

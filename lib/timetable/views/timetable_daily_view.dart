@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:kit_mobile/common_ui/block_container.dart';
+import 'package:kit_mobile/constants.dart';
 import 'package:kit_mobile/timetable/models/timetable_appointment.dart';
 import 'package:kit_mobile/timetable/pages/timetable_appointment_page.dart';
 
@@ -35,7 +36,7 @@ class TimetableDailyView extends StatelessWidget {
 
                     // Padding(
                     //   padding: EdgeInsets.only(left: 15, right: 5, top: 5, bottom: 5),
-                    //   child: VerticalDivider(color: theme.primaryColor,),
+                    //   child: VerticalDivider(color: theme.colorScheme.primary,),
                     // ),
 
                     GestureDetector(
@@ -57,7 +58,7 @@ class TimetableDailyView extends StatelessWidget {
                               appointment.type == TimetableAppointmentType.lunchBreak ? Row(
                                 children: [
                                   // CupertinoButton(
-                                  //   child: Text("Speiseplan", style: theme.textTheme.bodyMedium?.copyWith(color: theme.primaryColor),),
+                                  //   child: Text("Speiseplan", style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.primary),),
                                   //   onPressed: () {},
                                   //   padding: EdgeInsets.only(left: 0),
                                   // )
@@ -73,14 +74,14 @@ class TimetableDailyView extends StatelessWidget {
                       top: 0,
                       right: 0,
                       child: ClipRRect(
-                          borderRadius: const BorderRadius.only(topRight: Radius.circular(8)),
+                          borderRadius: const BorderRadius.only(topRight: appBorderRadius),
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.start,
                             children: [
                               BlockContainer(
                                 padding: const EdgeInsets.only(left: 3, bottom: 3),
                                   innerPadding: const EdgeInsets.only(left: 6, bottom: 3, top: 3, right: 6),
-                                  child: Text("${appointment.begin.hour.toString().padLeft(2, "0")}:${appointment.begin.minute.toString().padLeft(2, "0")}", style: theme.textTheme.bodyLarge?.copyWith(color: theme.primaryColor),)
+                                  child: Text("${appointment.begin.hour.toString().padLeft(2, "0")}:${appointment.begin.minute.toString().padLeft(2, "0")}", style: theme.textTheme.bodyLarge?.copyWith(color: theme.colorScheme.primary),)
                               ),
                               // Text("${appointment.end.hour.toString().padLeft(2, "0")}:${appointment.end.minute.toString().padLeft(2, "0")}"),
                             ],

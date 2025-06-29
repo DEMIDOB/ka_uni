@@ -35,42 +35,15 @@ class _TimetableWeeklyViewState extends State<TimetableWeeklyView> {
 
     // final emptyDay = TimetableDaily();
 
-    return Stack(
+    return Column(
       children: [
-        Padding(
-          padding: EdgeInsets.only(left: mq.size.width * 0),
-          child: CarouselSlider.builder(
-              itemCount: 3, itemBuilder: _weekdayCarouselBuilder, options: CarouselOptions(
-            enableInfiniteScroll: true,
-            initialPage: _initialWeekday.idx,
-            height: _weekdayHeight,
-          )),
-        ),
+        CarouselSlider.builder(
+            itemCount: 3, itemBuilder: _weekdayCarouselBuilder, options: CarouselOptions(
+          enableInfiniteScroll: true,
+          initialPage: _initialWeekday.idx,
+          height: _weekdayHeight - 40,
+        )),
 
-        // Container(
-        //   width: MediaQuery.of(context).size.width,
-        //   padding: EdgeInsets.only(top: 52, left: 25),
-        //   child: Column(
-        //     crossAxisAlignment: CrossAxisAlignment.end,
-        //     children: emptyDay.appointments.map((appointment) => Container(
-        //       height: appointment.duration * 0.9,
-        //       // padding: EdgeInsets.only(bottom: appointment.duration * 0.9 - 32),
-        //       child: Container(
-        //         // height: 10,
-        //         //   color: Colors.blue,
-        //         // innerPadding: EdgeInsets.symmetric(horizontal: 6),
-        //         //   innerPadding: EdgeInsets.symmetric(vertical: 3, horizontal: 6),
-        //           child: Column(
-        //             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        //             children: [
-        //               Text("${appointment.begin.hour.toString().padLeft(2, "0")}:${appointment.begin.minute.toString().padLeft(2, "0")}", style: theme.textTheme.bodyLarge?.copyWith(color: theme.primaryColor),),
-        //               // Text("${appointment.end.hour.toString().padLeft(2, "0")}:${appointment.end.minute.toString().padLeft(2, "0")}", style: theme.textTheme.bodyLarge?.copyWith(color: theme.primaryColor),),
-        //             ],
-        //           )
-        //       ),
-        //     )).toList(),
-        //   ),
-        // ),
       ],
     );
   }
@@ -123,14 +96,6 @@ class _TimetableWeeklyViewState extends State<TimetableWeeklyView> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Text(dateTitle, style: theme.textTheme.titleLarge,),
-
-                  // Spacer(),
-
-                  // dateTitle.contains("Heute") ? GestureDetector(
-                  //   onTap: () { },
-                  //   child: Text("Bearbeiten", style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.primary),),
-                  //   // child: Icon(CupertinoIcons.pencil_circle),
-                  // ) : SizedBox(width: 0, height: 0,)
                 ],
               ),
             ),

@@ -1,10 +1,5 @@
 import 'package:flutter/material.dart';
-
-extension on ThemeData {
-  bool get isDarkMode {
-    return colorScheme.brightness == Brightness.dark;
-  }
-}
+import 'package:kit_mobile/constants.dart';
 
 class BlockContainer extends StatelessWidget {
   final Widget child;
@@ -22,15 +17,17 @@ class BlockContainer extends StatelessWidget {
       padding: padding ?? EdgeInsets.all(3),
       child: Container(
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.all(Radius.circular(8)),
-          color: theme.isDarkMode ? theme.cardColor.withValues(alpha: opacity) : theme.scaffoldBackgroundColor.withValues(alpha: opacity),
+          borderRadius: BorderRadius.all(appBorderRadius),
+          // color: theme.isDarkMode ? theme.cardColor.withValues(alpha: opacity) : theme.scaffoldBackgroundColor.withValues(alpha: opacity),
           // color: Colors.white,
+          // color: Colors.transparent,
+          color: theme.cardColor,
           boxShadow: [
-            BoxShadow(
-              color: theme.colorScheme.onSurface.withValues(alpha: theme.isDarkMode ? 0 : 0.2), // 0.25
-              spreadRadius: 0.5, // 1
-              blurRadius: 4, // 2
-            )
+            // BoxShadow(
+            //   color: theme.colorScheme.onSurface.withValues(alpha: theme.isDarkMode ? 0 : 0.2), // 0.25
+            //   spreadRadius: 0.5, // 1
+            //   blurRadius: 4, // 2
+            // )
           ]
         ),
         padding: innerPadding ?? const EdgeInsets.only(top: 10, bottom: 10, left: 15, right: 15),

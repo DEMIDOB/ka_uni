@@ -2,13 +2,13 @@ import 'package:flutter/foundation.dart';
 import 'package:html/dom.dart';
 import 'package:html/parser.dart';
 import 'package:http/http.dart' as http;
-import 'package:kit_mobile/geo/kit_place.dart';
+import 'package:kit_mobile/geo/models/kit_place.dart';
 import 'package:kit_mobile/parsing/util/remove_html_children.dart';
 import 'package:latlong2/latlong.dart';
 
 enum TimetableAppointmentType {
   lecture,
-  practice,
+  exercise,
   lunchBreak,
   other,
   empty
@@ -49,11 +49,11 @@ class TimetableAppointment {
   Future<LatLng> get placeData async {
     const kitLocation = LatLng(49.011976497932714, 8.417003405137054);
 
-    if (place.link.isEmpty) {
+    if (place.dataUrl.isEmpty) {
       return kitLocation;
     }
 
-    final response = await http.get(Uri.parse(place.link));
+    final response = await http.get(Uri.parse(place.dataUrl));
     var document = parse(response.body);
     final targetDiv = document.getElementById("rwro_map-field");
     if (targetDiv == null) {
@@ -73,29 +73,12 @@ class TimetableAppointment {
     final openMapUri = Uri.parse(href);
     final lon = double.tryParse(openMapUri.queryParameters["mlon"] ?? "-1");
     final lat = double.tryParse(openMapUri.queryParameters["mlat"] ?? "-1");
-    // final zoom = openMapUri.queryParameters["zoom"];
 
     if (lat == null || lon == null) {
       return kitLocation;
     }
 
     return LatLng(lat, lon);
-
-    // print(zoom);
-    //
-    // final url = "https://image.maps.ls.hereapi.com/mia/1.6/mapview";
-    // Map<String, String> queryParameters = {};
-    //
-    // queryParameters["apiKey"] = "ITm1qjHWvH1hAZERtqVnB_hF21VhsJieEn7DNSLXOf8";
-    // queryParameters["c"] = "$lat,$lon";
-    // queryParameters["t"] = "2";
-    // queryParameters["w"] = "300";
-    // queryParameters["h"] = "400";
-    // queryParameters["z"] = zoom ?? "7";
-    //
-    // final mapResponse = await session.get(Uri.parse(url));
-    //
-    // return mapResponse.body;
   }
 
   static TimetableAppointment? parseFromHtmlTr(Element appointmentNode) {
@@ -104,7 +87,6 @@ class TimetableAppointment {
 
     final links = appointmentNode.getElementsByTagName("a");
     if (links.length < 2) {
-      print("failed :( 1");
       return null;
     }
 
@@ -174,7 +156,7 @@ class TimetableAppointment {
 
     final place = KITPlace();
     place.title = node.innerHtml;
-    place.link = "https://campus.kit.edu/sp/campus/$href";
+    place.dataUrl = "https://campus.kit.edu/sp/campus/$href";
 
     return place;
   }

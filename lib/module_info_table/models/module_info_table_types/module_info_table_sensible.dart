@@ -66,6 +66,8 @@ class ModuleInfoTableSensible extends StatelessWidget {
                           final toggleSuccessful = await vm.toggleIsFavorite(row.favoriteToggleCell!, table.parentModule);
                           if (!toggleSuccessful) {
                             toastsProvider.showTextToast("Fehler!");
+                            // used to go to the previous page, avoiding it for now
+                            vm.forceRefetchEverything();
                           } else {
                             toastsProvider.showTextToast(row.favoriteToggleCell!.isFavorite ? "Wurde zum Stundenplan hinzugefügt!" : "Wurde vom Stundenplan entfernt!");
                             // Fluttertoast.showToast(
