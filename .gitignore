@@ -12,6 +12,7 @@
 .swiftpm/
 migrate_working_dir/
 .cxx
+key.properties
 
 # IntelliJ related
 *.iml
