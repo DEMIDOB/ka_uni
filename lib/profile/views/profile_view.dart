@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:kit_mobile/settings/providers/settings_provider.dart';
 import 'package:provider/provider.dart';
 
 import '../../common_ui/block_container.dart';
@@ -22,6 +23,8 @@ class ProfileView extends StatelessWidget {
     final credsVM = Provider.of<CredentialsProvider>(context);
     final vm = Provider.of<KITProvider>(context);
     final toastsProvider = Provider.of<ToastsProvider>(context);
+    final settingsVM = Provider.of<SettingsProvider>(context);
+
     final theme = Theme.of(context);
 
     return Padding(
@@ -95,7 +98,19 @@ class ProfileView extends StatelessWidget {
             ),
           ),
 
-          Row(
+          !settingsVM.showingAvgMark.value ?
+          BlockContainer(
+              padding: EdgeInsets.only(top: 7),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text("Leistungspunkte", style: theme.textTheme.titleMedium,),
+
+                  Text(vm.student.ectsAcquired, style: theme.textTheme.titleMedium,),
+                ],
+              )
+          )
+              : Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               BlockContainer(
@@ -114,19 +129,19 @@ class ProfileView extends StatelessWidget {
               ),
 
               BlockContainer(
-                  padding: EdgeInsets.only(top: 7),
-                  child: SizedBox(
-                    width: MediaQuery.of(context).size.width * 0.36,
-                    // padding: EdgeInsets.only(top: 10, bottom: 10, left: 15, right: 15),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text("LP", style: theme.textTheme.titleMedium,),
+                padding: EdgeInsets.only(top: 7),
+                child: SizedBox(
+                  width: MediaQuery.of(context).size.width * 0.36,
+                  // padding: EdgeInsets.only(top: 10, bottom: 10, left: 15, right: 15),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text("LP", style: theme.textTheme.titleMedium,),
 
-                        Text(vm.student.ectsAcquired, style: theme.textTheme.titleMedium,),
-                      ],
-                    ),
-                  )
+                      Text(vm.student.ectsAcquired, style: theme.textTheme.titleMedium,),
+                    ],
+                  ),
+                )
               ),
             ],
           ),
@@ -167,32 +182,6 @@ class ProfileView extends StatelessWidget {
               Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) => IliasPageView(KITModule(), PHPSESSID: vm.iliasManager.getPHPSESSID())));
             }
         ),
-
-        // CupertinoButton(
-        //   child: Row(
-        //     children: [
-        //       Text("Stundenplan"),
-        //       SizedBox(width: 5),
-        //       Icon(CupertinoIcons.pencil_circle)
-        //     ],
-        //   ),
-        //   onPressed: () {
-        //
-        //   },
-        // ),
-        //
-        // CupertinoButton(
-        //     child: Row(
-        //       children: [
-        //         Text("ILIAS"),
-        //         SizedBox(width: 5),
-        //         Icon(CupertinoIcons.globe)
-        //       ],
-        //     ),
-        //     onPressed: () {
-        //       Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) => IliasPageView(KITModule(), PHPSESSID: vm.iliasManager.getPHPSESSID())));
-        //     }
-        // )
       ],
     );
   }

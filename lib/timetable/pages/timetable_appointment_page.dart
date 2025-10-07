@@ -165,6 +165,7 @@ class _TimetableAppointmentPageState extends State<TimetableAppointmentPage> {
                 sigmaY: 10,
               ),
               child: SafeArea(
+                bottom: false,
                 child:
                     Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
                   CupertinoButton(
@@ -176,7 +177,6 @@ class _TimetableAppointmentPageState extends State<TimetableAppointmentPage> {
                     },
                   )
                 ]),
-                bottom: false,
               ),
             ),
           )

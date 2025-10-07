@@ -1,4 +1,8 @@
-import 'dart:ui';
+import 'package:flutter/cupertino.dart';
+
+// Layout
+const defaultPagePadding = 15.0;
+const defaultPagePaddingEdgeInsetsAll = EdgeInsets.all(15.0);
 
 // Shapes
 const appBorderRadius = Radius.circular(20);
