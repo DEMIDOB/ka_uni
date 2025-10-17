@@ -9,6 +9,7 @@ import 'package:kit_mobile/common_ui/alpha_badge.dart';
 import 'package:kit_mobile/credentials/data/credentials_provider.dart';
 import 'package:kit_mobile/credentials/models/auth_result.dart';
 import 'package:kit_mobile/state_management/kit_provider.dart';
+import 'package:liquid_glass_renderer/liquid_glass_renderer.dart';
 import 'package:provider/provider.dart';
 
 import '../../../common_ui/kit_progress_indicator.dart';
@@ -184,14 +185,20 @@ class LoginPageState extends State<LoginPage> {
                           width: mq.size.width,
                           // height: 125,
                           child: Center(
-                            child: Hero(
-                              tag: "greeting",
-                              child: Text(
-                                "Hallo, ${credsVM.displayName}",
-                                style: theme.textTheme.headlineLarge?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white),
-                                maxLines: 2,
+                            child: LiquidGlass(
+                              shape: LiquidRoundedSuperellipse(borderRadius: appBorderRadius),
+                              child: Container(
+                                padding: EdgeInsets.all(defaultPagePadding),
+                                child: Hero(
+                                  tag: "greeting",
+                                  child: Text(
+                                    "Hallo, ${credsVM.displayName}",
+                                    style: theme.textTheme.headlineLarge?.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white),
+                                    maxLines: 2,
+                                  ),
+                                ),
                               ),
                             ),
                           ),

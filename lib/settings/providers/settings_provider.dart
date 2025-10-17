@@ -1,10 +1,16 @@
 import 'dart:ffi';
 
 import 'package:flutter/cupertino.dart';
+import 'package:kit_mobile/settings/types/multiple_choice_setting.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../types/bool_setting.dart';
+import '../types/setting.dart';
+
+const liquidAssEverywhereKey = "PREF_liquidAssEverywhere";
 const showingAvgMarkKey = "PREF_showingAvgMark";
 const showingProfileKey = "PREF_showingProfile";
+const defaultIliasPageKey  = "PREF_defaultIliasPage";
 
 class SettingsProvider extends ChangeNotifier {
   static SettingsProvider? _instance;
@@ -14,6 +20,12 @@ class SettingsProvider extends ChangeNotifier {
     _instance = this;
     prepare();
   }
+
+  BoolSetting liquidAssEverywhere = BoolSetting(
+    valueKey: liquidAssEverywhereKey,
+    defaultValue: false,
+    notifyCallback: () => _instance?.notifyListeners()
+  );
 
   BoolSetting showingAvgMark = BoolSetting(
     valueKey: showingAvgMarkKey,
@@ -26,8 +38,19 @@ class SettingsProvider extends ChangeNotifier {
     defaultValue: true,
     notifyCallback: () => _instance?.notifyListeners()
   );
+
+  MultipleChoiceSetting<String> defaultIliasPage = MultipleChoiceSetting(
+    valueKey: defaultIliasPageKey,
+    choices: ["Dashboard", "Meine Kurse & Gruppen"],
+    notifyCallback: () => _instance?.notifyListeners()
+  );
   
-  List<BoolSetting> get settings => [showingAvgMark, showingProfile];
+  List<Setting> get settings => [
+    liquidAssEverywhere,
+    showingAvgMark,
+    showingProfile,
+    defaultIliasPage
+  ];
   
   Future<void> prepare() async {
     await Future.wait(settings.map((el) => el.prepare()));
@@ -35,42 +58,8 @@ class SettingsProvider extends ChangeNotifier {
 
 }
 
-class BoolSetting {
-  Function? notifyCallback;
-  final String valueKey;
 
-  late bool _value;
 
-  BoolSetting({required this.valueKey, required defaultValue, this.notifyCallback}) {
-    _value = defaultValue;
-  }
 
-  bool get value => _value;
 
-  Future<void> prepare() async {
-    final prefs = await SharedPreferences.getInstance();
-    bool? value = prefs.getBool(valueKey);
 
-    if (value == null) {
-      await set(_value);
-      return;
-    }
-
-    _value = value;
-  }
-
-  Future<void> set(bool newValue) async {
-    final prefs = await SharedPreferences.getInstance();
-    _value = newValue;
-    await prefs.setBool(valueKey, newValue);
-
-    if (notifyCallback != null) {
-      notifyCallback!();
-    }
-  }
-
-  Future<void> toggle() async {
-    await set(!value);
-  }
-
-}

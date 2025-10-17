@@ -12,7 +12,7 @@
 .swiftpm/
 migrate_working_dir/
 .cxx
-key.properties
+android/key.properties
 
 # IntelliJ related
 *.iml

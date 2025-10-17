@@ -55,7 +55,7 @@ dependencies:
   async_locks: ^4.0.2
   haptic_feedback: ^0.5.1+1
   glassmorphism: ^3.0.0
-  liquid_glass_renderer: ^0.1.1-dev.6
+  liquid_glass_renderer: ^0.1.1-dev.16
   animate_gradient: ^0.0.3
 dev_dependencies:
   flutter_test:

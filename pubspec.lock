@@ -508,10 +508,10 @@ packages:
     dependency: "direct main"
     description:
       name: liquid_glass_renderer
-      sha256: "060c29c804fb7aa7dd73901eaaedb5ba89cd431ca663c4fe7b8d6eefca685977"
+      sha256: b12a3067fcb3e038def8be12c349372b29beb7ac4eaab947062a399d605e2eb1
       url: "https://pub.dev"
     source: hosted
-    version: "0.1.1-dev.9"
+    version: "0.1.1-dev.16"
   lists:
     dependency: transitive
     description:
@@ -568,6 +568,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.0.0"
+  motor:
+    dependency: transitive
+    description:
+      name: motor
+      sha256: d6fd00496a2b934f8f54e660acc0d039d0e4bf8e667b6977b0480be97385779e
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.1"
   nested:
     dependency: transitive
     description:

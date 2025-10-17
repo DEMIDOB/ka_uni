@@ -7,6 +7,7 @@ import 'package:kit_mobile/home/views/home_page.dart';
 import 'package:kit_mobile/ilias/views/ilias_page_view.dart';
 import 'package:kit_mobile/settings/views/settings_page.dart';
 import 'package:kit_mobile/state_management/kit_provider.dart';
+import 'package:liquid_glass_renderer/liquid_glass_renderer.dart';
 import 'package:provider/provider.dart';
 
 import '../../extensions/theme_data_extension.dart';
@@ -37,14 +38,15 @@ class _KITNavContainerState extends State<KITNavContainer> {
       bottomSheet: SafeArea(
         child: Padding(
           padding: EdgeInsets.symmetric(vertical: 20, horizontal: 50),
-          child: ClipRRect(
-              borderRadius: bottomNavigationBorderRadius,
+          child: LiquidGlass(
+            // glassContainsChild: true,
+            shape: LiquidRoundedSuperellipse(borderRadius: bottomNavigationBorderRadius.bottomLeft),
               child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                filter: ImageFilter.blur(sigmaX: 2, sigmaY: 2),
                 child: Container(
 
                   decoration: BoxDecoration(
-                    color: theme.isLightMode ? navigationLightBackground : theme.cardColor.withValues(alpha: 0.3),
+                    // color: theme.isLightMode ? navigationLightBackground : Colors.black.withValues(alpha: 0.5),
                     border: Border.all(
                       color: Colors.grey.withValues(alpha: 0.15),
                     ),
