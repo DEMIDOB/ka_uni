@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:kit_mobile/credentials/data/credentials_provider.dart';
 import 'package:kit_mobile/credentials/views/login_view.dart';
+import 'package:kit_mobile/ilias/files/ilias_file_manager.dart';
 import 'package:kit_mobile/settings/providers/settings_provider.dart';
 import 'package:kit_mobile/state_management/kit_provider.dart';
 import 'package:kit_mobile/toasts/models/toasts_provider.dart';
@@ -13,6 +14,9 @@ import 'navigation/views/kit_nav_container.dart';
 const isAlpha = true;
 
 void main() {
+  // await initializeDateFormatting('de_DE', null);
+  // Intl.defaultLocale = 'de_DE'; // Set the default locale
+
   runApp(const MyApp());
 }
 
@@ -80,7 +84,9 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider<KITProvider>(create: (ctx) => KITProvider()),
         ChangeNotifierProvider<CredentialsProvider>(create: (ctx) => CredentialsProvider(),),
         ChangeNotifierProvider<ToastsProvider>(create: (ctx) => ToastsProvider(),),
-        ChangeNotifierProvider<SettingsProvider>(create: (ctx) => SettingsProvider(context: ctx),)
+        ChangeNotifierProvider<SettingsProvider>(create: (ctx) => SettingsProvider(context: ctx),),
+        ChangeNotifierProvider<IliasFileManager>(create: (ctx) => IliasFileManager(),)
+
       ],
       child: MaterialApp(
         title: "KA.Uni",

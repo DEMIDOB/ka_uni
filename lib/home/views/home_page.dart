@@ -6,6 +6,7 @@ import 'package:kit_mobile/common_ui/kit_progress_indicator.dart';
 import 'package:kit_mobile/home/views/hierarchic_table.dart';
 import 'package:kit_mobile/home/views/padded_title.dart';
 import 'package:kit_mobile/home/views/relevant_modules.dart';
+import 'package:kit_mobile/ilias/views/ilias_files_list_view.dart';
 import 'package:kit_mobile/profile/views/profile_view.dart';
 import 'package:kit_mobile/settings/providers/settings_provider.dart';
 import 'package:kit_mobile/timetable/pages/timetable_edit_page.dart';
@@ -156,6 +157,11 @@ class _KITHomePageState extends State<KITHomePage> {
                         padding: EdgeInsets.all(5),
                         child: RelevantModulesView(),
                       ),
+
+                      const Padding(padding: EdgeInsets.all(20)),
+
+                      PaddedTitle(title: "Meine Dateien"),
+                      IliasFilesListView(),
 
                       const Padding(padding: EdgeInsets.all(20)),
 
