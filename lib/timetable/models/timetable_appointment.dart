@@ -8,7 +8,7 @@ import 'package:latlong2/latlong.dart';
 
 enum TimetableAppointmentType {
   lecture,
-  exercise,
+  tutorial,
   lunchBreak,
   other,
   empty
@@ -42,6 +42,24 @@ class TimetableAppointment {
 
   bool get isEmpty {
     return id.isEmpty && title == "—";
+  }
+
+  String get abbreviatedTitle {
+    String res = "";
+
+    title.split(" ").forEach((part) {
+      res += part.substring(0, 1);
+    });
+
+    return res;
+  }
+
+  String abbreviatedTitleIfLongerThan(int? maxAllowedLength) {
+    if (title.length > (maxAllowedLength ?? 20)) {
+      return abbreviatedTitle;
+    }
+
+    return title;
   }
 
   int get duration => end.difference(begin).inMinutes;

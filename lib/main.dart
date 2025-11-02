@@ -6,6 +6,7 @@ import 'package:kit_mobile/settings/providers/settings_provider.dart';
 import 'package:kit_mobile/state_management/kit_provider.dart';
 import 'package:kit_mobile/toasts/models/toasts_provider.dart';
 import 'package:kit_mobile/toasts/views/toasts_overlay.dart';
+import 'package:kit_mobile/tutorials/data/tutorial_manager.dart';
 import 'package:provider/provider.dart';
 
 import 'constants.dart';
@@ -85,7 +86,8 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider<CredentialsProvider>(create: (ctx) => CredentialsProvider(),),
         ChangeNotifierProvider<ToastsProvider>(create: (ctx) => ToastsProvider(),),
         ChangeNotifierProvider<SettingsProvider>(create: (ctx) => SettingsProvider(context: ctx),),
-        ChangeNotifierProvider<IliasFileManager>(create: (ctx) => IliasFileManager(),)
+        ChangeNotifierProvider<IliasFileManager>(create: (ctx) => IliasFileManager(),),
+        ChangeNotifierProvider<TutorialManager>(create: (ctx) => TutorialManager(),),
 
       ],
       child: MaterialApp(

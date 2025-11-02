@@ -2,9 +2,27 @@ import 'package:html/dom.dart';
 import 'package:kit_mobile/timetable/models/timetable_appointment.dart';
 import 'package:kit_mobile/timetable/models/timetable_weekly.dart';
 
+import '../../tutorials/models/tutorial.dart';
+
 class TimetableDaily {
   Weekday weekday = Weekday.monday;
   List<TimetableAppointment> appointments = genericAppointmentsSchedule;
+
+  List<List<dynamic>> appointmentsWithTutorials(
+    Map<int, List<Tutorial>> tutByBlock) {
+
+    List<List<TimetableAppointment>> appointmentsByBlock = appointments.map(
+            (appointment) => [appointment]
+    ).toList();
+
+    tutByBlock.forEach((blockIdx, tutorials) {
+      for (final tut in tutorials) {
+        appointmentsByBlock[blockIdx].add(tut);
+      }
+    });
+
+    return appointmentsByBlock;
+  }
 
   bool get isEmpty {
     for (final appointment in appointments) {

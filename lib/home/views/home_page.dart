@@ -129,7 +129,7 @@ class _KITHomePageState extends State<KITHomePage> {
                             ],
                           )
                       ),
-                      Text("Tutorien & co.: coming soon :)", style: theme.textTheme.bodySmall?.copyWith(color: Colors.black26)),
+                      // Text("Tutorien & co.: coming soon :)", style: theme.textTheme.bodySmall?.copyWith(color: Colors.black26)),
                       // TimetableDailyView(tt: vm.timetable.days[DateTime.now().weekday - 1 < 5 ? DateTime.now().weekday - 1 : 1]),
 
 
