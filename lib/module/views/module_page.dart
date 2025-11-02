@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:kit_mobile/common_ui/block_container.dart';
 import 'package:kit_mobile/common_ui/kit_progress_indicator.dart';
 import 'package:kit_mobile/module_info_table/views/module_info_table_view.dart';
+import 'package:kit_mobile/utils/date_time_utils.dart';
 import 'package:provider/provider.dart';
 
 import '../../ilias/views/ilias_page_view.dart';
@@ -80,7 +81,21 @@ class _ModuleViewState extends State<ModuleView> {
 
                 Container(
                   padding: EdgeInsets.only(left: 15),
-                  child: Text(module.id),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(module.id),
+                      if (module.lastUpdated.millisecondsSinceEpoch > 0)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 4),
+                          child: Text(
+                            "Zuletzt aktualisiert: ${formatHumanReadableTimestamp(module.lastUpdated)}",
+                            style: theme.textTheme.bodySmall
+                                ?.copyWith(color: theme.colorScheme.outline),
+                          ),
+                        ),
+                    ],
+                  ),
                 ),
 
                 BlockContainer(

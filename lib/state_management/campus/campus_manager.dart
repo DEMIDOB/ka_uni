@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:async_locks/async_locks.dart';
 import 'package:flutter/foundation.dart';
@@ -19,6 +20,7 @@ import '../../timetable/models/timetable_weekly.dart';
 class CampusManager extends KITLoginer {
   List<HierarchicTableRow> moduleRows = [];
   Map<String, KITModule> rowModules = {}; // INDEXING AS row_id: module
+  final Set<String> _moduleRefreshInProgress = {};
 
   TimetableWeekly timetable = TimetableWeekly();
 
@@ -31,6 +33,114 @@ class CampusManager extends KITLoginer {
   bool allModulesFetched = false;
 
   Timer? scheduleFetchingTimer;
+  DateTime? lastModuleFetchTime;
+
+  String get _moduleCacheNamespace =>
+      "module_cache_${KITProvider.currentSemesterString}";
+
+  String _moduleCacheEntryKey(String rowId) {
+    final encodedRowId = base64Url.encode(utf8.encode(rowId));
+    return "${_moduleCacheNamespace}_$encodedRowId";
+  }
+
+  String get _moduleCacheLastFetchKey =>
+      "${_moduleCacheNamespace}_last_fetch";
+
+  void _updateLastModuleFetchTime(DateTime timestamp) {
+    if (lastModuleFetchTime == null ||
+        lastModuleFetchTime!.isBefore(timestamp)) {
+      lastModuleFetchTime = timestamp;
+    }
+  }
+
+  Future<KITModule?> _loadModuleFromCache(HierarchicTableRow row) async {
+    final prefs = await SharedPreferences.getInstance();
+    final cached = prefs.getString(_moduleCacheEntryKey(row.id));
+    if (cached == null) {
+      return null;
+    }
+
+    try {
+      final Map<String, dynamic> decoded = jsonDecode(cached);
+      final html = decoded["html"] as String?;
+      final fetchedAtStr = decoded["fetchedAt"] as String?;
+      if (html == null || fetchedAtStr == null) {
+        return null;
+      }
+
+      final module = KITModule();
+      module.parseModulePage(html);
+      module.hierarchicalTableRowId = row.id;
+      module.row = row;
+
+      if (module.grade == "0,0" && row.mark.isNotEmpty) {
+        module.grade = row.mark;
+      }
+
+      if (module.title.trim().isEmpty) {
+        module.title = row.title;
+      }
+
+      final fetchedAt = DateTime.tryParse(fetchedAtStr);
+      if (fetchedAt != null) {
+        module.lastUpdated = fetchedAt;
+        _updateLastModuleFetchTime(fetchedAt);
+      }
+
+      rowModules[row.id] = module;
+      return module;
+    } catch (error) {
+      if (kDebugMode) {
+        print("Failed to load module ${row.id} from cache: $error");
+      }
+      return null;
+    }
+  }
+
+  Future<void> _saveModuleToCache(
+      String rowId, String rawHtml, DateTime fetchedAt) async {
+    final prefs = await SharedPreferences.getInstance();
+    final payload = jsonEncode({
+      "html": rawHtml,
+      "fetchedAt": fetchedAt.toIso8601String(),
+    });
+    await prefs.setString(_moduleCacheEntryKey(rowId), payload);
+    await prefs.setString(
+        _moduleCacheLastFetchKey, fetchedAt.toIso8601String());
+    _updateLastModuleFetchTime(fetchedAt);
+  }
+
+  Future<void> _clearModuleCacheForCurrentSemester() async {
+    final prefs = await SharedPreferences.getInstance();
+    final keys = prefs.getKeys().where(
+        (key) => key.startsWith(_moduleCacheNamespace)).toList(growable: false);
+    for (final key in keys) {
+      await prefs.remove(key);
+    }
+    lastModuleFetchTime = null;
+  }
+
+  void _triggerBackgroundRefreshIfStale(
+      HierarchicTableRow row, KITModule module) {
+    if (!module.requiresUpdate) {
+      return;
+    }
+
+    if (_moduleRefreshInProgress.contains(row.id)) {
+      return;
+    }
+
+    _moduleRefreshInProgress.add(row.id);
+    fetchModule(row, recursiveRetry: false)
+        .catchError((error, stackTrace) {
+      if (kDebugMode) {
+        print("Background refresh failed for ${row.id}: $error");
+      }
+      return rowModules[row.id] ?? KITModule();
+    }).whenComplete(() {
+      _moduleRefreshInProgress.remove(row.id);
+    });
+  }
 
   bool _isModuleReady(KITModule? module) => module != null && !module.isEmpty;
 
@@ -43,6 +153,9 @@ class CampusManager extends KITLoginer {
   forceRefetchEverything() async {
     scheduleFetchingTimer?.cancel();
     scheduleFetchingTimer = null;
+    await _clearModuleCacheForCurrentSemester();
+    rowModules.clear();
+    _moduleRefreshInProgress.clear();
     await clearCookiesAndCache();
     await fetchSchedule();
   }
@@ -334,6 +447,14 @@ class CampusManager extends KITLoginer {
 
     module.row = row;
     module.hierarchicalTableRowId = row.id;
+    try {
+      await _saveModuleToCache(row.id, response.body, module.lastUpdated);
+    } catch (error) {
+      if (kDebugMode) {
+        print("Failed to persist module ${row.id}: $error");
+      }
+    }
+    _updateLastModuleFetchTime(module.lastUpdated);
 
     final prevModuleData = rowModules[module.hierarchicalTableRowId];
     if (prevModuleData != null && module.isEmpty && !prevModuleData.isEmpty) {
@@ -361,16 +482,22 @@ class CampusManager extends KITLoginer {
     var module = rowModules[row.id];
 
     if (_isModuleReady(module)) {
-      return module!;
+      final readyModule = module!;
+      _triggerBackgroundRefreshIfStale(row, readyModule);
+      return readyModule;
     }
 
-    module = rowModules[row.id];
+    module = await _loadModuleFromCache(row);
     if (_isModuleReady(module)) {
+      final cachedModule = module!;
       _addRelevantModuleRow(row);
-      return module!;
+      _triggerBackgroundRefreshIfStale(row, cachedModule);
+      return cachedModule;
     }
 
-    return fetchModule(row, recursiveRetry: retryIfFailed);
+    final fetchedModule =
+        await fetchModule(row, recursiveRetry: retryIfFailed);
+    return fetchedModule;
   }
 
   Future<void> prepareRelevantModuleRows() async {
@@ -380,6 +507,13 @@ class CampusManager extends KITLoginer {
       print("Stored $stored");
     }
     relevantModuleRowIDs = stored ?? relevantModuleRowIDs;
+
+    final lastFetchRaw = prefs.getString(_moduleCacheLastFetchKey);
+    final lastFetchParsed =
+        lastFetchRaw != null ? DateTime.tryParse(lastFetchRaw) : null;
+    if (lastFetchParsed != null) {
+      lastModuleFetchTime = lastFetchParsed;
+    }
   }
 
   storeRelevantModuleRows() async {

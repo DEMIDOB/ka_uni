@@ -4,6 +4,8 @@ import 'package:kit_mobile/parsing/models/hierarchic_table_row.dart';
 import '../../module_info_table/models/module_info_table.dart';
 
 class KITModule {
+  static const Duration cacheStaleAfter = Duration(days: 2);
+
   String id = "";
   String title = "";
   String assignmentType = "";
@@ -135,7 +137,10 @@ class KITModule {
   bool get isEmpty => id == "";
 
   bool get requiresUpdate {
-    return isEmpty || DateTime.now().difference(lastUpdated).inMinutes > 5;
+    if (isEmpty) {
+      return true;
+    }
+    return DateTime.now().difference(lastUpdated) >= cacheStaleAfter;
   }
 
   @override
