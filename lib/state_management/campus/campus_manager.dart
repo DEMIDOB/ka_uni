@@ -73,8 +73,8 @@ class CampusManager extends KITLoginer {
       module.hierarchicalTableRowId = row.id;
       module.row = row;
 
-      if (module.grade == "0,0" && row.mark.isNotEmpty) {
-        module.grade = row.mark;
+      if (module.grade == "0,0" && row.grade.isNotEmpty) {
+        module.grade = row.grade;
       }
 
       if (module.title.trim().isEmpty) {
@@ -294,7 +294,7 @@ class CampusManager extends KITLoginer {
       });
     });
 
-    if (rowsSorted[1]?.first.mark.replaceAll(",", ".") == null) {
+    if (rowsSorted[1]?.first.grade.replaceAll(",", ".") == null) {
       if (kDebugMode) {
         print(rowsSorted);
         print("No row. Failed to fetch for now. Retrying...");
@@ -315,7 +315,7 @@ class CampusManager extends KITLoginer {
         name: Name(firstName: firstName, lastName: lastName),
         matriculationNumber: matrn,
         degreeProgram: degreeProgram,
-        avgMark: rowsSorted[1]?.first.mark ?? "0,0",
+        avgMark: rowsSorted[1]?.first.grade ?? "0,0",
         ectsAcquired: ectsAcquired);
 
     fetchTimetable().then((_) {
@@ -437,8 +437,8 @@ class CampusManager extends KITLoginer {
 
     module.parseModulePage(response.body);
 
-    if (module.grade == "0,0" && row.mark.isNotEmpty) {
-      module.grade = row.mark;
+    if (module.grade == "0,0" && row.grade.isNotEmpty) {
+      module.grade = row.grade;
     }
 
     if (module.title.trim().isEmpty) {
@@ -556,11 +556,11 @@ class CampusManager extends KITLoginer {
       }
 
       if (keepSorted) {
-        if (kDebugMode) print("Sorting! (${row.mark})");
+        if (kDebugMode) print("Sorting! (${row.grade})");
 
         bool hasNumber = false;
         for (final num in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]) {
-          if (row.mark.contains("$num")) {
+          if (row.grade.contains("$num")) {
             if (kDebugMode) print("has number");
             hasNumber = true;
             break;

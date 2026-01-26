@@ -38,7 +38,7 @@ class HierarchicTableView extends StatelessWidget {
                   children: [
                     Expanded(child: Text(row.title, maxLines: 3, style: row.level == minLevelToShow ? theme.textTheme.titleMedium : theme.textTheme.bodyMedium,)),
 
-                    Text(row.mark.length < 6 ? row.mark : "")
+                    Text(row.grade.length < 6 ? row.grade : "")
                   ],
                 )
               ],

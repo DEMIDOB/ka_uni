@@ -7,7 +7,7 @@ class HierarchicTableRow  {
   String href;
   final String type;
   final String statusStr;
-  String mark;
+  String grade;
   final String pointsAcquired;
   final String pointsMax;
   int year = 0;
@@ -16,14 +16,14 @@ class HierarchicTableRow  {
 
   List<HierarchicTableRow> children = [];
 
-  HierarchicTableRow({required this.level, required this.title, required this.href, required this.type, required this.statusStr, required this.mark, required this.pointsAcquired, required this.pointsMax});
+  HierarchicTableRow({required this.level, required this.title, required this.href, required this.type, required this.statusStr, required this.grade, required this.pointsAcquired, required this.pointsMax});
 
   String get id => "${level}_${title}_$year";
   
-  bool get isMarkEmpty => mark.isEmpty || mark.startsWith("0") || mark.startsWith("&");
+  bool get isGradeEmpty => grade.isEmpty || grade.startsWith("0") || grade.startsWith("&");
   
   int get relevancyRank {
-    return isMarkEmpty ? 10 : 1;
+    return isGradeEmpty ? 10 : 1;
   }
 
   static HierarchicTableRow? parseTr(element, Map<int, List<HierarchicTableRow>> rowsSorted) {
@@ -60,7 +60,7 @@ class HierarchicTableRow  {
         href: firstLink.attributes["href"],
         type: cells[2].innerHtml,
         statusStr: "",
-        mark: cells[4].innerHtml,
+        grade: cells[4].innerHtml,
         pointsAcquired: cells[6].innerHtml,
         pointsMax: cells[7].innerHtml,
       );
@@ -70,9 +70,9 @@ class HierarchicTableRow  {
       return null;
     }
 
-    if (newRow.mark.contains(",")) {
-      final commaIndex = newRow.mark.lastIndexOf(",");
-      newRow.mark = newRow.mark.substring(max(0, commaIndex - 1), min(commaIndex + 2, newRow.mark.length));
+    if (newRow.grade.contains(",")) {
+      final commaIndex = newRow.grade.lastIndexOf(",");
+      newRow.grade = newRow.grade.substring(max(0, commaIndex - 1), min(commaIndex + 2, newRow.grade.length));
     }
 
     newRow.clearTitle();

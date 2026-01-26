@@ -78,10 +78,17 @@ class KITProvider extends ChangeNotifier {
 
   static String get currentSemesterString {
     final now = DateTime.now();
-    if ([10, 11, 12, 1, 2, 3].contains(now.month)) {
-      return "WS ${now.year}";
+
+    // Winter (handles year transition)
+    if ([10, 11, 12].contains(now.month)) {
+      return "WS ${now.year % 100}/${(now.year + 1) % 100}";
     }
 
+    if ([1, 2, 3].contains(now.month)) {
+      return "WS ${(now.year - 1) % 100}/${now.year% 100}";
+    }
+
+    // Summer
     return "SS ${now.year}";
   }
 
