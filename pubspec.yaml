@@ -58,6 +58,7 @@ dependencies:
   liquid_glass_renderer: ^0.1.1-dev.16
   animate_gradient: ^0.0.3
   file_saver: ^0.3.1
+  flutter_pdfview: ^1.4.4
 dev_dependencies:
   flutter_test:
     sdk: flutter
