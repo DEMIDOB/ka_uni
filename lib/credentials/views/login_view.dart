@@ -9,11 +9,12 @@ import 'package:kit_mobile/common_ui/alpha_badge.dart';
 import 'package:kit_mobile/credentials/data/credentials_provider.dart';
 import 'package:kit_mobile/credentials/models/auth_result.dart';
 import 'package:kit_mobile/state_management/kit_provider.dart';
-import 'package:liquid_glass_renderer/liquid_glass_renderer.dart';
+import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
+// import 'package:liquid_glass_renderer/liquid_glass_renderer.dart';
 import 'package:provider/provider.dart';
 
 import '../../../common_ui/kit_progress_indicator.dart';
-import '../../constants.dart';
+import '../../constants/view_constants.dart';
 import '../../info/views/info_view.dart';
 
 class LoginPage extends StatefulWidget {
@@ -185,17 +186,20 @@ class LoginPageState extends State<LoginPage> {
                           width: mq.size.width,
                           // height: 125,
                           child: Center(
-                            child: LiquidGlass(
-                              shape: LiquidRoundedSuperellipse(borderRadius: appBorderRadius),
+                            child: GlassContainer(
+                              useOwnLayer: true,
+                              quality: GlassQuality.premium,
+                              settings: LiquidGlassSettings(blur: 0),
                               child: Container(
                                 padding: EdgeInsets.all(defaultPagePadding),
                                 child: Hero(
                                   tag: "greeting",
                                   child: Text(
                                     "Hallo, ${credsVM.displayName}",
-                                    style: theme.textTheme.headlineLarge?.copyWith(
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.white),
+                                    style: theme.textTheme.headlineLarge
+                                        ?.copyWith(
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.white),
                                     maxLines: 2,
                                   ),
                                 ),

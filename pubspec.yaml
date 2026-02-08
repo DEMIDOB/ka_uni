@@ -38,10 +38,10 @@ dependencies:
   html: ^0.15.4
   flutter_svg: ^2.0.10+1
   provider: ^6.1.2
-  flutter_secure_storage: ^9.0.0
-  flutter_widget_from_html: ^0.16.0
+  flutter_secure_storage: ^10.0.0
+  flutter_widget_from_html: ^0.17.1
   carousel_slider: ^5.0.0
-  flutter_map: ^7.0.1
+  flutter_map: ^8.2.2
 #  fluttertoast: ^8.2.6
   url_launcher: ^6.3.0
   flutter_web_browser: ^0.17.1
@@ -53,12 +53,14 @@ dependencies:
   shared_preferences: ^2.5.3
   http_session: ^0.2.2
   async_locks: ^4.0.2
-  haptic_feedback: ^0.5.1+1
-  glassmorphism: ^3.0.0
-  liquid_glass_renderer: ^0.1.1-dev.16
+  haptic_feedback: ^0.6.4+3
+#  glassmorphism: ^3.0.0
+#  liquid_glass_renderer: ^0.2.0-dev.4
   animate_gradient: ^0.0.3
   file_saver: ^0.3.1
   flutter_pdfview: ^1.4.4
+  path_provider: ^2.1.5
+  liquid_glass_widgets: ^0.3.0-dev.1
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -68,7 +70,7 @@ dev_dependencies:
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
-  flutter_lints: ^5.0.0
+  flutter_lints: ^6.0.0
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

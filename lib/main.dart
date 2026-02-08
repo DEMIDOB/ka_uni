@@ -7,16 +7,18 @@ import 'package:kit_mobile/state_management/kit_provider.dart';
 import 'package:kit_mobile/toasts/models/toasts_provider.dart';
 import 'package:kit_mobile/toasts/views/toasts_overlay.dart';
 import 'package:kit_mobile/tutorials/data/tutorial_manager.dart';
+import 'package:liquid_glass_widgets/liquid_glass_setup.dart';
 import 'package:provider/provider.dart';
 
-import 'constants.dart';
+import 'constants/view_constants.dart';
 import 'navigation/views/kit_nav_container.dart';
 
 const isAlpha = true;
 
-void main() {
+void main() async {
   // await initializeDateFormatting('de_DE', null);
   // Intl.defaultLocale = 'de_DE'; // Set the default locale
+  await LiquidGlassWidgets.initialize();
 
   runApp(const MyApp());
 }
@@ -27,7 +29,6 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-
     var themeData = ThemeData(
       colorScheme: ColorScheme.fromSeed(
         seedColor: mainColor,
@@ -38,20 +39,21 @@ class MyApp extends StatelessWidget {
     );
 
     var textTheme = themeData.textTheme.copyWith(
-      titleLarge: themeData.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-      titleMedium: themeData.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-      headlineSmall: themeData.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
-      headlineMedium: themeData.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
+      titleLarge:
+          themeData.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+      titleMedium: themeData.textTheme.titleMedium
+          ?.copyWith(fontWeight: FontWeight.bold),
+      headlineSmall: themeData.textTheme.headlineSmall
+          ?.copyWith(fontWeight: FontWeight.bold),
+      headlineMedium: themeData.textTheme.headlineMedium
+          ?.copyWith(fontWeight: FontWeight.bold),
     );
 
-    final bottomSheetThemeData = themeData.bottomSheetTheme.copyWith(
-      backgroundColor: Color.fromRGBO(0, 0, 0, 0)
-    );
+    final bottomSheetThemeData = themeData.bottomSheetTheme
+        .copyWith(backgroundColor: Color.fromRGBO(0, 0, 0, 0));
 
     themeData = themeData.copyWith(
-      textTheme: textTheme,
-      bottomSheetTheme: bottomSheetThemeData
-    );
+        textTheme: textTheme, bottomSheetTheme: bottomSheetThemeData);
     themeData = themeData.copyWith(
       appBarTheme: themeData.appBarTheme.copyWith(
         backgroundColor: appleGrey,
@@ -64,47 +66,57 @@ class MyApp extends StatelessWidget {
     var darkThemeData = ThemeData.dark();
 
     darkThemeData = darkThemeData.copyWith(
-      colorScheme: ColorScheme.fromSeed(seedColor: mainColor, brightness: Brightness.dark), //, onBackground: Colors.red, background: Colors.red),
-      textTheme: darkThemeData.textTheme.copyWith(
-        titleLarge: darkThemeData.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
-        titleMedium: darkThemeData.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-        headlineSmall: darkThemeData.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
-        headlineMedium: darkThemeData.textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
-      ),
-      scaffoldBackgroundColor: Colors.black,
-      appBarTheme: darkThemeData.appBarTheme.copyWith(
-        backgroundColor: Colors.black,
-        surfaceTintColor: Colors.black,
-      ),
-      cardColor: appleDarkGrey,
-      bottomSheetTheme: bottomSheetThemeData
-    );
+        colorScheme: ColorScheme.fromSeed(
+            seedColor: mainColor,
+            brightness: Brightness
+                .dark), //, onBackground: Colors.red, background: Colors.red),
+        textTheme: darkThemeData.textTheme.copyWith(
+          titleLarge: darkThemeData.textTheme.titleLarge
+              ?.copyWith(fontWeight: FontWeight.bold),
+          titleMedium: darkThemeData.textTheme.titleMedium
+              ?.copyWith(fontWeight: FontWeight.bold),
+          headlineSmall: darkThemeData.textTheme.headlineSmall
+              ?.copyWith(fontWeight: FontWeight.bold),
+          headlineMedium: darkThemeData.textTheme.headlineMedium
+              ?.copyWith(fontWeight: FontWeight.bold),
+        ),
+        scaffoldBackgroundColor: Colors.black,
+        appBarTheme: darkThemeData.appBarTheme.copyWith(
+          backgroundColor: Colors.black,
+          surfaceTintColor: Colors.black,
+        ),
+        cardColor: appleDarkGrey,
+        bottomSheetTheme: bottomSheetThemeData);
 
     return MultiProvider(
-      providers: [
-        ChangeNotifierProvider<KITProvider>(create: (ctx) => KITProvider()),
-        ChangeNotifierProvider<CredentialsProvider>(create: (ctx) => CredentialsProvider(),),
-        ChangeNotifierProvider<ToastsProvider>(create: (ctx) => ToastsProvider(),),
-        ChangeNotifierProvider<SettingsProvider>(create: (ctx) => SettingsProvider(context: ctx),),
-        ChangeNotifierProvider<IliasFileManager>(create: (ctx) => IliasFileManager(),),
-        ChangeNotifierProvider<TutorialManager>(create: (ctx) => TutorialManager(),),
-
-      ],
-      child: MaterialApp(
-        title: "KA.Uni",
-        theme: themeData,
-        darkTheme: darkThemeData,
-        builder: (context, child) {
-          return Stack(
-            children: [
-              child ?? SizedBox(),
-              ToastsOverlay()
-            ],
-          );
-        },
-        home: KITApp()
-      )
-    );
+        providers: [
+          ChangeNotifierProvider<KITProvider>(create: (ctx) => KITProvider()),
+          ChangeNotifierProvider<CredentialsProvider>(
+            create: (ctx) => CredentialsProvider(),
+          ),
+          ChangeNotifierProvider<ToastsProvider>(
+            create: (ctx) => ToastsProvider(),
+          ),
+          ChangeNotifierProvider<SettingsProvider>(
+            create: (ctx) => SettingsProvider(context: ctx),
+          ),
+          ChangeNotifierProvider<IliasFileManager>(
+            create: (ctx) => IliasFileManager(),
+          ),
+          ChangeNotifierProvider<TutorialManager>(
+            create: (ctx) => TutorialManager(),
+          ),
+        ],
+        child: MaterialApp(
+            title: "KA.Uni",
+            theme: themeData,
+            darkTheme: darkThemeData,
+            builder: (context, child) {
+              return Stack(
+                children: [child ?? SizedBox(), ToastsOverlay()],
+              );
+            },
+            home: KITApp()));
   }
 }
 
@@ -118,8 +130,9 @@ class KITApp extends StatelessWidget {
       transitionBuilder: (Widget child, Animation<double> animation) {
         return FadeTransition(opacity: animation, child: child);
       },
-      child: Provider.of<KITProvider>(context).profileReady ? KITNavContainer() : LoginPage(),
+      child: Provider.of<KITProvider>(context).profileReady
+          ? KITNavContainer()
+          : LoginPage(),
     );
   }
-
 }

@@ -62,7 +62,13 @@ class KITProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  fetchSchedule({notify = true, retryIfFailed = true, secondRetryIfFailed = true, refreshSession = true, startRefreshTimer = true}) async {
+  fetchSchedule(
+      {notify = true,
+      retryIfFailed = true,
+      secondRetryIfFailed = true,
+      refreshSession = true,
+      startRefreshTimer = true,
+      ignoreIfCached = false}) async {
     final fetchResult = await campusManager.fetchSchedule();
     Future.delayed(Duration(seconds: 1), iliasManager.authorize);
     return fetchResult;
@@ -72,7 +78,8 @@ class KITProvider extends ChangeNotifier {
     return await campusManager.getOrFetchModuleForRow(row);
   }
 
-  Future<bool> toggleIsFavorite(ModuleInfoTableCell cell, KITModule inModule, {visual = true}) async {
+  Future<bool> toggleIsFavorite(ModuleInfoTableCell cell, KITModule inModule,
+      {visual = true}) async {
     return await campusManager.toggleIsFavorite(cell, inModule, visual: visual);
   }
 
@@ -85,7 +92,7 @@ class KITProvider extends ChangeNotifier {
     }
 
     if ([1, 2, 3].contains(now.month)) {
-      return "WS ${(now.year - 1) % 100}/${now.year% 100}";
+      return "WS ${(now.year - 1) % 100}/${now.year % 100}";
     }
 
     // Summer
@@ -95,5 +102,4 @@ class KITProvider extends ChangeNotifier {
   clearCookiesAndCache() async {
     await campusManager.clearCookiesAndCache();
   }
-
 }

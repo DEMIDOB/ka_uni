@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:kit_mobile/common_ui/block_container.dart';
-import 'package:kit_mobile/constants.dart';
+import 'package:kit_mobile/constants/view_constants.dart';
 import 'package:kit_mobile/settings/providers/settings_provider.dart';
 import 'package:kit_mobile/settings/types/multiple_choice_setting.dart';
 import 'package:kit_mobile/state_management/kit_provider.dart';
@@ -17,7 +17,6 @@ class SettingsPage extends StatefulWidget {
   State<StatefulWidget> createState() {
     return _SettingsPageState();
   }
-
 }
 
 class _SettingsPageState extends State<SettingsPage> {
@@ -34,13 +33,11 @@ class _SettingsPageState extends State<SettingsPage> {
         title: Text("Einstellungen"),
         actions: [
           CupertinoButton(
-            child: Icon(CupertinoIcons.info),
-            onPressed: () => Navigator.of(context).push(
-                MaterialPageRoute(
-                    builder: (context) => InfoView())))
+              child: Icon(CupertinoIcons.info),
+              onPressed: () => Navigator.of(context)
+                  .push(MaterialPageRoute(builder: (context) => InfoView())))
         ],
       ),
-
       body: SingleChildScrollView(
         child: Container(
           padding: defaultPagePaddingEdgeInsetsAll,
@@ -68,23 +65,18 @@ class _SettingsPageState extends State<SettingsPage> {
 
               BlockContainer(
                 child: Column(
-                 children: [
-                   SettingRow(
-                     title: "Profil anzeigen",
-                     trailing: CupertinoSwitch(
-                       value: settingsVM.showingProfile.value,
-                       onChanged: settingsVM.showingProfile.set
-                     )
-                   ),
-
-                   SettingRow(
-                       title: "Durchschnittsnote anzeigen",
-                       trailing: CupertinoSwitch(
-                           value: settingsVM.showingAvgMark.value,
-                           onChanged: settingsVM.showingAvgMark.set
-                       )
-                   ),
-                 ],
+                  children: [
+                    SettingRow(
+                        title: "Profil anzeigen",
+                        trailing: CupertinoSwitch(
+                            value: settingsVM.showingProfile.value,
+                            onChanged: settingsVM.showingProfile.set)),
+                    SettingRow(
+                        title: "Durchschnittsnote anzeigen",
+                        trailing: CupertinoSwitch(
+                            value: settingsVM.showingAvgMark.value,
+                            onChanged: settingsVM.showingAvgMark.set)),
+                  ],
                 ),
               ),
 
@@ -94,14 +86,16 @@ class _SettingsPageState extends State<SettingsPage> {
                 child: Column(
                   children: [
                     SettingRow(
-                      title: "Startseite",
-                      trailing: MultipleChoiceSettingDropdown(multipleChoiceSetting: settingsVM.defaultIliasPage)
-                    )
+                        title: "Startseite",
+                        trailing: MultipleChoiceSettingDropdown(
+                            multipleChoiceSetting: settingsVM.defaultIliasPage))
                   ],
                 ),
               ),
 
-              CupertinoButton(child: Text("Ausloggen"), onPressed: () => credsVM.logout(vm)),
+              CupertinoButton(
+                  child: Text("Ausloggen"),
+                  onPressed: () => credsVM.logout(vm)),
             ],
           ),
         ),
@@ -110,7 +104,6 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   // Widget _settingRow(String title, Widget trailing) =>
-
 }
 
 class SettingRow extends StatelessWidget {
@@ -123,17 +116,20 @@ class SettingRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return
-      Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(title, style: theme.textTheme.bodyMedium,),
-          SizedBox(width: 20,),
-          trailing
-        ],
-      );
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          title,
+          style: theme.textTheme.bodyMedium,
+        ),
+        SizedBox(
+          width: 20,
+        ),
+        trailing
+      ],
+    );
   }
-
 }
 
 class SettingsSectionTitle extends StatelessWidget {
@@ -146,33 +142,27 @@ class SettingsSectionTitle extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Container(
-      padding: EdgeInsets.only(
-        left: 15,
-        bottom: 2,
-        top: 20
-      ),
+      padding: EdgeInsets.only(left: 15, bottom: 2, top: 20),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
           Text(
             title,
             style: theme.textTheme.bodyMedium?.copyWith(
-              fontSize: 15,
-              fontWeight: FontWeight.bold,
-              color: Colors.grey
-            ),
+                fontSize: 15, fontWeight: FontWeight.bold, color: Colors.grey),
           )
         ],
       ),
     );
   }
-
 }
 
 class MultipleChoiceSettingDropdown extends StatelessWidget {
   final MultipleChoiceSetting _multipleChoiceSetting;
 
-  const MultipleChoiceSettingDropdown({super.key, required MultipleChoiceSetting multipleChoiceSetting}) : _multipleChoiceSetting = multipleChoiceSetting;
+  const MultipleChoiceSettingDropdown(
+      {super.key, required MultipleChoiceSetting multipleChoiceSetting})
+      : _multipleChoiceSetting = multipleChoiceSetting;
 
   @override
   Widget build(BuildContext context) {
@@ -180,22 +170,23 @@ class MultipleChoiceSettingDropdown extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Expanded(
-      child: DropdownButton(
-        underline: SizedBox.shrink(),
-        borderRadius: BorderRadius.all(appBorderRadius),
-        dropdownColor: theme.cardColor,
-        elevation: 1,
-        alignment: Alignment.centerRight,
-        items: _multipleChoiceSetting.choices.map((el) => DropdownMenuItem(
-          value: el,
-          alignment: Alignment.centerRight,
-          child: Text("$el", style: theme.textTheme.bodyMedium,),
-          )
-        ).toList(),
-        value: _multipleChoiceSetting.value,
-        onChanged: (item) => _multipleChoiceSetting.set(item)
-      )
-    );
+        child: DropdownButton(
+            underline: SizedBox.shrink(),
+            borderRadius: BorderRadius.all(appBorderRadius),
+            dropdownColor: theme.cardColor,
+            elevation: 1,
+            alignment: Alignment.centerRight,
+            items: _multipleChoiceSetting.choices
+                .map((el) => DropdownMenuItem(
+                      value: el,
+                      alignment: Alignment.centerRight,
+                      child: Text(
+                        "$el",
+                        style: theme.textTheme.bodyMedium,
+                      ),
+                    ))
+                .toList(),
+            value: _multipleChoiceSetting.value,
+            onChanged: (item) => _multipleChoiceSetting.set(item)));
   }
-
 }

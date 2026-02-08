@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:kit_mobile/common_ui/block_container.dart';
-import 'package:kit_mobile/constants.dart';
+import 'package:kit_mobile/constants/view_constants.dart';
 import 'package:kit_mobile/module/models/module.dart';
 import 'package:kit_mobile/state_management/kit_provider.dart';
 import 'package:kit_mobile/timetable/models/timetable_appointment.dart';
@@ -52,7 +52,10 @@ class TimetableDailyView extends StatelessWidget {
       children: [
         Column(
           children: appointmentsByBlock.map((appointments) {
-            final appointment = appointments.where((appointment) => !appointment.isEmpty || appointments.length <= 1).first;
+            final appointment = appointments
+                .where((appointment) =>
+                    !appointment.isEmpty || appointments.length <= 1)
+                .first;
             bool isTut = appointment.type == TimetableAppointmentType.tutorial;
 
             // try {
@@ -64,14 +67,19 @@ class TimetableDailyView extends StatelessWidget {
 
             return Container(
               decoration: BoxDecoration(
-                border: appointment.begin.hour < 17 ? Border(bottom: BorderSide(color: theme.brightness == Brightness.light ? Colors.black12 : Colors.white.withValues(alpha: 0.15))) : null,
+                border: appointment.begin.hour < 17
+                    ? Border(
+                        bottom: BorderSide(
+                            color: theme.brightness == Brightness.light
+                                ? Colors.black12
+                                : Colors.white.withValues(alpha: 0.15)))
+                    : null,
               ),
               child: SizedBox(
                 height: appointment.duration * 0.9,
                 child: Stack(
                   alignment: Alignment.topLeft,
                   children: [
-
                     // Padding(
                     //   padding: EdgeInsets.only(left: 15, right: 5, top: 5, bottom: 5),
                     //   child: VerticalDivider(color: theme.colorScheme.primary,),
@@ -79,10 +87,15 @@ class TimetableDailyView extends StatelessWidget {
 
                     GestureDetector(
                       onTap: () {
-                        Navigator.of(context).push(MaterialPageRoute(builder: (context) => TimetableAppointmentPage(appointment: appointment)));
+                        Navigator.of(context).push(MaterialPageRoute(
+                            builder: (context) => TimetableAppointmentPage(
+                                appointment: appointment)));
                       },
                       child: SizedBox(
-                        width: appointment.type == TimetableAppointmentType.lunchBreak ? null : deviceWidth * 0.8,
+                        width: appointment.type ==
+                                TimetableAppointmentType.lunchBreak
+                            ? null
+                            : deviceWidth * 0.8,
                         child: Container(
                           padding: EdgeInsets.symmetric(horizontal: 15),
                           child: Column(
@@ -93,40 +106,63 @@ class TimetableDailyView extends StatelessWidget {
 
                               appointment.id.isNotEmpty
                                   ? Hero(
-                                  tag: "appointmentTitle_${appointment.title}_${appointment.id}",
-                                  child: Text(
-                                    isTut ? "Tutorium: " + appointment.abbreviatedTitleIfLongerThan(30) : appointment.abbreviatedTitleIfLongerThan(50),
-                                    style: theme.textTheme.titleSmall?.copyWith(
-                                      fontWeight: FontWeight.bold),
+                                      tag:
+                                          "appointmentTitle_${appointment.title}_${appointment.id}",
+                                      child: Text(
+                                        isTut
+                                            ? "Tutorium: " +
+                                                appointment
+                                                    .abbreviatedTitleIfLongerThan(
+                                                        30)
+                                            : appointment
+                                                .abbreviatedTitleIfLongerThan(
+                                                    50),
+                                        style: theme.textTheme.titleSmall
+                                            ?.copyWith(
+                                                fontWeight: FontWeight.bold),
+                                        maxLines: 2,
+                                      ))
+                                  : Text(
+                                      appointment.title,
+                                      style: theme.textTheme.titleSmall
+                                          ?.copyWith(
+                                              fontWeight: FontWeight.bold),
                                       maxLines: 2,
-                                    )
-                                  )
-                                : Text(
-                                  appointment.title,
-                                  style: theme.textTheme.titleSmall?.copyWith(
-                                    fontWeight: FontWeight.bold),
-                                    maxLines: 2,
-                                  ),
+                                    ),
 
                               appointment.place.title.isNotEmpty
                                   ? Hero(
-                                  tag: "appointmentPlace_${appointment.title}_${appointment.id}",
-                                  child: Text(appointment.place.title, maxLines: 2,))
-                                  : SizedBox(height: 0,),
+                                      tag:
+                                          "appointmentPlace_${appointment.title}_${appointment.id}",
+                                      child: Text(
+                                        appointment.place.title,
+                                        maxLines: 2,
+                                      ))
+                                  : SizedBox(
+                                      height: 0,
+                                    ),
 
                               isTut && (appointment.notes ?? "").isNotEmpty
-                                ? Text(appointment.notes, maxLines: 2,)
-                                : SizedBox.shrink(),
+                                  ? Text(
+                                      appointment.notes,
+                                      maxLines: 2,
+                                    )
+                                  : SizedBox.shrink(),
 
-                              appointment.type == TimetableAppointmentType.lunchBreak ? Row(
-                                children: [
-                                  // CupertinoButton(
-                                  //   child: Text("Speiseplan", style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.primary),),
-                                  //   onPressed: () {},
-                                  //   padding: EdgeInsets.only(left: 0),
-                                  // )
-                                ],
-                              ) : const SizedBox(height: 0,)
+                              appointment.type ==
+                                      TimetableAppointmentType.lunchBreak
+                                  ? Row(
+                                      children: [
+                                        // CupertinoButton(
+                                        //   child: Text("Speiseplan", style: theme.textTheme.bodyMedium?.copyWith(color: theme.colorScheme.primary),),
+                                        //   onPressed: () {},
+                                        //   padding: EdgeInsets.only(left: 0),
+                                        // )
+                                      ],
+                                    )
+                                  : const SizedBox(
+                                      height: 0,
+                                    )
                             ],
                           ),
                         ),
@@ -136,18 +172,24 @@ class TimetableDailyView extends StatelessWidget {
                       top: 0,
                       right: 0,
                       child: ClipRRect(
-                          borderRadius: const BorderRadius.only(topRight: appBorderRadius),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              BlockContainer(
-                                padding: const EdgeInsets.only(left: 3, bottom: 3),
-                                  innerPadding: const EdgeInsets.only(left: 6, bottom: 3, top: 3, right: 6),
-                                  child: Text("${appointment.begin.hour.toString().padLeft(2, "0")}:${appointment.begin.minute.toString().padLeft(2, "0")}", style: theme.textTheme.bodyLarge?.copyWith(color: theme.colorScheme.primary),)
-                              ),
-                              // Text("${appointment.end.hour.toString().padLeft(2, "0")}:${appointment.end.minute.toString().padLeft(2, "0")}"),
-                            ],
-                          ),
+                        borderRadius:
+                            const BorderRadius.only(topRight: appBorderRadius),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            BlockContainer(
+                                padding:
+                                    const EdgeInsets.only(left: 3, bottom: 3),
+                                innerPadding: const EdgeInsets.only(
+                                    left: 6, bottom: 3, top: 3, right: 6),
+                                child: Text(
+                                  "${appointment.begin.hour.toString().padLeft(2, "0")}:${appointment.begin.minute.toString().padLeft(2, "0")}",
+                                  style: theme.textTheme.bodyLarge?.copyWith(
+                                      color: theme.colorScheme.primary),
+                                )),
+                            // Text("${appointment.end.hour.toString().padLeft(2, "0")}:${appointment.end.minute.toString().padLeft(2, "0")}"),
+                          ],
+                        ),
                       ),
                     ),
                   ],
@@ -175,7 +217,8 @@ class _BlockContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final children = <Widget>[];
-    final isLunchBreak = appointment.type == TimetableAppointmentType.lunchBreak;
+    final isLunchBreak =
+        appointment.type == TimetableAppointmentType.lunchBreak;
 
     if (isLunchBreak) {
       children.add(_LunchBreakTile(appointment: appointment));

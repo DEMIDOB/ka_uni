@@ -21,11 +21,12 @@ class CredentialsProvider extends ChangeNotifier {
 
   Future<void> loadCredentials() async {
     final all = await _storage.readAll(
-      iOptions: _iOSOptions,
-      aOptions: _androidOptions
-    );
+        iOptions: _iOSOptions, aOptions: _androidOptions);
 
-    credentials.valid = all.containsKey("username") && all.containsKey("password") && all.containsKey("isLoggedIn") && ((all["isLoggedIn"]?.length ?? 0) > 0);
+    credentials.valid = all.containsKey("username") &&
+        all.containsKey("password") &&
+        all.containsKey("isLoggedIn") &&
+        ((all["isLoggedIn"]?.length ?? 0) > 0);
 
     if (credentials.valid) {
       credentials.username = all["username"]!;
@@ -44,13 +45,33 @@ class CredentialsProvider extends ChangeNotifier {
       displayName = credentials.username;
     }
 
-    await _storage.write(key: "username",        value: credentials.username,         iOptions: _iOSOptions, aOptions: _androidOptions);
-    await _storage.write(key: "password",        value: credentials.password,         iOptions: _iOSOptions, aOptions: _androidOptions);
-    await _storage.write(key: "isLoggedIn",      value: credentials.valid ? "1" : "", iOptions: _iOSOptions, aOptions: _androidOptions);
-    await _storage.write(key: "userDisplayName", value: displayName,                  iOptions: _iOSOptions, aOptions: _androidOptions);
+    await _storage.write(
+        key: "username",
+        value: credentials.username,
+        iOptions: _iOSOptions,
+        aOptions: _androidOptions);
+    await _storage.write(
+        key: "password",
+        value: credentials.password,
+        iOptions: _iOSOptions,
+        aOptions: _androidOptions);
+    await _storage.write(
+        key: "isLoggedIn",
+        value: credentials.valid ? "1" : "",
+        iOptions: _iOSOptions,
+        aOptions: _androidOptions);
+    await _storage.write(
+        key: "userDisplayName",
+        value: displayName,
+        iOptions: _iOSOptions,
+        aOptions: _androidOptions);
 
     if (isAlpha) {
-      await _storage.write(key: "alpha", value: "hero", iOptions: _iOSOptions, aOptions: _androidOptions);
+      await _storage.write(
+          key: "alpha",
+          value: "hero",
+          iOptions: _iOSOptions,
+          aOptions: _androidOptions);
     }
 
     // displayName = credentials.username;
@@ -74,16 +95,22 @@ class CredentialsProvider extends ChangeNotifier {
 
   setDisplayName(String val) async {
     displayName = val;
-    await _storage.write(key: "userDisplayName", value: val, iOptions: _iOSOptions, aOptions: _androidOptions);
+    await _storage.write(
+        key: "userDisplayName",
+        value: val,
+        iOptions: _iOSOptions,
+        aOptions: _androidOptions);
   }
 
-  Future<AuthResult> submit(String typedUsername, String typedPassword, KITProvider vm) async {
+  Future<AuthResult> submit(
+      String typedUsername, String typedPassword, KITProvider vm) async {
     if (displayName.isEmpty) {
       displayName = typedUsername;
       notifyListeners();
     }
 
-    KITCredentials newCredentials = KITCredentials(username: typedUsername, password: typedPassword);
+    KITCredentials newCredentials =
+        KITCredentials(username: typedUsername, password: typedPassword);
 
     if (!newCredentials.isFormatValid) {
       if (kDebugMode) {
@@ -97,7 +124,8 @@ class CredentialsProvider extends ChangeNotifier {
     return await login(vm, clearCookiesAndCache: true);
   }
 
-  Future<AuthResult> login(KITProvider vm, {clearCookiesAndCache = true}) async {
+  Future<AuthResult> login(KITProvider vm,
+      {clearCookiesAndCache = true}) async {
     loggingIn = true;
     notifyListeners();
 
@@ -111,7 +139,7 @@ class CredentialsProvider extends ChangeNotifier {
 
     vm.setCredentials(credentials);
     // await vm.iliasManager.authorize();
-    await vm.fetchSchedule(secondRetryIfFailed: false);
+    await vm.fetchSchedule(secondRetryIfFailed: false, ignoreIfCached: true);
 
     if (!vm.profileReady) {
       credentials.valid = false;
@@ -143,11 +171,8 @@ class CredentialsProvider extends ChangeNotifier {
     // vm.clearData();
   }
 
-  IOSOptions get _iOSOptions => const IOSOptions(
-    accountName: "kit-student"
-  );
+  IOSOptions get _iOSOptions => const IOSOptions(accountName: "kit-student");
 
-  AndroidOptions get _androidOptions => const AndroidOptions(
-    encryptedSharedPreferences: true
-  );
+  AndroidOptions get _androidOptions =>
+      const AndroidOptions(encryptedSharedPreferences: true);
 }

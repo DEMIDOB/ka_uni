@@ -5,7 +5,8 @@ const defaultPagePadding = 15.0;
 const defaultPagePaddingEdgeInsetsAll = EdgeInsets.all(15.0);
 
 // Shapes
-const appBorderRadius = Radius.circular(20);
+const double appBorderRadiusDouble = 20;
+const appBorderRadius = Radius.circular(appBorderRadiusDouble);
 const cupertinoInputBorderRadius = Radius.circular(5);
 
 // Colors

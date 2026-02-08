@@ -1,39 +1,46 @@
 import 'dart:io';
-import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:kit_mobile/common_ui/block_container.dart';
 import 'package:kit_mobile/common_ui/kit_progress_indicator.dart';
-import 'package:kit_mobile/constants.dart';
+import 'package:kit_mobile/constants/view_constants.dart';
 import 'package:kit_mobile/module/models/module.dart';
 import 'package:kit_mobile/state_management/kit_provider.dart';
 import 'package:kit_mobile/toasts/models/toasts_provider.dart';
-import 'package:liquid_glass_renderer/liquid_glass_renderer.dart';
+import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 import '../../settings/providers/settings_provider.dart';
 import '../files/ilias_file_manager.dart';
+import 'file_viewer.dart';
 
 class IliasPageView extends StatefulWidget {
   final KITModule module;
   final Future<String> PHPSESSID;
   final bool isFileView;
 
-  const IliasPageView(this.module, {super.key, required this.PHPSESSID, this.isFileView=false});
+  const IliasPageView(this.module,
+      {super.key, required this.PHPSESSID, this.isFileView = false});
 
   @override
   State<StatefulWidget> createState() {
     return _IliasPageViewWState();
   }
-
 }
 
 class _IliasPageViewWState extends State<IliasPageView> {
   late final WebViewController _controller;
   String _phpsessid = "";
+
+  bool isBusy = false;
+
+  int pagesStackSize = 0;
+  Future<bool?> canGoBackFuture = Future.value(false),
+      canGoForwardFuture = Future.value(false);
 
   @override
   void initState() {
@@ -42,30 +49,115 @@ class _IliasPageViewWState extends State<IliasPageView> {
     _controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted);
 
+    _controller.setNavigationDelegate(NavigationDelegate(
+        onUrlChange: _navigationDelegateOnUrlChange,
+        onNavigationRequest: (NavigationRequest req) {
+          if (req.url.contains("sendfile")) {
+            _saveAsFile(req.url);
+            return NavigationDecision.prevent;
+          }
+
+          return NavigationDecision.navigate;
+        }));
+
     widget.PHPSESSID.then((value) {
       final settingsVM = Provider.of<SettingsProvider>(context, listen: false);
       _phpsessid = value;
-      _launchPage(settingsVM.defaultIliasPage.value);
+
+      if (widget.isFileView && widget.module.iliasLink != null) {
+        Future<String?> filepathFuture = _saveAsFile(widget.module.iliasLink!);
+        filepathFuture.then(_launchFileView);
+      } else {
+        _launchPage(settingsVM.defaultIliasPage.value);
+      }
     });
   }
 
-  _launchPage(String defaultPage) async {
+  _navigationDelegateOnUrlChange(UrlChange urlChange) {
+    pagesStackSize++;
+    setState(() {
+      canGoBackFuture = _controller.canGoBack();
+      canGoForwardFuture = _controller.canGoForward();
+    });
 
+    if (kDebugMode) {
+      print("Changed: ${urlChange.url}");
+    }
+  }
+
+  // TODO using https://pub.dev/packages/flutter_pdfview/example
+  Future<String?> _saveAsFile(String url) async {
+    final refId = Uri.parse(url).queryParameters["ref_id"];
+
+    if (refId != null) {
+      final currentSemester = KITProvider.currentSemesterString
+          .replaceAll(" ", "_")
+          .replaceAll("/", "_");
+
+      final dir = await getApplicationDocumentsDirectory();
+      final directory = "${dir.path}/$currentSemester";
+      await Directory(directory).create(recursive: true);
+
+      final filepath = "$directory/${widget.module.title}$refId.pdf";
+
+      File file = File(filepath);
+
+      if (!await file.exists()) {
+        setState(() {
+          isBusy = true;
+        });
+
+        final toastsProvider =
+            Provider.of<ToastsProvider>(context, listen: false);
+        toastsProvider.showTextToast("Wird heruntergeladen...");
+
+        final vm = Provider.of<KITProvider>(context, listen: false);
+        await vm.iliasManager.downloadFile(url, file);
+
+        setState(() {
+          isBusy = false;
+        });
+      }
+
+      // TODO: download file!!!
+
+      _launchFileView(filepath);
+      return filepath;
+    }
+
+    // TODO: callback!
+
+    return null;
+  }
+
+  _launchFileView(String? filepath) {
+    if (filepath == null) {
+      if (kDebugMode) {
+        print("Failed to download file!");
+      }
+    }
+
+    if (kDebugMode) {
+      print("Launching file view for $filepath");
+    }
+
+    print(File(filepath!).lengthSync());
+
+    Navigator.of(context).push(
+        new MaterialPageRoute(builder: (context) => PDFScreen(path: filepath)));
+  }
+
+  _launchPage(String defaultPage) async {
     final cookieManager = WebViewCookieManager();
-    await cookieManager.setCookie(
-        WebViewCookie(
-            name: "PHPSESSID",
-            value: _phpsessid,
-            domain: "ilias.studium.kit.edu"
-        )
-    );
+    await cookieManager.setCookie(WebViewCookie(
+        name: "PHPSESSID", value: _phpsessid, domain: "ilias.studium.kit.edu"));
 
     // final vm = Provider.of<KITProvider>(context);
     String link = widget.module.iliasLink ?? "";
     if (link.isEmpty) {
-      link = defaultPage == "Dashboard" ?
-        "https://ilias.studium.kit.edu/ilias.php?baseClass=ildashboardgui&cmd=show"
-      : "https://ilias.studium.kit.edu/ilias.php?baseClass=ilmembershipoverviewgui";
+      link = defaultPage == "Dashboard"
+          ? "https://ilias.studium.kit.edu/ilias.php?baseClass=ildashboardgui&cmd=show"
+          : "https://ilias.studium.kit.edu/ilias.php?baseClass=ilmembershipoverviewgui";
     }
     _controller.loadRequest(Uri.parse(link));
   }
@@ -82,104 +174,125 @@ class _IliasPageViewWState extends State<IliasPageView> {
     //   appBarHeight = AppBar().preferredSize.height * 1.5;
     // }
 
-    return FutureBuilder(future: widget.PHPSESSID, builder: (context, snapshot) {
-      if (!snapshot.hasData) {
-        return Scaffold(
-          appBar: AppBar(title: Text("ILIAS"),),
-          body: Center(
-            child: KITProgressIndicator(),
-          )
-        );
-      }
+    return FutureBuilder(
+        future: widget.PHPSESSID,
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return Scaffold(
+                appBar: AppBar(
+                  title: Text("ILIAS"),
+                ),
+                body: Center(
+                  child: KITProgressIndicator(),
+                ));
+          }
 
-      return Scaffold(
-          appBar: widget.isFileView ? AppBar(
-            title: Text(widget.module.title.isEmpty ? "Datei" : "${widget.isFileView ? 'Datei: ' : ''}${widget.module.title}"),
-            actions: widget.isFileView ? [] : [
-              CupertinoButton(child: Icon(CupertinoIcons.floppy_disk), onPressed: () async {
-                // toastsProvider.showTextToast("message");
-                if (kDebugMode) {
-                  print(await _controller.currentUrl());
-                }
-              })
-            ],
-          ) : null,
-          body: SafeArea(
-            child: Column(
-              children: [
-                SizedBox(
-                  width: mq.size.width,
-                  height: mq.size.height - (Platform.isAndroid ? 100 : 150) - appBarHeight,
-                  child: BlockContainer(
-                    // padding: EdgeInsets.all(15),
-                    innerPadding: EdgeInsets.zero,
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(appBorderRadius.x),
-                      child: Stack(
-                        children: [
-                          WebViewWidget(controller: _controller),
-
-                          widget.isFileView ? SizedBox.shrink() : Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              // LiquidGlass(
-                              //   shape: LiquidRoundedRectangle(borderRadius: appBorderRadius),
-                              //   settings: LiquidGlassSettings(blur: 5, glassColor: Color.fromARGB(10, 255, 255, 255)),
-                              //   child: ClipRRect(
-                              //       borderRadius: BorderRadius.circular(100),
-                              //       child: CupertinoButton(
-                              //         child: Icon(CupertinoIcons.floppy_disk, color: Colors.white,),
-                              //         onPressed: () => _handleSavePressed(toastsProvider),
-                              //       )
-                              //   ),
-                              // ),
-
+          return Scaffold(
+              appBar: widget.isFileView
+                  ? AppBar(
+                      title: Text(widget.module.title.isEmpty
+                          ? "Datei"
+                          : "${widget.isFileView ? 'Datei: ' : ''}${widget.module.title}"),
+                      actions: widget.isFileView
+                          ? []
+                          : [
+                              CupertinoButton(
+                                  child: Icon(CupertinoIcons.floppy_disk),
+                                  onPressed: () async {
+                                    // toastsProvider.showTextToast("message");
+                                    if (kDebugMode) {
+                                      print(await _controller.currentUrl());
+                                    }
+                                  })
                             ],
-                          )
-                        ],
+                    )
+                  : null,
+              body: SafeArea(
+                child: Column(
+                  children: [
+                    SizedBox(
+                      width: mq.size.width,
+                      height: mq.size.height -
+                          (Platform.isAndroid ? 100 : 150) -
+                          appBarHeight,
+                      child: BlockContainer(
+                        // padding: EdgeInsets.all(15),
+                        innerPadding: EdgeInsets.zero,
+                        child: ClipRRect(
+                          borderRadius:
+                              BorderRadius.circular(appBorderRadius.x),
+                          child: Stack(
+                            children: [
+                              WebViewWidget(controller: _controller),
+                              isBusy
+                                  ? Center(
+                                      child: GlassContainer(
+                                      useOwnLayer: true,
+                                      child: Padding(
+                                        padding: EdgeInsets.all(10),
+                                        child: KITProgressIndicator(),
+                                      ),
+                                    ))
+                                  : SizedBox.shrink()
+                            ],
+                          ),
+                        ),
                       ),
                     ),
-                  ),
+                    widget.isFileView
+                        ? SizedBox.shrink()
+                        : Container(
+                            padding: EdgeInsets.all(5),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              children: [
+                                FutureBuilder(
+                                    future: canGoBackFuture,
+                                    builder: (context, snapshot) {
+                                      return CupertinoButton(
+                                        padding: EdgeInsets.zero,
+                                        onPressed:
+                                            (snapshot.hasData && snapshot.data!)
+                                                ? () async {
+                                                    // if (await _controller.canGoBack()) { the condition is always true
+                                                    _controller.goBack();
+                                                    // }
+                                                  }
+                                                : null,
+                                        child: Icon(CupertinoIcons.back),
+                                      );
+                                    }),
+                                CupertinoButton(
+                                  padding: EdgeInsets.zero,
+                                  child: Icon(
+                                    CupertinoIcons.floppy_disk,
+                                  ),
+                                  onPressed: () =>
+                                      _handleSavePressed(toastsProvider),
+                                ),
+                                FutureBuilder(
+                                    future: canGoForwardFuture,
+                                    builder: (context, snapshot) {
+                                      return CupertinoButton(
+                                        padding: EdgeInsets.zero,
+                                        onPressed:
+                                            (snapshot.hasData && snapshot.data!)
+                                                ? () async {
+                                                    // if (await _controller.canGoForward()) { the condition is always true
+                                                    _controller.goForward();
+                                                    // }
+                                                  }
+                                                : null,
+                                        child: Icon(CupertinoIcons.forward),
+                                      );
+                                    }),
+                              ],
+                            ),
+                          )
+                  ],
                 ),
-                widget.isFileView ? SizedBox.shrink() :Container(
-                  padding: EdgeInsets.all(5),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      CupertinoButton(
-                        padding: EdgeInsets.zero,
-                        child: Icon(CupertinoIcons.back),
-                        onPressed: () async {
-                          if (await _controller.canGoBack()) {
-                            _controller.goBack();
-                          }
-                        },
-                      ),
-
-                      CupertinoButton(
-                        padding: EdgeInsets.zero,
-                        child: Icon(CupertinoIcons.floppy_disk,),
-                        onPressed: () => _handleSavePressed(toastsProvider),
-                      ),
-
-                      CupertinoButton(
-                        padding: EdgeInsets.zero,
-                        child: Icon(CupertinoIcons.forward),
-                        onPressed: () async {
-                          if (await _controller.canGoForward()) {
-                            _controller.goForward();
-                          }
-                        },
-                      )
-
-                    ],
-                  ),
-                )
-              ],
-            ),
-          )
-      );
-    });
+              ));
+        });
   }
 
   Future<void> _handleSavePressed(ToastsProvider toastsProvider) async {
@@ -191,7 +304,8 @@ class _IliasPageViewWState extends State<IliasPageView> {
     }
 
     final kitProvider = Provider.of<KITProvider>(context, listen: false);
-    final settingsProvider = Provider.of<SettingsProvider>(context, listen: false);
+    final settingsProvider =
+        Provider.of<SettingsProvider>(context, listen: false);
 
     final moduleTitles = _collectRelevantModuleTitles(kitProvider);
     if (moduleTitles.isEmpty) {
@@ -244,7 +358,11 @@ class _IliasPageViewWState extends State<IliasPageView> {
 
       final titleFromModule = module.title.trim();
       final titleFromRow = (module.row?.title ?? "").trim();
-      final candidate = titleFromModule.isNotEmpty ? titleFromModule : titleFromRow.isNotEmpty ? titleFromRow : rowId;
+      final candidate = titleFromModule.isNotEmpty
+          ? titleFromModule
+          : titleFromRow.isNotEmpty
+              ? titleFromRow
+              : rowId;
 
       final normalized = candidate.trim();
       if (normalized.isEmpty || seen.contains(normalized)) {
@@ -315,7 +433,6 @@ class _IliasPageViewWState extends State<IliasPageView> {
       },
     );
   }
-
 }
 
 extension _SettingsProviderIliasFiles on SettingsProvider {
