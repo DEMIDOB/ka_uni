@@ -84,7 +84,6 @@ class _IliasPageViewWState extends State<IliasPageView> {
     }
   }
 
-  // TODO using https://pub.dev/packages/flutter_pdfview/example
   Future<String?> _saveAsFile(String url) async {
     final toastsProvider = Provider.of<ToastsProvider>(context, listen: false);
 
@@ -124,7 +123,8 @@ class _IliasPageViewWState extends State<IliasPageView> {
       } else {
         IliasFile? iliasFile;
 
-        var existingFiles = await vm.iliasFileManager.getFilesForCurrentSemester();
+        var existingFiles =
+            await vm.iliasFileManager.getFilesForCurrentSemester();
         for (var element in existingFiles) {
           if (element.urlString == url) {
             iliasFile = element;
@@ -132,7 +132,14 @@ class _IliasPageViewWState extends State<IliasPageView> {
           }
         }
 
-        _launchFileView(iliasFile ?? IliasFile(semesterString: KITProvider.currentSemesterString, urlString: url, moduleTitle: "", addedAt: DateTime.now().toUtc(), customName: "", fileSystemPath: filepath));
+        _launchFileView(iliasFile ??
+            IliasFile(
+                semesterString: KITProvider.currentSemesterString,
+                urlString: url,
+                moduleTitle: "",
+                addedAt: DateTime.now().toUtc(),
+                customName: "",
+                fileSystemPath: filepath));
       }
 
       return filepath;
@@ -156,8 +163,10 @@ class _IliasPageViewWState extends State<IliasPageView> {
       print("Launching file view for $filepath");
     }
 
-    Navigator.of(context).push(
-        MaterialPageRoute(builder: (context) => PDFScreen(iliasFile: iliasFile,)));
+    Navigator.of(context).push(MaterialPageRoute(
+        builder: (context) => PDFScreen(
+              iliasFile: iliasFile,
+            )));
   }
 
   _launchPage(String defaultPage) async {
@@ -177,11 +186,12 @@ class _IliasPageViewWState extends State<IliasPageView> {
 
   @override
   Widget build(BuildContext context) {
+    final vm = Provider.of<KITProvider>(context);
     final mq = MediaQuery.of(context);
     final toastsProvider = Provider.of<ToastsProvider>(context);
 
     // final appBarHeight = AppBar().preferredSize.height * 1.5;
-    final appBarHeight = AppBar().preferredSize.height * 1 - 25;
+    final appBarHeight = AppBar().preferredSize.height * 1 + 2;
 
     // if (widget.isFileView) {
     //   appBarHeight = AppBar().preferredSize.height * 1.5;
@@ -190,7 +200,7 @@ class _IliasPageViewWState extends State<IliasPageView> {
     return FutureBuilder(
         future: widget.PHPSESSID,
         builder: (context, snapshot) {
-          if (!snapshot.hasData) {
+          if (!snapshot.hasData || _phpsessid.isEmpty) {
             return Scaffold(
                 appBar: AppBar(
                   title: Text("ILIAS"),
@@ -201,9 +211,34 @@ class _IliasPageViewWState extends State<IliasPageView> {
           }
 
           return Scaffold(
-              appBar: Navigator.of(context).canPop() ? AppBar(
-                title: Text("ILIAS"),
-              ) : null,
+              appBar: Navigator.of(context).canPop()
+                  ? AppBar(
+                      title: Text("ILIAS"),
+                      actions: [
+                        MaterialButton(
+                            child: Icon(CupertinoIcons.refresh),
+                            onPressed: () async {
+                              setState(() {
+                                _phpsessid = "";
+                              });
+
+                              await vm.iliasManager
+                                  .authorize(refreshSession: true);
+                              final newPHPSESSIONID =
+                                  await vm.iliasManager.getPHPSESSID();
+
+                              if (newPHPSESSIONID.isEmpty) {
+                                toastsProvider.showTextToast(
+                                    "Fehler beim Aktualisieren!");
+                              }
+
+                              setState(() {
+                                _phpsessid = newPHPSESSIONID;
+                              });
+                            })
+                      ],
+                    )
+                  : null,
               body: SafeArea(
                 child: Column(
                   children: [
@@ -283,7 +318,4 @@ class _IliasPageViewWState extends State<IliasPageView> {
               ));
         });
   }
-
-
 }
-

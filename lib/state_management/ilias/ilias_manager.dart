@@ -22,6 +22,8 @@ class IliasManager extends KITLoginer {
       _lastUpdate = DateTime.now();
     }
 
+    while (isBusy);
+
     return _phpsessid;
   }
 
@@ -33,6 +35,7 @@ class IliasManager extends KITLoginer {
 
     if (refreshSession) {
       await clearCookiesAndCache();
+      _phpsessid = "";
     }
 
     await fetchJSession();

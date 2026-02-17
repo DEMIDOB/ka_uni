@@ -65,7 +65,13 @@ class _KITNavContainerState extends State<KITNavContainer> {
                         title: "Dashboard"),
                     customBottomNavBarButton(
                         2, CupertinoIcons.rectangle_paperclip,
-                        title: "ILIAS")
+                        title: "ILIAS",
+                        customAction: () => Navigator.of(context).push(
+                            MaterialPageRoute(
+                                builder: (BuildContext context) =>
+                                    IliasPageView(KITModule(),
+                                        PHPSESSID:
+                                            vm.iliasManager.getPHPSESSID()))))
                   ],
                 ),
               ),
@@ -101,7 +107,7 @@ class _KITNavContainerState extends State<KITNavContainer> {
   }
 
   Widget customBottomNavBarButton(int targetIdx, IconData icon,
-      {String title = ""}) {
+      {String title = "", Function? customAction}) {
     return CupertinoButton(
         padding: EdgeInsets.zero,
         child: Row(
@@ -114,8 +120,15 @@ class _KITNavContainerState extends State<KITNavContainer> {
             // Text(title)
           ],
         ),
-        onPressed: () => setState(() {
-              _selectedPage = targetIdx;
-            }));
+        onPressed: () {
+          if (customAction != null) {
+            customAction();
+            return;
+          }
+
+          setState(() {
+            _selectedPage = targetIdx;
+          });
+        });
   }
 }
