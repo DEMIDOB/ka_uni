@@ -65,8 +65,7 @@ class _IliasPageViewWState extends State<IliasPageView> {
       _phpsessid = value;
 
       if (widget.isFileView && widget.module.iliasLink != null) {
-        Future<String?> filepathFuture = _saveAsFile(widget.module.iliasLink!);
-        filepathFuture.then(_launchFileView);
+        _saveAsFile(widget.module.iliasLink!);
       } else {
         _launchPage(settingsVM.defaultIliasPage.value);
       }
@@ -87,6 +86,8 @@ class _IliasPageViewWState extends State<IliasPageView> {
 
   // TODO using https://pub.dev/packages/flutter_pdfview/example
   Future<String?> _saveAsFile(String url) async {
+    final toastsProvider = Provider.of<ToastsProvider>(context, listen: false);
+
     final refId = Uri.parse(url).queryParameters["ref_id"];
 
     if (refId != null) {
@@ -102,6 +103,8 @@ class _IliasPageViewWState extends State<IliasPageView> {
 
       File file = File(filepath);
 
+      final vm = Provider.of<KITProvider>(context, listen: false);
+
       if (!await file.exists()) {
         setState(() {
           isBusy = true;
@@ -111,17 +114,27 @@ class _IliasPageViewWState extends State<IliasPageView> {
             Provider.of<ToastsProvider>(context, listen: false);
         toastsProvider.showTextToast("Wird heruntergeladen...");
 
-        final vm = Provider.of<KITProvider>(context, listen: false);
-        await vm.iliasManager.downloadFile(url, file);
+        final iliasFile = await vm.iliasManager.downloadFile(url, file);
 
         setState(() {
           isBusy = false;
         });
+
+        _launchFileView(iliasFile);
+      } else {
+        IliasFile? iliasFile;
+
+        var existingFiles = await vm.iliasFileManager.getFilesForCurrentSemester();
+        for (var element in existingFiles) {
+          if (element.urlString == url) {
+            iliasFile = element;
+            break;
+          }
+        }
+
+        _launchFileView(iliasFile ?? IliasFile(semesterString: KITProvider.currentSemesterString, urlString: url, moduleTitle: "", addedAt: DateTime.now().toUtc(), customName: "", fileSystemPath: filepath));
       }
 
-      // TODO: download file!!!
-
-      _launchFileView(filepath);
       return filepath;
     }
 
@@ -130,21 +143,21 @@ class _IliasPageViewWState extends State<IliasPageView> {
     return null;
   }
 
-  _launchFileView(String? filepath) {
-    if (filepath == null) {
+  _launchFileView(IliasFile iliasFile) {
+    if (iliasFile.fileSystemPath.isEmpty) {
       if (kDebugMode) {
         print("Failed to download file!");
       }
     }
 
+    final filepath = iliasFile.fileSystemPath;
+
     if (kDebugMode) {
       print("Launching file view for $filepath");
     }
 
-    print(File(filepath!).lengthSync());
-
     Navigator.of(context).push(
-        new MaterialPageRoute(builder: (context) => PDFScreen(path: filepath)));
+        MaterialPageRoute(builder: (context) => PDFScreen(iliasFile: iliasFile,)));
   }
 
   _launchPage(String defaultPage) async {
@@ -188,25 +201,9 @@ class _IliasPageViewWState extends State<IliasPageView> {
           }
 
           return Scaffold(
-              appBar: widget.isFileView
-                  ? AppBar(
-                      title: Text(widget.module.title.isEmpty
-                          ? "Datei"
-                          : "${widget.isFileView ? 'Datei: ' : ''}${widget.module.title}"),
-                      actions: widget.isFileView
-                          ? []
-                          : [
-                              CupertinoButton(
-                                  child: Icon(CupertinoIcons.floppy_disk),
-                                  onPressed: () async {
-                                    // toastsProvider.showTextToast("message");
-                                    if (kDebugMode) {
-                                      print(await _controller.currentUrl());
-                                    }
-                                  })
-                            ],
-                    )
-                  : null,
+              appBar: Navigator.of(context).canPop() ? AppBar(
+                title: Text("ILIAS"),
+              ) : null,
               body: SafeArea(
                 child: Column(
                   children: [
@@ -262,14 +259,6 @@ class _IliasPageViewWState extends State<IliasPageView> {
                                         child: Icon(CupertinoIcons.back),
                                       );
                                     }),
-                                CupertinoButton(
-                                  padding: EdgeInsets.zero,
-                                  child: Icon(
-                                    CupertinoIcons.floppy_disk,
-                                  ),
-                                  onPressed: () =>
-                                      _handleSavePressed(toastsProvider),
-                                ),
                                 FutureBuilder(
                                     future: canGoForwardFuture,
                                     builder: (context, snapshot) {
@@ -295,151 +284,6 @@ class _IliasPageViewWState extends State<IliasPageView> {
         });
   }
 
-  Future<void> _handleSavePressed(ToastsProvider toastsProvider) async {
-    final url = await _controller.currentUrl();
 
-    if (url == null || !url.contains("sendfile")) {
-      toastsProvider.showTextToast("Die App kann nur Dateien speichern");
-      return;
-    }
-
-    final kitProvider = Provider.of<KITProvider>(context, listen: false);
-    final settingsProvider =
-        Provider.of<SettingsProvider>(context, listen: false);
-
-    final moduleTitles = _collectRelevantModuleTitles(kitProvider);
-    if (moduleTitles.isEmpty) {
-      toastsProvider.showTextToast("Keine Module verfügbar");
-      return;
-    }
-
-    final selectedTitle = await _chooseModuleTitle(moduleTitles);
-    if (!mounted || selectedTitle == null || selectedTitle.isEmpty) {
-      return;
-    }
-
-    final customName = await _promptForCustomName(selectedTitle);
-    if (!mounted || customName == null) {
-      return;
-    }
-
-    final resolvedCustomName =
-        customName.trim().isEmpty ? selectedTitle : customName.trim();
-
-    try {
-      await settingsProvider.saveIliasFile(IliasFile(
-        semesterString: KITProvider.currentSemesterString,
-        urlString: url,
-        moduleTitle: selectedTitle,
-        addedAt: DateTime.now().toUtc(),
-        customName: resolvedCustomName,
-      ));
-      toastsProvider.showTextToast("Datei gespeichert");
-    } catch (error) {
-      if (!mounted) {
-        return;
-      }
-      toastsProvider.showTextToast("Speichern fehlgeschlagen");
-      if (kDebugMode) {
-        print("Failed to save ILIAS file: $error");
-      }
-    }
-  }
-
-  List<String> _collectRelevantModuleTitles(KITProvider vm) {
-    final titles = <String>[];
-    final seen = <String>{};
-
-    for (final rowId in vm.campusManager.relevantModuleRowIDs) {
-      final module = vm.campusManager.rowModules[rowId];
-      if (module == null) {
-        continue;
-      }
-
-      final titleFromModule = module.title.trim();
-      final titleFromRow = (module.row?.title ?? "").trim();
-      final candidate = titleFromModule.isNotEmpty
-          ? titleFromModule
-          : titleFromRow.isNotEmpty
-              ? titleFromRow
-              : rowId;
-
-      final normalized = candidate.trim();
-      if (normalized.isEmpty || seen.contains(normalized)) {
-        continue;
-      }
-
-      seen.add(normalized);
-      titles.add(normalized);
-    }
-
-    return titles;
-  }
-
-  Future<String?> _chooseModuleTitle(List<String> moduleTitles) {
-    return showCupertinoModalPopup<String>(
-      context: context,
-      builder: (popupContext) {
-        return CupertinoActionSheet(
-          title: const Text("Modul auswählen"),
-          message: const Text("Bitte wähle das Modul für die Datei aus."),
-          actions: moduleTitles
-              .map(
-                (title) => CupertinoActionSheetAction(
-                  onPressed: () => Navigator.of(popupContext).pop(title),
-                  child: Text(title),
-                ),
-              )
-              .toList(),
-          cancelButton: CupertinoActionSheetAction(
-            isDefaultAction: true,
-            onPressed: () => Navigator.of(popupContext).pop(),
-            child: const Text("Abbrechen"),
-          ),
-        );
-      },
-    );
-  }
-
-  Future<String?> _promptForCustomName(String initialName) {
-    final controller = TextEditingController(text: initialName);
-
-    return showCupertinoDialog<String>(
-      context: context,
-      builder: (dialogContext) {
-        return CupertinoAlertDialog(
-          title: const Text("Datei benennen"),
-          content: Padding(
-            padding: const EdgeInsets.only(top: 12),
-            child: CupertinoTextField(
-              controller: controller,
-              autofocus: true,
-              placeholder: "Name der Datei",
-            ),
-          ),
-          actions: [
-            CupertinoDialogAction(
-              onPressed: () => Navigator.of(dialogContext).pop(),
-              child: const Text("Abbrechen"),
-            ),
-            CupertinoDialogAction(
-              isDefaultAction: true,
-              onPressed: () =>
-                  Navigator.of(dialogContext).pop(controller.text.trim()),
-              child: const Text("Speichern"),
-            ),
-          ],
-        );
-      },
-    );
-  }
 }
 
-extension _SettingsProviderIliasFiles on SettingsProvider {
-  static final IliasFileManager _iliasFileManager = IliasFileManager();
-
-  Future<void> saveIliasFile(IliasFile file) async {
-    await _iliasFileManager.addFile(file);
-    notifyListeners();
-  }
-}

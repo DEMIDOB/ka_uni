@@ -3,6 +3,9 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:kit_mobile/state_management/kit_loginer.dart';
+import 'package:kit_mobile/state_management/kit_provider.dart';
+
+import '../../ilias/files/ilias_file_manager.dart';
 
 class IliasManager extends KITLoginer {
   String _phpsessid = "";
@@ -63,7 +66,7 @@ class IliasManager extends KITLoginer {
     isBusy = false;
   }
 
-  Future<void> downloadFile(String url, File file) async {
+  Future<IliasFile> downloadFile(String url, File file) async {
     if (kDebugMode) {
       print("Downloading file to ${file.path} from $url");
     }
@@ -78,7 +81,13 @@ class IliasManager extends KITLoginer {
 
     await file.writeAsBytes(bytes);
 
-    return;
+    return IliasFile(
+        semesterString: KITProvider.currentSemesterString,
+        urlString: url,
+        moduleTitle: "",
+        addedAt: DateTime.now().toUtc(),
+        customName: "",
+        fileSystemPath: file.path);
   }
 
   logout() async {

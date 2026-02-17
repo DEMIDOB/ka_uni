@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:kit_mobile/ilias/files/ilias_file_manager.dart';
+import 'package:kit_mobile/ilias/views/file_viewer.dart';
 import 'package:kit_mobile/module/models/module.dart';
 import 'package:kit_mobile/state_management/kit_provider.dart';
 import 'package:provider/provider.dart';
@@ -81,11 +82,13 @@ class _IliasFilesListViewState extends State<IliasFilesListView> {
 
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => IliasPageView(
-          module,
-          isFileView: true,
-          PHPSESSID: vm.iliasManager.getPHPSESSID(),
-        ),
+        // builder: (context) => IliasPageView(
+        //   module,
+        //   isFileView: true,
+        //   PHPSESSID: vm.iliasManager.getPHPSESSID(),
+        // ),
+
+        builder: (context) => PDFScreen(iliasFile: file)
       ),
     );
   }

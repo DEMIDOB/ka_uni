@@ -11,6 +11,7 @@ class IliasFile {
   final String moduleTitle;
   final DateTime addedAt;
   final String customName;
+  final String fileSystemPath;
 
   const IliasFile({
     required this.semesterString,
@@ -18,6 +19,7 @@ class IliasFile {
     required this.moduleTitle,
     required this.addedAt,
     required this.customName,
+    required this.fileSystemPath
   });
 
   Map<String, String> toMap() => {
@@ -26,6 +28,7 @@ class IliasFile {
         'moduleTitle': moduleTitle,
         'addedAt': addedAt.toUtc().toIso8601String(),
         'customName': customName,
+    'fileSystemPath': fileSystemPath
       };
 
   static IliasFile? fromMap(Map<String, dynamic> map) {
@@ -34,6 +37,7 @@ class IliasFile {
     final title = map['moduleTitle'];
     final addedAtRaw = map['addedAt'];
     final customNameRaw = map['customName'];
+    final fileSystemPath = map['fileSystemPath'];
 
     if (semester is String && url is String && title is String) {
       DateTime? addedAt;
@@ -58,6 +62,7 @@ class IliasFile {
         moduleTitle: title,
         addedAt: addedAt,
         customName: resolvedCustomName,
+        fileSystemPath: fileSystemPath ?? "",
       );
     }
 
@@ -84,6 +89,7 @@ class IliasFile {
     String? moduleTitle,
     DateTime? addedAt,
     String? customName,
+    String? fileSystemPath
   }) {
     return IliasFile(
       semesterString: semesterString ?? this.semesterString,
@@ -91,25 +97,26 @@ class IliasFile {
       moduleTitle: moduleTitle ?? this.moduleTitle,
       addedAt: addedAt ?? this.addedAt,
       customName: customName ?? this.customName,
+        fileSystemPath : fileSystemPath ?? this.fileSystemPath,
     );
   }
 }
 
+const String semestersListKey = "DATA_semestersWithFiles";
+
 class IliasFileManager extends ChangeNotifier {
-  String get currentSemestersListKey =>
-      "DATA_semestersWithFiles${KITProvider.currentSemesterString}";
   String _filesKeyForSemester(String semesterString) =>
       "DATA_filesFor$semesterString";
 
   Future<List<String>> getSemestersList() async {
     final prefs = await SharedPreferences.getInstance();
 
-    var semesters = prefs.getStringList(currentSemestersListKey) ??
+    var semesters = prefs.getStringList(semestersListKey) ??
         [KITProvider.currentSemesterString];
 
     if (semesters.isEmpty) {
       semesters = [KITProvider.currentSemesterString];
-      await prefs.setStringList(currentSemestersListKey, semesters);
+      await prefs.setStringList(semestersListKey, semesters);
     }
 
     for (final semester in semesters) {
@@ -124,24 +131,28 @@ class IliasFileManager extends ChangeNotifier {
     await _addSemesterToSemestersList(prefs, KITProvider.currentSemesterString);
   }
 
-  Future<void> addFile(IliasFile file) async {
+  Future<void> addFile(IliasFile newFile) async {
     final prefs = await SharedPreferences.getInstance();
-    await _addSemesterToSemestersList(prefs, file.semesterString);
+    await _addSemesterToSemestersList(prefs, newFile.semesterString);
 
-    final key = _filesKeyForSemester(file.semesterString);
+    final key = _filesKeyForSemester(newFile.semesterString);
     final storedEntries = prefs.getStringList(key) ?? <String>[];
     final updatedEntries = List<String>.from(storedEntries);
+
+    print("HER ${newFile.fileSystemPath}");
 
     // Ensure only one entry per URL to avoid duplicates.
     updatedEntries.removeWhere((stored) {
       final decoded = IliasFile.tryDecode(stored);
-      return decoded != null && decoded.urlString == file.urlString;
+      return decoded != null && decoded.urlString == newFile.urlString;
     });
-    final normalizedFile = file.copyWith(
-      addedAt: file.addedAt.toUtc(),
-      customName: _normalizeCustomName(file.customName, file.moduleTitle),
+    final normalizedFile = newFile.copyWith(
+      addedAt: newFile.addedAt.toUtc(),
+      customName: _normalizeCustomName(newFile.customName, newFile.moduleTitle),
     );
     updatedEntries.add(normalizedFile.encode());
+
+    print("PENIS ${normalizedFile.fileSystemPath}");
 
     await prefs.setStringList(key, updatedEntries);
     notifyListeners();
@@ -162,6 +173,7 @@ class IliasFileManager extends ChangeNotifier {
               .encode(),
         )
         .toList();
+
     await prefs.setStringList(_filesKeyForSemester(semesterString), encodedFiles);
     notifyListeners();
   }
@@ -261,6 +273,10 @@ class IliasFileManager extends ChangeNotifier {
         .toList(growable: false);
   }
 
+  Future<List<IliasFile>> getFilesForCurrentSemester() async {
+    return getFilesForSemester(KITProvider.currentSemesterString);
+  }
+
   Future<Map<String, List<IliasFile>>> getFilesGroupedBySemester() async {
     final semesters = await getSemestersList();
     final Map<String, List<IliasFile>> grouped = {};
@@ -288,11 +304,11 @@ class IliasFileManager extends ChangeNotifier {
 
   Future<void> _addSemesterToSemestersList(
       SharedPreferences prefs, String semesterString) async {
-    final stored = prefs.getStringList(currentSemestersListKey) ?? <String>[];
+    final stored = prefs.getStringList(semestersListKey) ?? <String>[];
 
     if (!stored.contains(semesterString)) {
       final updated = List<String>.from(stored)..add(semesterString);
-      await prefs.setStringList(currentSemestersListKey, updated);
+      await prefs.setStringList(semestersListKey, updated);
     }
 
     await _ensureFilesListExists(prefs, semesterString);
