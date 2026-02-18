@@ -10,16 +10,17 @@ import 'package:share_plus/share_plus.dart';
 
 import '../../state_management/kit_provider.dart';
 import '../../toasts/models/toasts_provider.dart';
-import '../files/ilias_file_manager.dart';
+import '../models/pinned_file.dart';
 
 class PDFScreen extends StatefulWidget {
   // final String? path;
-  final IliasFile iliasFile;
+  final PinnedFile iliasFile;
   final bool isIPadSafe;
 
   String get path => iliasFile.fileSystemPath;
 
-  const PDFScreen({super.key, required this.iliasFile, this.isIPadSafe = false});
+  const PDFScreen(
+      {super.key, required this.iliasFile, this.isIPadSafe = false});
 
   @override
   _PDFScreenState createState() => _PDFScreenState();
@@ -40,8 +41,9 @@ class _PDFScreenState extends State<PDFScreen> with WidgetsBindingObserver {
         title: Text("Document"),
         actions: <Widget>[
           IconButton(
-            icon: Icon(CupertinoIcons.floppy_disk),
-            onPressed: () => _handleSavePressed(Provider.of<ToastsProvider>(context, listen: false)),
+            icon: Icon(CupertinoIcons.pin_fill),
+            onPressed: () => _handlePinPressed(
+                Provider.of<ToastsProvider>(context, listen: false)),
           ),
           IconButton(
             icon: Icon(Icons.share),
@@ -62,7 +64,11 @@ class _PDFScreenState extends State<PDFScreen> with WidgetsBindingObserver {
           ),
           IconButton(
               onPressed: () {
-                Provider.of<KITProvider>(context, listen: false).iliasFileManager.removeFile(semesterString: KITProvider.currentSemesterString, urlString: widget.iliasFile.urlString);
+                Provider.of<KITProvider>(context, listen: false)
+                    .iliasFileManager
+                    .unpinFile(
+                        semesterString: KITProvider.currentSemesterString,
+                        urlString: widget.iliasFile.urlString);
                 File(widget.path).deleteSync();
                 Navigator.pop(context);
               },
@@ -103,22 +109,30 @@ class _PDFScreenState extends State<PDFScreen> with WidgetsBindingObserver {
               setState(() {
                 errorMessage = error.toString();
               });
-              print(error.toString());
+              if (kDebugMode) {
+                print(error.toString());
+              }
             },
             onPageError: (page, error) {
               setState(() {
                 errorMessage = '$page: ${error.toString()}';
               });
-              print('$page: ${error.toString()}');
+              if (kDebugMode) {
+                print('$page: ${error.toString()}');
+              }
             },
             onViewCreated: (PDFViewController pdfViewController) {
               _controller.complete(pdfViewController);
             },
             onLinkHandler: (String? uri) {
-              print('goto uri: $uri');
+              if (kDebugMode) {
+                print('goto uri: $uri');
+              }
             },
             onPageChanged: (int? page, int? total) {
-              print('page change: ${page ?? 0 + 1}/$total');
+              if (kDebugMode) {
+                print('page change: ${page ?? 0 + 1}/$total');
+              }
               setState(() {
                 currentPage = page;
               });
@@ -153,14 +167,14 @@ class _PDFScreenState extends State<PDFScreen> with WidgetsBindingObserver {
     );
   }
 
-  Future<void> _handleSavePressed(ToastsProvider toastsProvider) async {
-
-
+  Future<void> _handlePinPressed(ToastsProvider toastsProvider) async {
     final kitProvider = Provider.of<KITProvider>(context, listen: false);
-    final settingsProvider =
-    Provider.of<KITProvider>(context, listen: false);
+    final settingsProvider = Provider.of<KITProvider>(context, listen: false);
 
-    final moduleTitles = _collectRelevantModuleTitles(kitProvider);
+    final moduleTitles = [
+          "Anderes",
+        ] +
+        _collectRelevantModuleTitles(kitProvider);
     if (moduleTitles.isEmpty) {
       toastsProvider.showTextToast("Keine Module verfügbar");
       return;
@@ -177,17 +191,16 @@ class _PDFScreenState extends State<PDFScreen> with WidgetsBindingObserver {
     }
 
     final resolvedCustomName =
-    customName.trim().isEmpty ? selectedTitle : customName.trim();
+        customName.trim().isEmpty ? selectedTitle : customName.trim();
 
     try {
-      await settingsProvider.saveIliasFile(IliasFile(
-        semesterString: KITProvider.currentSemesterString,
-        urlString: widget.iliasFile.urlString,
-        moduleTitle: selectedTitle,
-        addedAt: DateTime.now().toUtc(),
-        customName: resolvedCustomName,
-        fileSystemPath: widget.path
-      ));
+      await settingsProvider.saveIliasFile(PinnedFile(
+          semesterString: KITProvider.currentSemesterString,
+          urlString: widget.iliasFile.urlString,
+          moduleTitle: selectedTitle,
+          addedAt: DateTime.now().toUtc(),
+          customName: resolvedCustomName,
+          fileSystemPath: widget.path));
       toastsProvider.showTextToast("Datei gespeichert");
     } catch (error) {
       if (!mounted) {
@@ -215,8 +228,8 @@ class _PDFScreenState extends State<PDFScreen> with WidgetsBindingObserver {
       final candidate = titleFromModule.isNotEmpty
           ? titleFromModule
           : titleFromRow.isNotEmpty
-          ? titleFromRow
-          : rowId;
+              ? titleFromRow
+              : rowId;
 
       final normalized = candidate.trim();
       if (normalized.isEmpty || seen.contains(normalized)) {
@@ -240,10 +253,10 @@ class _PDFScreenState extends State<PDFScreen> with WidgetsBindingObserver {
           actions: moduleTitles
               .map(
                 (title) => CupertinoActionSheetAction(
-              onPressed: () => Navigator.of(popupContext).pop(title),
-              child: Text(title),
-            ),
-          )
+                  onPressed: () => Navigator.of(popupContext).pop(title),
+                  child: Text(title),
+                ),
+              )
               .toList(),
           cancelButton: CupertinoActionSheetAction(
             isDefaultAction: true,
@@ -290,10 +303,8 @@ class _PDFScreenState extends State<PDFScreen> with WidgetsBindingObserver {
 }
 
 extension _SettingsProviderIliasFiles on KITProvider {
-
-  Future<void> saveIliasFile(IliasFile file) async {
-    print(file.fileSystemPath);
-    await iliasFileManager.addFile(file);
+  Future<void> saveIliasFile(PinnedFile file) async {
+    await iliasFileManager.addPinnedFile(file);
     notifyListeners();
   }
 }

@@ -1,28 +1,29 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:kit_mobile/ilias/files/ilias_file_manager.dart';
-import 'package:kit_mobile/ilias/views/file_viewer.dart';
+import 'package:kit_mobile/local_files_storage/files_manager.dart';
+import 'package:kit_mobile/local_files_storage/views/file_viewer.dart';
 import 'package:kit_mobile/module/models/module.dart';
 import 'package:kit_mobile/state_management/kit_provider.dart';
 import 'package:provider/provider.dart';
 
-import 'ilias_page_view.dart';
+import '../models/pinned_file.dart';
 
-class IliasFilesListView extends StatefulWidget {
-  const IliasFilesListView({super.key});
+class PinnedFilesListView extends StatefulWidget {
+  const PinnedFilesListView({super.key});
 
   @override
-  State<IliasFilesListView> createState() => _IliasFilesListViewState();
+  State<PinnedFilesListView> createState() => _PinnedFilesListViewState();
 }
 
-class _IliasFilesListViewState extends State<IliasFilesListView> {
+class _PinnedFilesListViewState extends State<PinnedFilesListView> {
   @override
   Widget build(BuildContext context) {
     final vm = Provider.of<KITProvider>(context);
-    final filesManager = Provider.of<IliasFileManager>(context);
+    final filesManager = Provider.of<IliasFilesProvider>(context);
 
-    return FutureBuilder<List<IliasFile>>(
-      future: filesManager.getFilesForSemester(KITProvider.currentSemesterString),
+    return FutureBuilder<List<PinnedFile>>(
+      future:
+          filesManager.getFilesForSemester(KITProvider.currentSemesterString),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
@@ -63,7 +64,10 @@ class _IliasFilesListViewState extends State<IliasFilesListView> {
                   ),
                   CupertinoButton(
                     padding: EdgeInsets.zero,
-                    child: const Icon(CupertinoIcons.delete, color: Colors.red,),
+                    child: const Icon(
+                      CupertinoIcons.pin_slash,
+                      color: Colors.red,
+                    ),
                     onPressed: () => _removeFile(context, filesManager, file),
                   ),
                 ],
@@ -75,28 +79,27 @@ class _IliasFilesListViewState extends State<IliasFilesListView> {
     );
   }
 
-  void _openFile(BuildContext context, KITProvider vm, IliasFile file) {
+  void _openFile(BuildContext context, KITProvider vm, PinnedFile file) {
     final module = KITModule()
       ..iliasLink = file.urlString
       ..title = file.customName;
 
     Navigator.of(context).push(
       MaterialPageRoute(
-        // builder: (context) => IliasPageView(
-        //   module,
-        //   isFileView: true,
-        //   PHPSESSID: vm.iliasManager.getPHPSESSID(),
-        // ),
+          // builder: (context) => IliasPageView(
+          //   module,
+          //   isFileView: true,
+          //   PHPSESSID: vm.iliasManager.getPHPSESSID(),
+          // ),
 
-        builder: (context) => PDFScreen(iliasFile: file)
-      ),
+          builder: (context) => PDFScreen(iliasFile: file)),
     );
   }
 
   Future<void> _renameFile(
     BuildContext context,
-    IliasFileManager manager,
-    IliasFile file,
+    IliasFilesProvider manager,
+    PinnedFile file,
   ) async {
     final controller = TextEditingController(text: file.customName);
     final newName = await showCupertinoDialog<String>(
@@ -104,12 +107,15 @@ class _IliasFilesListViewState extends State<IliasFilesListView> {
       builder: (dialogContext) {
         return CupertinoAlertDialog(
           title: const Text('Datei umbenennen'),
-          content: Padding(
-            padding: const EdgeInsets.only(top: 12),
-            child: CupertinoTextField(
-              controller: controller,
-              autofocus: true,
-              placeholder: 'Neuer Name',
+          content: SizedBox(
+            height: 75, // MediaQuery.of(context).devicePixelRatio,
+            child: Padding(
+              padding: const EdgeInsets.only(top: 12),
+              child: CupertinoTextField(
+                controller: controller,
+                autofocus: true,
+                placeholder: 'Neuer Name',
+              ),
             ),
           ),
           actions: [
@@ -132,7 +138,7 @@ class _IliasFilesListViewState extends State<IliasFilesListView> {
       return;
     }
 
-    await manager.updateFileCustomName(
+    await manager.updatePinnedFileCustomName(
       semesterString: file.semesterString,
       urlString: file.urlString,
       customName: newName,
@@ -141,16 +147,16 @@ class _IliasFilesListViewState extends State<IliasFilesListView> {
 
   Future<void> _removeFile(
     BuildContext context,
-    IliasFileManager manager,
-    IliasFile file,
+    IliasFilesProvider manager,
+    PinnedFile file,
   ) async {
     final shouldDelete = await showCupertinoDialog<bool>(
       context: context,
       builder: (dialogContext) {
         return CupertinoAlertDialog(
-          title: const Text('Datei löschen'),
+          title: const Text('Datei entfernen'),
           content: Text(
-              'Möchtest du "${file.customName}" wirklich aus deinen gespeicherten Dateien entfernen?'),
+              'Möchtest du "${file.customName}" wirklich aus deinen angehefteten Dateien entfernen?'),
           actions: [
             CupertinoDialogAction(
               onPressed: () => Navigator.of(dialogContext).pop(false),
@@ -170,7 +176,7 @@ class _IliasFilesListViewState extends State<IliasFilesListView> {
       return;
     }
 
-    await manager.removeFile(
+    await manager.unpinFile(
       semesterString: file.semesterString,
       urlString: file.urlString,
     );

@@ -1,7 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:kit_mobile/common_ui/block_container.dart';
+import 'package:kit_mobile/common_ui/kit_progress_indicator.dart';
 import 'package:kit_mobile/constants/view_constants.dart';
+import 'package:kit_mobile/local_files_storage/files_manager.dart';
 import 'package:kit_mobile/settings/providers/settings_provider.dart';
 import 'package:kit_mobile/settings/types/multiple_choice_setting.dart';
 import 'package:kit_mobile/state_management/kit_provider.dart';
@@ -9,6 +11,7 @@ import 'package:provider/provider.dart';
 
 import '../../credentials/data/credentials_provider.dart';
 import '../../info/views/info_view.dart';
+import '../../local_files_storage/views/pages/cache_cleaner_page.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -25,6 +28,7 @@ class _SettingsPageState extends State<SettingsPage> {
     final vm = Provider.of<KITProvider>(context);
     final credsVM = Provider.of<CredentialsProvider>(context);
     final settingsVM = Provider.of<SettingsProvider>(context);
+    final filesVM = Provider.of<IliasFilesProvider>(context);
 
     final theme = Theme.of(context);
 
@@ -89,6 +93,35 @@ class _SettingsPageState extends State<SettingsPage> {
                         title: "Startseite",
                         trailing: MultipleChoiceSettingDropdown(
                             multipleChoiceSetting: settingsVM.defaultIliasPage))
+                  ],
+                ),
+              ),
+
+              SettingsSectionTitle(title: "Dateicache"),
+
+              BlockContainer(
+                child: Column(
+                  children: [
+                    SettingRow(
+                      title: "Größe",
+                      trailing: FutureBuilder(
+                          future:
+                              filesVM.localFileStorageManager.getCacheSize(),
+                          builder: (context, snapshot) {
+                            if (snapshot.hasData && snapshot.data != null) {
+                              return Text(
+                                  "${(snapshot.data! / 1024 / 8).toStringAsFixed(1)} MB");
+                            }
+
+                            return KITProgressIndicator();
+                          }),
+                    ),
+                    CupertinoButton(
+                        child: Text("Verwalten"),
+                        onPressed: () => Navigator.of(context).push(
+                            MaterialPageRoute(
+                                builder: (BuildContext context) =>
+                                    CacheCleanerPage())))
                   ],
                 ),
               ),

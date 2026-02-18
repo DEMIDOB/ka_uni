@@ -7,7 +7,7 @@ import 'package:kit_mobile/module_info_table/models/module_info_table_cell.dart'
 import 'package:kit_mobile/state_management/ilias/ilias_manager.dart';
 import 'package:kit_mobile/student/name.dart';
 
-import '../ilias/files/ilias_file_manager.dart';
+import '../local_files_storage/files_manager.dart';
 import '../module/models/module.dart';
 import '../parsing/models/hierarchic_table_row.dart';
 import '../student/student.dart';
@@ -33,8 +33,7 @@ class KITProvider extends ChangeNotifier {
   late final CampusManager campusManager;
   late final IliasManager iliasManager;
   late final KITTopographyManager topographyManager;
-  late final IliasFileManager iliasFileManager;
-
+  late final IliasFilesProvider iliasFileManager;
 
   bool get profileReady => campusManager.ready;
 
@@ -54,7 +53,7 @@ class KITProvider extends ChangeNotifier {
     topographyManager = KITTopographyManager();
     topographyManager.fetchPlaces();
 
-    iliasFileManager = IliasFileManager();
+    iliasFileManager = IliasFilesProvider();
   }
 
   forceRefetchEverything() async {

@@ -10,13 +10,13 @@ import 'package:kit_mobile/module/models/module.dart';
 import 'package:kit_mobile/state_management/kit_provider.dart';
 import 'package:kit_mobile/toasts/models/toasts_provider.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
+import '../../local_files_storage/files_manager.dart';
+import '../../local_files_storage/models/pinned_file.dart';
+import '../../local_files_storage/views/file_viewer.dart';
 import '../../settings/providers/settings_provider.dart';
-import '../files/ilias_file_manager.dart';
-import 'file_viewer.dart';
 
 class IliasPageView extends StatefulWidget {
   final KITModule module;
@@ -85,32 +85,26 @@ class _IliasPageViewWState extends State<IliasPageView> {
   }
 
   Future<String?> _saveAsFile(String url) async {
+    final vm = Provider.of<KITProvider>(context, listen: false);
+    final iliasFileManager =
+        Provider.of<IliasFilesProvider>(context, listen: false);
     final toastsProvider = Provider.of<ToastsProvider>(context, listen: false);
 
     final refId = Uri.parse(url).queryParameters["ref_id"];
 
     if (refId != null) {
-      final currentSemester = KITProvider.currentSemesterString
-          .replaceAll(" ", "_")
-          .replaceAll("/", "_");
-
-      final dir = await getApplicationDocumentsDirectory();
-      final directory = "${dir.path}/$currentSemester";
-      await Directory(directory).create(recursive: true);
+      final directory = await iliasFileManager.localFileStorageManager
+          .ensureAndGetCurrentSemesterDirectory();
 
       final filepath = "$directory/${widget.module.title}$refId.pdf";
 
       File file = File(filepath);
-
-      final vm = Provider.of<KITProvider>(context, listen: false);
 
       if (!await file.exists()) {
         setState(() {
           isBusy = true;
         });
 
-        final toastsProvider =
-            Provider.of<ToastsProvider>(context, listen: false);
         toastsProvider.showTextToast("Wird heruntergeladen...");
 
         final iliasFile = await vm.iliasManager.downloadFile(url, file);
@@ -121,7 +115,7 @@ class _IliasPageViewWState extends State<IliasPageView> {
 
         _launchFileView(iliasFile);
       } else {
-        IliasFile? iliasFile;
+        PinnedFile? iliasFile;
 
         var existingFiles =
             await vm.iliasFileManager.getFilesForCurrentSemester();
@@ -133,7 +127,7 @@ class _IliasPageViewWState extends State<IliasPageView> {
         }
 
         _launchFileView(iliasFile ??
-            IliasFile(
+            PinnedFile(
                 semesterString: KITProvider.currentSemesterString,
                 urlString: url,
                 moduleTitle: "",
@@ -150,7 +144,7 @@ class _IliasPageViewWState extends State<IliasPageView> {
     return null;
   }
 
-  _launchFileView(IliasFile iliasFile) {
+  _launchFileView(PinnedFile iliasFile) {
     if (iliasFile.fileSystemPath.isEmpty) {
       if (kDebugMode) {
         print("Failed to download file!");

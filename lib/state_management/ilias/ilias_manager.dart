@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:kit_mobile/state_management/kit_loginer.dart';
 import 'package:kit_mobile/state_management/kit_provider.dart';
 
-import '../../ilias/files/ilias_file_manager.dart';
+import '../../local_files_storage/models/pinned_file.dart';
 
 class IliasManager extends KITLoginer {
   String _phpsessid = "";
@@ -69,12 +69,12 @@ class IliasManager extends KITLoginer {
     isBusy = false;
   }
 
-  Future<IliasFile> downloadFile(String url, File file) async {
+  Future<PinnedFile> downloadFile(String srcUrl, File targetFile) async {
     if (kDebugMode) {
-      print("Downloading file to ${file.path} from $url");
+      print("Downloading file to ${targetFile.path} from $srcUrl");
     }
 
-    final response = await session.get(Uri.parse(url));
+    final response = await session.get(Uri.parse(srcUrl));
     var bytes = response.bodyBytes;
     // print(response.body);
 
@@ -82,15 +82,15 @@ class IliasManager extends KITLoginer {
       print("Downloaded ${bytes.lengthInBytes} bytes");
     }
 
-    await file.writeAsBytes(bytes);
+    await targetFile.writeAsBytes(bytes);
 
-    return IliasFile(
+    return PinnedFile(
         semesterString: KITProvider.currentSemesterString,
-        urlString: url,
+        urlString: srcUrl,
         moduleTitle: "",
         addedAt: DateTime.now().toUtc(),
         customName: "",
-        fileSystemPath: file.path);
+        fileSystemPath: targetFile.path);
   }
 
   logout() async {

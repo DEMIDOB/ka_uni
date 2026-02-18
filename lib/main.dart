@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:kit_mobile/credentials/data/credentials_provider.dart';
 import 'package:kit_mobile/credentials/views/login_view.dart';
-import 'package:kit_mobile/ilias/files/ilias_file_manager.dart';
+import 'package:kit_mobile/local_files_storage/files_manager.dart';
 import 'package:kit_mobile/settings/providers/settings_provider.dart';
 import 'package:kit_mobile/state_management/kit_provider.dart';
 import 'package:kit_mobile/toasts/models/toasts_provider.dart';
@@ -100,8 +100,8 @@ class MyApp extends StatelessWidget {
           ChangeNotifierProvider<SettingsProvider>(
             create: (ctx) => SettingsProvider(context: ctx),
           ),
-          ChangeNotifierProvider<IliasFileManager>(
-            create: (ctx) => IliasFileManager(),
+          ChangeNotifierProvider<IliasFilesProvider>(
+            create: (ctx) => IliasFilesProvider(),
           ),
           ChangeNotifierProvider<TutorialManager>(
             create: (ctx) => TutorialManager(),
