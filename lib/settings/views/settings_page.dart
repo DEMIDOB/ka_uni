@@ -110,7 +110,7 @@ class _SettingsPageState extends State<SettingsPage> {
                           builder: (context, snapshot) {
                             if (snapshot.hasData && snapshot.data != null) {
                               return Text(
-                                  "${(snapshot.data! / 1024 / 8).toStringAsFixed(1)} MB");
+                                  "${(snapshot.data! / 1024 / 1024).toStringAsFixed(1)} MB");
                             }
 
                             return KITProgressIndicator();

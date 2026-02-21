@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:kit_mobile/common_ui/block_container.dart';
@@ -87,8 +89,27 @@ class _CacheCleanerPageState extends State<CacheCleanerPage> {
                                                 expandedSemesterString));
                                         return Row(
                                           children: [
-                                            Text(fileDisplayName),
+                                            Expanded(
+                                              child: Text(
+                                                _sanitizeFileDisplayName(
+                                                    fileDisplayName),
+                                                softWrap: true,
+                                                maxLines: 3,
+                                              ),
+                                            ),
                                             Spacer(),
+                                            FutureBuilder(
+                                                future: File(semFile).stat(),
+                                                builder: (context, snapshot) {
+                                                  if (snapshot.hasData &&
+                                                      snapshot.data != null) {
+                                                    return Text(
+                                                        "${(snapshot.data!.size / 1024 / 1024).toStringAsFixed(1)} MB");
+                                                  }
+
+                                                  return KITProgressIndicator();
+                                                }),
+                                            // Spacer(),
                                             CupertinoButton(
                                                 child: Icon(
                                                     CupertinoIcons.eye_fill),
@@ -167,7 +188,15 @@ class _CacheCleanerPageState extends State<CacheCleanerPage> {
     );
   }
 
-  _expandSemester(String currentSemesterString, IliasFilesProvider filesVM) {
+  String _sanitizeFileDisplayName(String fileDisplayName) {
+    fileDisplayName =
+        fileDisplayName.substring(fileDisplayName.indexOf("/") + 1);
+
+    return fileDisplayName;
+  }
+
+  void _expandSemester(
+      String currentSemesterString, IliasFilesProvider filesVM) {
     setState(() {
       if (expandedSemesterString == currentSemesterString) {
         // deselect

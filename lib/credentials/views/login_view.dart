@@ -61,18 +61,6 @@ class LoginPageState extends State<LoginPage> {
         body: Stack(
       children: [
         Scaffold(
-            // appBar: AppBar(
-            //   backgroundColor: Colors.white.withOpacity(0),
-            //   centerTitle: true,
-            //   title: const Row(
-            //     mainAxisAlignment: MainAxisAlignment.center,
-            //     crossAxisAlignment: CrossAxisAlignment.center,
-            //     children: [
-            //       // KITLogo(width: 100,),
-            //       Text(" Account")
-            //     ],
-            //   ),
-            // ),
             body: Stack(
           children: [
             AnimatedOpacity(
