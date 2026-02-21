@@ -43,8 +43,7 @@ class CampusManager extends KITLoginer {
     return "${_moduleCacheNamespace}_$encodedRowId";
   }
 
-  String get _moduleCacheLastFetchKey =>
-      "${_moduleCacheNamespace}_last_fetch";
+  String get _moduleCacheLastFetchKey => "${_moduleCacheNamespace}_last_fetch";
 
   void _updateLastModuleFetchTime(DateTime timestamp) {
     if (lastModuleFetchTime == null ||
@@ -112,8 +111,10 @@ class CampusManager extends KITLoginer {
 
   Future<void> _clearModuleCacheForCurrentSemester() async {
     final prefs = await SharedPreferences.getInstance();
-    final keys = prefs.getKeys().where(
-        (key) => key.startsWith(_moduleCacheNamespace)).toList(growable: false);
+    final keys = prefs
+        .getKeys()
+        .where((key) => key.startsWith(_moduleCacheNamespace))
+        .toList(growable: false);
     for (final key in keys) {
       await prefs.remove(key);
     }
@@ -131,8 +132,7 @@ class CampusManager extends KITLoginer {
     }
 
     _moduleRefreshInProgress.add(row.id);
-    fetchModule(row, recursiveRetry: false)
-        .catchError((error, stackTrace) {
+    fetchModule(row, recursiveRetry: false).catchError((error, stackTrace) {
       if (kDebugMode) {
         print("Background refresh failed for ${row.id}: $error");
       }
@@ -495,8 +495,7 @@ class CampusManager extends KITLoginer {
       return cachedModule;
     }
 
-    final fetchedModule =
-        await fetchModule(row, recursiveRetry: retryIfFailed);
+    final fetchedModule = await fetchModule(row, recursiveRetry: retryIfFailed);
     return fetchedModule;
   }
 

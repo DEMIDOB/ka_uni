@@ -103,10 +103,18 @@ class CredentialsProvider extends ChangeNotifier {
   }
 
   Future<AuthResult> submit(
-      String typedUsername, String typedPassword, KITProvider vm) async {
+      String typedUsername, String typedPassword, KITProvider vm,
+      {immediatelyShowProfile = false}) async {
     if (displayName.isEmpty) {
       displayName = typedUsername;
       notifyListeners();
+    }
+
+    if (immediatelyShowProfile) {
+      if (kDebugMode) {
+        print("Immediately showing profile!!");
+      }
+      await vm.immediatelyPrepareAndShowProfile(tempDisplayName: displayName);
     }
 
     KITCredentials newCredentials =

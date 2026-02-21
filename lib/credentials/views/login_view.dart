@@ -52,7 +52,7 @@ class LoginPageState extends State<LoginPage> {
 
       if (credsVM.credentials.valid && !vm.profileReady && !credsVM.loggingIn) {
         Timer(const Duration(milliseconds: 50), () {
-          _submitLogin(credsVM, vm);
+          _submitLogin(credsVM, vm, immediatelyShowProfile: true);
         });
       }
     }
@@ -233,9 +233,10 @@ class LoginPageState extends State<LoginPage> {
 
   bool _awaitingAuthentication = false;
 
-  _submitLogin(CredentialsProvider credsVM, KITProvider vm) {
+  _submitLogin(CredentialsProvider credsVM, KITProvider vm,
+      {immediatelyShowProfile = false}) {
     if (kDebugMode) {
-      print("Submitted Login");
+      print("Submitted Login. ISP: $immediatelyShowProfile");
     }
     if (_awaitingAuthentication) {
       return;
@@ -247,15 +248,22 @@ class LoginPageState extends State<LoginPage> {
 
     credsVM
         .submit(
-            _usernameInputController.text, _passwordInputController.text, vm)
+            _usernameInputController.text, _passwordInputController.text, vm,
+            immediatelyShowProfile: immediatelyShowProfile)
         .then((result) {
       if (result != AuthResult.ok) {
         if (kDebugMode) {
           print("Authentication failed: $result");
         }
-        setState(() {
+
+        if (immediatelyShowProfile) {
           _awaitingAuthentication = false;
-        });
+        } else {
+          setState(() {
+            _awaitingAuthentication = false;
+          });
+        }
+
         return;
       }
 
@@ -263,9 +271,14 @@ class LoginPageState extends State<LoginPage> {
         print("Successfully authenticated");
       }
 
-      setState(() {
+      if (immediatelyShowProfile) {
         _awaitingAuthentication = false;
-      });
+      } else {
+        setState(() {
+          _awaitingAuthentication = false;
+        });
+      }
+
       _onSuccessfulLogin(credsVM, vm);
     });
   }

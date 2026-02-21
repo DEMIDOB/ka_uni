@@ -35,7 +35,9 @@ class KITProvider extends ChangeNotifier {
   late final KITTopographyManager topographyManager;
   late final IliasFilesProvider iliasFileManager;
 
-  bool get profileReady => campusManager.ready;
+  bool _temporarilyShowingProfile = false;
+  bool get profileReady => _temporarilyShowingProfile || campusManager.ready;
+  bool get hasRealProfileData => campusManager.ready;
 
   TimetableWeekly get timetable => campusManager.timetable;
 
@@ -56,6 +58,23 @@ class KITProvider extends ChangeNotifier {
     iliasFileManager = IliasFilesProvider();
   }
 
+  Future<void> immediatelyPrepareAndShowProfile(
+      {String tempDisplayName = ""}) async {
+    await campusManager.prepareRelevantModuleRows();
+    _temporarilyShowingProfile = true;
+    campusManager.student.name = Name(firstName: tempDisplayName, lastName: "");
+    notifyListeners();
+  }
+
+  void clearTemporaryProfileView() {
+    if (!_temporarilyShowingProfile) {
+      return;
+    }
+
+    _temporarilyShowingProfile = false;
+    notifyListeners();
+  }
+
   forceRefetchEverything() async {
     await campusManager.forceRefetchEverything();
   }
@@ -74,6 +93,9 @@ class KITProvider extends ChangeNotifier {
       startRefreshTimer = true,
       ignoreIfCached = false}) async {
     final fetchResult = await campusManager.fetchSchedule();
+    if (campusManager.ready && _temporarilyShowingProfile) {
+      _temporarilyShowingProfile = false;
+    }
     Future.delayed(Duration(seconds: 1), iliasManager.authorize);
     return fetchResult;
   }
