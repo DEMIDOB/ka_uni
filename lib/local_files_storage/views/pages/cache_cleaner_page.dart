@@ -61,8 +61,9 @@ class _CacheCleanerPageState extends State<CacheCleanerPage> {
                                 ),
                                 Spacer(),
                                 AnimatedRotation(
+                                  curve: defaultChevronRotationAnimationCurve,
                                   turns: iAmSelected ? 0 : -0.25,
-                                  duration: Duration(milliseconds: 500),
+                                  duration: defaultChevronRotationAnimationDuration,
                                   child: CupertinoButton(
                                     child: Icon(CupertinoIcons.chevron_down),
                                     onPressed: () => _expandSemester(

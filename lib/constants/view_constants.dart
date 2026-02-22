@@ -15,3 +15,6 @@ const appleGrey = Color.fromRGBO(243, 242, 248, 1);
 const appleDarkGrey = Color.fromRGBO(28, 28, 30, 1);
 
 const navigationLightBackground = Color.fromRGBO(240, 240, 240, 0.7);
+
+const defaultChevronRotationAnimationCurve = Curves.ease;
+const defaultChevronRotationAnimationDuration = Duration(milliseconds: 200);

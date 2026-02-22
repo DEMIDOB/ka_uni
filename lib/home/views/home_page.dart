@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:kit_mobile/common_ui/kit_progress_indicator.dart';
+import 'package:kit_mobile/constants/view_constants.dart';
 import 'package:kit_mobile/home/views/hierarchic_table.dart';
 import 'package:kit_mobile/home/views/padded_title.dart';
 import 'package:kit_mobile/home/views/relevant_modules.dart';
@@ -116,8 +117,9 @@ class _KITHomePageState extends State<KITHomePage> {
               },
               // child: const Icon(CupertinoIcons.info),
               child: AnimatedRotation(
+                curve: defaultChevronRotationAnimationCurve,
                 turns: settingsVM.showingProfile.value ? 0 : -0.25,
-                duration: Duration(milliseconds: 200),
+                duration: defaultChevronRotationAnimationDuration,
                 child: Icon(CupertinoIcons.chevron_down),
               ),
             )
