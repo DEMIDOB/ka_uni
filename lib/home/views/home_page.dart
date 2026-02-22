@@ -83,7 +83,7 @@ class _KITHomePageState extends State<KITHomePage> {
             bottomRight: Radius.circular(10),
           )),
           // surfaceTintColor: Colors.transparent,
-          leading: vm.profileReady ? null : KITProgressIndicator(),
+          leading: vm.profileReady ? SizedBox.shrink() : KITProgressIndicator(),
           // leading: !kDebugMode
           //     ? null
           //     : CupertinoButton(
