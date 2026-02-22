@@ -142,6 +142,7 @@ class _KITAppState extends State<KITApp> {
       if (credsVM.credentials.valid) {
         await vm.prepareCachedData();
         await vm.setCredentials(credsVM.credentials);
+        vm.iliasManager.authorize();
         await credsVM.login(vm);
         await vm.fetchSchedule();
         await vm.campusManager.fetchAllModules();
