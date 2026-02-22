@@ -140,6 +140,7 @@ class _KITAppState extends State<KITApp> {
     _credentialsFuture = credsVM.loadCredentials(notify: false);
     _credentialsFuture.whenComplete(() async {
       if (credsVM.credentials.valid) {
+        await vm.loadStudentDataAndNotify();
         await vm.prepareCachedData();
         await vm.setCredentials(credsVM.credentials);
         vm.iliasManager.authorize();

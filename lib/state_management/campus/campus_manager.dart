@@ -17,6 +17,8 @@ import '../../student/name.dart';
 import '../../student/student.dart';
 import '../../timetable/models/timetable_weekly.dart';
 
+const _studentDataKey = "DATA_student";
+
 class CampusManager extends KITLoginer {
   List<HierarchicTableRow> moduleRows = [];
   Map<String, KITModule> rowModules = {}; // INDEXING AS row_id: module
@@ -44,6 +46,25 @@ class CampusManager extends KITLoginer {
   }
 
   String get _moduleCacheLastFetchKey => "${_moduleCacheNamespace}_last_fetch";
+
+  Future<void> loadStudentData() async {
+    final prefs = await SharedPreferences.getInstance();
+    final stored = prefs.getString(_studentDataKey);
+    if (stored != null && stored.isNotEmpty) {
+      student.copyFrom(Student.fromJson(jsonDecode(stored)));
+    }
+  }
+
+  Future<void> writeStudentData() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_studentDataKey, jsonEncode(student.toJson()));
+  }
+
+  Future<void> clearStudentData() async {
+    student.copyFrom(Student.empty);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_studentDataKey);
+  }
 
   void _updateLastModuleFetchTime(DateTime timestamp) {
     if (lastModuleFetchTime == null ||
@@ -317,6 +338,8 @@ class CampusManager extends KITLoginer {
         degreeProgram: degreeProgram,
         avgMark: rowsSorted[1]?.first.grade ?? "0,0",
         ectsAcquired: ectsAcquired);
+
+    await writeStudentData();
 
     // fetchTimetable().then((_) {
     //   fetchAllModules();

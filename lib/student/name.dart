@@ -14,4 +14,18 @@ class Name {
 
     return "$firstName $lastName";
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      "firstName": firstName,
+      "lastName": lastName,
+    };
+  }
+
+  factory Name.fromJson(Map<String, dynamic> json) {
+    return Name(
+      firstName: json["firstName"] ?? "",
+      lastName: json["lastName"] ?? "",
+    );
+  }
 }

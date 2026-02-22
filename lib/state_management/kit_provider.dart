@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:kit_mobile/credentials/models/kit_credentials.dart';
@@ -6,6 +7,7 @@ import 'package:kit_mobile/geo/network/KITTopographyManager.dart';
 import 'package:kit_mobile/module_info_table/models/module_info_table_cell.dart';
 import 'package:kit_mobile/state_management/ilias/ilias_manager.dart';
 import 'package:kit_mobile/student/name.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../local_files_storage/files_manager.dart';
 import '../module/models/module.dart';
@@ -15,13 +17,7 @@ import '../timetable/models/timetable_weekly.dart';
 import 'campus/campus_manager.dart';
 
 class KITProvider extends ChangeNotifier {
-  Student student = Student(
-    name: Name(firstName: "", lastName: "", middleName: ""),
-    matriculationNumber: "0000000",
-    degreeProgram: "",
-    ectsAcquired: "",
-    avgMark: "0.0",
-  );
+  Student student = Student.empty;
 
   setCredentials(KITCredentials newCredentials) {
     // _credentials = newCredentials;
@@ -63,6 +59,11 @@ class KITProvider extends ChangeNotifier {
   String overlayHtmlData = "";
   dismissOverlayHtml() {
     overlayHtmlData = "";
+    notifyListeners();
+  }
+
+  loadStudentDataAndNotify() async {
+    await campusManager.loadStudentData();
     notifyListeners();
   }
 
