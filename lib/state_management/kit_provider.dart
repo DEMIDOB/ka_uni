@@ -74,7 +74,7 @@ class KITProvider extends ChangeNotifier {
       startRefreshTimer = true,
       ignoreIfCached = false}) async {
     final fetchResult = await campusManager.fetchSchedule();
-    Future.delayed(Duration(seconds: 1), iliasManager.authorize);
+    // Future.delayed(Duration(seconds: 1), iliasManager.authorize);
     return fetchResult;
   }
 
@@ -103,7 +103,13 @@ class KITProvider extends ChangeNotifier {
     return "SS ${now.year}";
   }
 
+  // TODO: RENAME
   clearCookiesAndCache() async {
     await campusManager.clearCookiesAndCache();
+  }
+
+  prepareCachedData() async {
+    await campusManager.prepareRelevantModuleRows();
+    notifyListeners();
   }
 }

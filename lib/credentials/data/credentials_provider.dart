@@ -19,7 +19,7 @@ class CredentialsProvider extends ChangeNotifier {
 
   String displayName = "";
 
-  Future<void> loadCredentials() async {
+  Future<bool> loadCredentials({Function? callback, notify = true}) async {
     final all = await _storage.readAll(
         iOptions: _iOSOptions, aOptions: _androidOptions);
 
@@ -37,27 +37,39 @@ class CredentialsProvider extends ChangeNotifier {
     credentialsLoaded = true;
     loggingIn = false;
 
-    notifyListeners();
+    if (notify) notifyListeners();
+
+    callback?.call(this);
+
+    return credentials.valid;
   }
 
   _writeCredentials() async {
+    final username = credentials.username;
+    final password = credentials.password;
+    final isValid = credentials.valid;
+
     if (displayName.isEmpty) {
       displayName = credentials.username;
     }
 
+    if (kDebugMode) {
+      print("Validating validity of credentials: ${credentials.valid}");
+    }
+
     await _storage.write(
         key: "username",
-        value: credentials.username,
+        value: username,
         iOptions: _iOSOptions,
         aOptions: _androidOptions);
     await _storage.write(
         key: "password",
-        value: credentials.password,
+        value: password,
         iOptions: _iOSOptions,
         aOptions: _androidOptions);
     await _storage.write(
         key: "isLoggedIn",
-        value: credentials.valid ? "1" : "",
+        value: isValid ? "1" : "",
         iOptions: _iOSOptions,
         aOptions: _androidOptions);
     await _storage.write(
@@ -74,24 +86,21 @@ class CredentialsProvider extends ChangeNotifier {
           aOptions: _androidOptions);
     }
 
+    if (kDebugMode) {
+      print("VALID one more time: ${credentials.valid}");
+    }
+
     // displayName = credentials.username;
     notifyListeners();
   }
 
   _clearCredentials() async {
+    if (kDebugMode) {
+      print("Clearing credentials...");
+    }
     credentials = KITCredentials();
     await _writeCredentials();
   }
-
-  // enterUsername(String value) async {
-  //   credentials.username = value;
-  //   await _writeCredentials();
-  // }
-  //
-  // enterPassword(String value) async {
-  //   credentials.password = value;
-  //   await _writeCredentials();
-  // }
 
   setDisplayName(String val) async {
     displayName = val;
@@ -150,7 +159,11 @@ class CredentialsProvider extends ChangeNotifier {
 
     credentials.valid = true;
     setDisplayName(vm.student.name.repr);
-    _writeCredentials();
+    if (kDebugMode) {
+      print(
+          "Successfully logged in and writing credentials which are valid: ${credentials.valid}");
+    }
+    await _writeCredentials();
 
     loggingIn = false;
     notifyListeners();
@@ -159,7 +172,7 @@ class CredentialsProvider extends ChangeNotifier {
   }
 
   logout(KITProvider vm) async {
-    _clearCredentials();
+    await _clearCredentials();
     // i do not really like how this is implemented. I'll rewrite this in the future
     vm.campusManager.ready = false;
     vm.campusManager.scheduleFetchingTimer?.cancel();

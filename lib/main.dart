@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:kit_mobile/credentials/data/credentials_provider.dart';
-import 'package:kit_mobile/credentials/views/login_view.dart';
 import 'package:kit_mobile/local_files_storage/files_manager.dart';
 import 'package:kit_mobile/settings/providers/settings_provider.dart';
 import 'package:kit_mobile/state_management/kit_provider.dart';
@@ -11,6 +10,7 @@ import 'package:liquid_glass_widgets/liquid_glass_setup.dart';
 import 'package:provider/provider.dart';
 
 import 'constants/view_constants.dart';
+import 'credentials/views/login_view.dart';
 import 'navigation/views/kit_nav_container.dart';
 
 const isAlpha = true;
@@ -120,19 +120,52 @@ class MyApp extends StatelessWidget {
   }
 }
 
-class KITApp extends StatelessWidget {
+class KITApp extends StatefulWidget {
   const KITApp({super.key});
 
   @override
+  State<KITApp> createState() => _KITAppState();
+}
+
+class _KITAppState extends State<KITApp> {
+  late Future<bool> _credentialsFuture;
+
+  @override
+  void initState() {
+    super.initState();
+
+    final vm = Provider.of<KITProvider>(context, listen: false);
+    final credsVM = Provider.of<CredentialsProvider>(context, listen: false);
+
+    _credentialsFuture = credsVM.loadCredentials(notify: false);
+    _credentialsFuture.whenComplete(() async {
+      if (credsVM.credentials.valid) {
+        await vm.prepareCachedData();
+        await vm.setCredentials(credsVM.credentials);
+        await credsVM.login(vm);
+        await vm.fetchSchedule();
+        await vm.campusManager.fetchAllModules();
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 500),
-      transitionBuilder: (Widget child, Animation<double> animation) {
-        return FadeTransition(opacity: animation, child: child);
+    final vm = Provider.of<KITProvider>(context);
+
+    return FutureBuilder<bool>(
+      future: _credentialsFuture,
+      builder: (context, snapshot) {
+        return AnimatedSwitcher(
+          duration: const Duration(milliseconds: 500),
+          transitionBuilder: (child, animation) =>
+              FadeTransition(opacity: animation, child: child),
+          child:
+              (vm.profileReady || (snapshot.hasData && snapshot.data == true))
+                  ? KITNavContainer()
+                  : LoginPage(),
+        );
       },
-      child: Provider.of<KITProvider>(context).profileReady
-          ? KITNavContainer()
-          : LoginPage(),
     );
   }
 }

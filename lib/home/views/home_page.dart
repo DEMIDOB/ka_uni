@@ -83,15 +83,28 @@ class _KITHomePageState extends State<KITHomePage> {
             bottomRight: Radius.circular(10),
           )),
           // surfaceTintColor: Colors.transparent,
-          leading: CupertinoButton(
-            onPressed: () {
-              // credsVM.logout(vm);
-            },
-            child: const Icon(
-              CupertinoIcons.arrow_left_square,
-              color: Colors.transparent,
-            ),
-          ),
+          leading: vm.profileReady ? null : KITProgressIndicator(),
+          // leading: !kDebugMode
+          //     ? null
+          //     : CupertinoButton(
+          //         child: Icon(
+          //           CupertinoIcons.check_mark_circled_solid,
+          //           color: Colors.red,
+          //         ),
+          //         onPressed: () async {
+          //           await vm.prepareCachedData();
+          //
+          //           await credsVM.loadCredentials();
+          //           await vm.setCredentials(credsVM.credentials);
+          //           print(
+          //               "${credsVM.credentials}, ${credsVM.credentials.valid}");
+          //           if (credsVM.credentialsLoaded &&
+          //               credsVM.credentials.valid) {
+          //             await credsVM.login(vm);
+          //             await vm.fetchSchedule();
+          //             await vm.campusManager.fetchAllModules();
+          //           }
+          //         }),
           actions: [
             CupertinoButton(
               onPressed: () {
@@ -125,9 +138,7 @@ class _KITHomePageState extends State<KITHomePage> {
                             )
                           : SizedBox(),
                     ),
-
                     TimetableWeeklyView(),
-
                     CupertinoButton(
                         padding: EdgeInsets.zero,
                         onPressed: () {
@@ -142,11 +153,7 @@ class _KITHomePageState extends State<KITHomePage> {
                             Text("Stundenplan bearbeiten"),
                           ],
                         )),
-                    // Text("Tutorien & co.: coming soon :)", style: theme.textTheme.bodySmall?.copyWith(color: Colors.black26)),
-                    // TimetableDailyView(tt: vm.timetable.days[DateTime.now().weekday - 1 < 5 ? DateTime.now().weekday - 1 : 1]),
-
                     const Padding(padding: EdgeInsets.all(10)),
-
                     Row(
                       children: [
                         PaddedTitle(
@@ -176,9 +183,7 @@ class _KITHomePageState extends State<KITHomePage> {
                       padding: EdgeInsets.all(5),
                       child: RelevantModulesView(),
                     ),
-
                     const Padding(padding: EdgeInsets.all(20)),
-
                     PaddedTitle(
                       title: "Angeheftete Dateien",
                       trailing: CupertinoButton(
@@ -189,9 +194,7 @@ class _KITHomePageState extends State<KITHomePage> {
                                       CacheCleanerPage()))),
                     ),
                     PinnedFilesListView(),
-
                     const Padding(padding: EdgeInsets.all(20)),
-
                     PaddedTitle(title: "Meine Module"),
                     HierarchicTableView(
                       rows: vm.campusManager.moduleRows,

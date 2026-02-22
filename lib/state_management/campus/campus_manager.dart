@@ -43,8 +43,7 @@ class CampusManager extends KITLoginer {
     return "${_moduleCacheNamespace}_$encodedRowId";
   }
 
-  String get _moduleCacheLastFetchKey =>
-      "${_moduleCacheNamespace}_last_fetch";
+  String get _moduleCacheLastFetchKey => "${_moduleCacheNamespace}_last_fetch";
 
   void _updateLastModuleFetchTime(DateTime timestamp) {
     if (lastModuleFetchTime == null ||
@@ -112,8 +111,10 @@ class CampusManager extends KITLoginer {
 
   Future<void> _clearModuleCacheForCurrentSemester() async {
     final prefs = await SharedPreferences.getInstance();
-    final keys = prefs.getKeys().where(
-        (key) => key.startsWith(_moduleCacheNamespace)).toList(growable: false);
+    final keys = prefs
+        .getKeys()
+        .where((key) => key.startsWith(_moduleCacheNamespace))
+        .toList(growable: false);
     for (final key in keys) {
       await prefs.remove(key);
     }
@@ -131,8 +132,7 @@ class CampusManager extends KITLoginer {
     }
 
     _moduleRefreshInProgress.add(row.id);
-    fetchModule(row, recursiveRetry: false)
-        .catchError((error, stackTrace) {
+    fetchModule(row, recursiveRetry: false).catchError((error, stackTrace) {
       if (kDebugMode) {
         print("Background refresh failed for ${row.id}: $error");
       }
@@ -318,9 +318,9 @@ class CampusManager extends KITLoginer {
         avgMark: rowsSorted[1]?.first.grade ?? "0,0",
         ectsAcquired: ectsAcquired);
 
-    fetchTimetable().then((_) {
-      fetchAllModules();
-    });
+    // fetchTimetable().then((_) {
+    //   fetchAllModules();
+    // });
 
     ready = true;
     notificationCallback();
@@ -495,8 +495,7 @@ class CampusManager extends KITLoginer {
       return cachedModule;
     }
 
-    final fetchedModule =
-        await fetchModule(row, recursiveRetry: retryIfFailed);
+    final fetchedModule = await fetchModule(row, recursiveRetry: retryIfFailed);
     return fetchedModule;
   }
 
@@ -532,17 +531,15 @@ class CampusManager extends KITLoginer {
 
   final Lock _addRelevantModuleLock = Lock();
   _addRelevantModuleRow(HierarchicTableRow row, {keepSorted = true}) async {
+    // A module is RELEVANT if there is an ILIAS link meaning that it is
+    // relevant for the current semester
+
     await _addRelevantModuleLock.run(() async {
       final module = rowModules[row.id];
       if (module == null) {
         if (kDebugMode) print("Somehow module is null :(");
         return;
       }
-
-      // final rowLevelAccepted = 3;
-      // if (row.level != rowLevelAccepted) {
-      //   return;
-      // }
 
       // double-check if the module is relevant (there must be an ilias-course link)
       if (module.iliasLink == null || module.iliasLink!.isEmpty) {
@@ -556,12 +553,9 @@ class CampusManager extends KITLoginer {
       }
 
       if (keepSorted) {
-        if (kDebugMode) print("Sorting! (${row.grade})");
-
         bool hasNumber = false;
         for (final num in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]) {
           if (row.grade.contains("$num")) {
-            if (kDebugMode) print("has number");
             hasNumber = true;
             break;
           }
@@ -579,7 +573,6 @@ class CampusManager extends KITLoginer {
           relevantModuleRowIDs.insert(insertAt, row.id);
         }
       } else {
-        if (kDebugMode) print("Not soring -_-");
         relevantModuleRowIDs.add(row.id);
       }
 

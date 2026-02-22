@@ -6,11 +6,12 @@ import 'package:http_session/http_session.dart';
 import '../credentials/models/kit_credentials.dart';
 
 class KITLoginer {
-  late KITCredentials credentials;
+  late KITCredentials credentials = KITCredentials(); // empty at the beginning
 
   bool ready = false;
 
-  final HttpSession session = HttpSession(acceptBadCertificate: true, maxRedirects: 15);
+  final HttpSession session =
+      HttpSession(acceptBadCertificate: true, maxRedirects: 15);
   final String _JSESSIONID = "";
   String get JSESSIONID => _JSESSIONID;
 
@@ -36,7 +37,8 @@ class KITLoginer {
   }
 
   Future<bool> fetchJSession() async {
-    String url = "https://idp.scc.kit.edu/idp/profile/SAML2/Redirect/SSO?execution=e1s1";
+    String url =
+        "https://idp.scc.kit.edu/idp/profile/SAML2/Redirect/SSO?execution=e1s1";
 
     await session.get(Uri.parse(url));
     if (cookiesContains("JSESSIONID")) {
@@ -49,8 +51,9 @@ class KITLoginer {
 
     return false;
   }
-  
-  fetchStage0_Init({notify = true, retryIfFailed = true, secondRetryIfFailed = true}) async {
+
+  fetchStage0_Init(
+      {notify = true, retryIfFailed = true, secondRetryIfFailed = true}) async {
     if (!credentials.isFormatValid) {
       return -1;
     }
@@ -176,7 +179,8 @@ class KITLoginer {
   }
 
   bool isManualRedirectRequired(http.Response response) {
-    return response.body.contains("you must press the Continue button") || response.body.contains("relaystate");
+    return response.body.contains("you must press the Continue button") ||
+        response.body.contains("relaystate");
   }
 
   Future<http.Response?> handleNoJSResponse(String body) async {
@@ -194,7 +198,8 @@ class KITLoginer {
         final String? action = form.attributes["action"];
         if (action == null) {
           if (kDebugMode) {
-            print("Handling no-js redirect: action is null. Reporting failure...");
+            print(
+                "Handling no-js redirect: action is null. Reporting failure...");
           }
           return null;
         }
@@ -221,18 +226,19 @@ class KITLoginer {
     }
 
     if (kDebugMode) {
-      print("Handling no-js redirect: url is $url, cookies: ${session.cookieStore.cookies.toString()}");
+      print(
+          "Handling no-js redirect: url is $url, cookies: ${session.cookieStore.cookies.toString()}");
       print("formData: ${formData.keys}");
     }
 
     var response = await session.post(Uri.parse(url), body: formData);
 
-    if (response.statusCode == 302 && response.headers.containsKey("location")) {
+    if (response.statusCode == 302 &&
+        response.headers.containsKey("location")) {
       url = response.headers["location"]!;
       response = await session.get(Uri.parse(url));
     }
 
     return response;
   }
-
 }

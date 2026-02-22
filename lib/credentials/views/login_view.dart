@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
@@ -50,11 +49,14 @@ class LoginPageState extends State<LoginPage> {
       _usernameInputController.text = credsVM.credentials.username;
       _passwordInputController.text = credsVM.credentials.password;
 
-      if (credsVM.credentials.valid && !vm.profileReady && !credsVM.loggingIn) {
-        Timer(const Duration(milliseconds: 50), () {
-          _submitLogin(credsVM, vm);
-        });
-      }
+      // if (credsVM.credentials.valid &&
+      //     credsVM.credentials.isFormatValid &&
+      //     !vm.profileReady &&
+      //     !credsVM.loggingIn) {
+      //   Timer(const Duration(milliseconds: 50), () {
+      //     _submitLogin(credsVM, vm);
+      //   });
+      // }
     }
 
     return Scaffold(
@@ -71,9 +73,19 @@ class LoginPageState extends State<LoginPage> {
                   children: [
                     Column(
                       children: [
-                        Text("Hallo",
-                            style: theme.textTheme.headlineLarge
-                                ?.copyWith(fontWeight: FontWeight.bold)),
+                        GestureDetector(
+                          onTap: !kDebugMode
+                              ? null
+                              : () async {
+                                  await credsVM.loadCredentials();
+                                  if (kDebugMode) {
+                                    print(credsVM.credentials.valid);
+                                  }
+                                },
+                          child: Text("Hallo",
+                              style: theme.textTheme.headlineLarge
+                                  ?.copyWith(fontWeight: FontWeight.bold)),
+                        ),
                         Text(
                           "Wilkommen in Karlsruhe",
                           style: theme.textTheme.headlineSmall
@@ -270,6 +282,7 @@ class LoginPageState extends State<LoginPage> {
     });
   }
 
+  // TODO: probably delete
   _onSuccessfulLogin(CredentialsProvider credsVM, KITProvider vm) {
     credsVM.setDisplayName(vm.student.name.repr);
   }

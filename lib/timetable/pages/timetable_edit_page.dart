@@ -183,6 +183,7 @@ class _TimetableEditPageState extends State<TimetableEditPage> {
     required Map<String, KITModule> modulesById,
     Tutorial? existing,
   }) async {
+    final theme = Theme.of(context);
     final moduleList = modulesById.values
         .where((module) => module.id.isNotEmpty)
         .toList(growable: false)
@@ -203,9 +204,9 @@ class _TimetableEditPageState extends State<TimetableEditPage> {
     await showDialog<void>(
       context: context,
       barrierDismissible: true,
-      barrierColor: Colors.white.withAlpha(100),
+      barrierColor: theme.scaffoldBackgroundColor.withAlpha(100),
       builder: (dialogContext) {
-        final theme = Theme.of(dialogContext);
+        // final theme = Theme.of(dialogContext);
         return LayoutBuilder(
           builder: (context, constraints) {
             final mediaWidth = MediaQuery.of(dialogContext).size.width;
@@ -224,8 +225,8 @@ class _TimetableEditPageState extends State<TimetableEditPage> {
                       return GlassContainer(
                         shape: LiquidRoundedSuperellipse(
                             borderRadius: appBorderRadiusDouble),
-                        // settings: GlassContainerSettings(
-                        //   glassColor: theme.colorScheme.surface.withOpacity(0.7),
+                        // settings: LiquidGlassSettings(
+                        //   glassColor: Colors.white.withOpacity(0.7),
                         //   blur: 4,
                         //   // blend: 1
                         // ),

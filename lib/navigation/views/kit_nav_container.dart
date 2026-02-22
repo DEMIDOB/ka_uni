@@ -98,8 +98,9 @@ class _KITNavContainerState extends State<KITNavContainer> {
           [
             SettingsPage(),
             KITHomePage(),
-            IliasPageView(KITModule(),
-                PHPSESSID: vm.iliasManager.getPHPSESSID()),
+            // IliasPageView(KITModule(),
+            //     PHPSESSID: vm.iliasManager.getPHPSESSID()),
+            IliasPageView(KITModule(), PHPSESSID: Future.value("")),
           ][_selectedPage],
         ],
       ),
