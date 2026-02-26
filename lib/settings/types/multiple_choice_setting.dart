@@ -12,6 +12,7 @@ class MultipleChoiceSetting<T> extends Setting<T> {
   }) : choicesSet = choices.toSet(),
         super(defaultValue: choices.isEmpty ? "" : choices[0]);
 
+  @override
   Future<void> set(T newValue) async {
     assert (choicesSet.contains(newValue));
     super.set(newValue);

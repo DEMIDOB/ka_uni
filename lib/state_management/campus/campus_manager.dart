@@ -37,6 +37,8 @@ class CampusManager extends KITLoginer {
   Timer? scheduleFetchingTimer;
   DateTime? lastModuleFetchTime;
 
+  String get _timetableSrcCurrentSemesterKey => "DATA_timetableSrc_${KITProvider.currentSemesterString}";
+
   String get _moduleCacheNamespace =>
       "module_cache_${KITProvider.currentSemesterString}";
 
@@ -660,17 +662,56 @@ class CampusManager extends KITLoginer {
         "https://campus.studium.kit.edu/redirect.php?system=campus&url=/campus/student/timetable.asp";
     final response = await session.get(Uri.parse(url));
 
-    final timetableUpdate = TimetableWeekly.parseFromHtmlString(response.body);
+    final ok = await updateTimetableFromStrSrc(response.body);
+
+    if (!ok && retryIfFailed) {
+      return fetchTimetable(retryIfFailed: false);
+    }
+  }
+
+  Future<bool> updateTimetableFromStrSrc(String src, {cacheSrc = true}) async {
+    final timetableUpdate = TimetableWeekly.parseFromHtmlString(src);
     if (timetableUpdate == null) {
       if (kDebugMode) {
         print("Failed to update the timetable!");
       }
-      if (retryIfFailed) {
-        return fetchTimetable(retryIfFailed: false);
-      }
-      return;
+
+      return false;
     }
+
+    if (cacheSrc) {
+      await _cacheTimetableSrc(src);
+    }
+
     timetable = timetableUpdate;
     notificationCallback();
+
+    return true;
+  }
+
+  Future<void> _cacheTimetableSrc(String src) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_timetableSrcCurrentSemesterKey, src);
+  }
+
+  Future<String?> _readCachedTimetableSrc() async {
+    final prefs = await SharedPreferences.getInstance();
+    final cached = prefs.getString(_timetableSrcCurrentSemesterKey);
+    return cached;
+  }
+
+  Future<bool> loadCachedTimetable() async {
+    final cached = await _readCachedTimetableSrc();
+    if (cached == null || cached.isEmpty) {
+      return false;
+    }
+    else {
+      return updateTimetableFromStrSrc(cached);
+    }
+  }
+
+  Future<void> clearCachedTimetableData() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_timetableSrcCurrentSemesterKey);
   }
 }

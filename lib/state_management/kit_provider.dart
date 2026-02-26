@@ -54,7 +54,7 @@ class KITProvider extends ChangeNotifier {
       return false;
     }
 
-    await loadStudentDataAndNotify();
+    await loadCachedDataAndNotify();
     await prepareCachedData();
     setCredentials(credentials);
     campusManager.ready = true;
@@ -73,8 +73,9 @@ class KITProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> loadStudentDataAndNotify() async {
+  Future<void> loadCachedDataAndNotify() async {
     await campusManager.loadStudentData();
+    await campusManager.loadCachedTimetable();
     notifyListeners();
   }
 

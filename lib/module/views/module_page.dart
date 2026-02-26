@@ -53,7 +53,7 @@ class _ModuleViewState extends State<ModuleView> {
             title: Text("Modul", style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.normal),),
             actions: [
               (module.iliasLink != null && module.iliasLink!.isNotEmpty) ? CupertinoButton(child: Text("ILIAS"), onPressed: () {
-                Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) => IliasPageView(module, PHPSESSID: vm.iliasManager.getPHPSESSID())));
+                Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) => IliasPageView(module, PHPSESSID_Future: vm.iliasManager.getPHPSESSID())));
                 // print(module.iliasLink);
                 // Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) => IliasPageView(module)));
                 // FlutterWebBrowser.openWebPage(url: module.iliasLink!);

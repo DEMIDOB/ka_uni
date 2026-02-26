@@ -252,7 +252,9 @@ class _TimetableEditPageState extends State<TimetableEditPage> {
                                           : "Tutorium bearbeiten",
                                       style: theme.textTheme.titleLarge,
                                     ),
+
                                     const SizedBox(height: 16),
+
                                     DropdownButtonFormField<String>(
                                       value: selectedModuleId,
                                       decoration: const InputDecoration(
@@ -271,7 +273,9 @@ class _TimetableEditPageState extends State<TimetableEditPage> {
                                             () => selectedModuleId = value);
                                       },
                                     ),
+
                                     const SizedBox(height: 12),
+
                                     DropdownButtonFormField<Weekday>(
                                       value: selectedWeekday,
                                       decoration: const InputDecoration(
@@ -290,7 +294,9 @@ class _TimetableEditPageState extends State<TimetableEditPage> {
                                         setState(() => selectedWeekday = value);
                                       },
                                     ),
+
                                     const SizedBox(height: 12),
+
                                     DropdownButtonFormField<int>(
                                       value: selectedBlockIndex,
                                       decoration: const InputDecoration(
@@ -309,17 +315,21 @@ class _TimetableEditPageState extends State<TimetableEditPage> {
                                             () => selectedBlockIndex = value);
                                       },
                                     ),
-                                    const SizedBox(height: 12),
-                                    TextField(
-                                      controller: notesController,
-                                      decoration: const InputDecoration(
-                                        labelText: "Notizen (optional)",
-                                        hintText:
-                                            "z.B. Raum, Ansprechpartner, Hinweise",
-                                      ),
-                                      maxLines: 3,
-                                    ),
+
+                                    // const SizedBox(height: 12),
+                                    //
+                                    // TextField(
+                                    //   controller: notesController,
+                                    //   decoration: const InputDecoration(
+                                    //     labelText: "Notizen (optional)",
+                                    //     hintText:
+                                    //         "z.B. Raum, Ansprechpartner, Hinweise",
+                                    //   ),
+                                    //   maxLines: 3,
+                                    // ),
+
                                     const SizedBox(height: 24),
+
                                     Row(
                                       mainAxisAlignment: MainAxisAlignment.end,
                                       children: [

@@ -178,6 +178,7 @@ class CredentialsProvider extends ChangeNotifier {
     vm.campusManager.scheduleFetchingTimer?.cancel();
     vm.campusManager.resetRelevantModules();
     await vm.campusManager.clearStudentData();
+    await vm.campusManager.clearCachedTimetableData();
     await vm.iliasManager.logout();
     vm.setCredentials(credentials);
     notifyListeners();

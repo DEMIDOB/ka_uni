@@ -245,7 +245,7 @@ class LoginPageState extends State<LoginPage> {
 
   bool _awaitingAuthentication = false;
 
-  _submitLogin(CredentialsProvider credsVM, KITProvider vm) {
+  void _submitLogin(CredentialsProvider credsVM, KITProvider vm) {
     if (kDebugMode) {
       print("Submitted Login");
     }
@@ -275,8 +275,7 @@ class LoginPageState extends State<LoginPage> {
         print("Successfully authenticated");
       }
 
-      vm.campusManager.fetchTimetable();
-      vm.campusManager.fetchAllModules();
+      vm.campusManager.fetchTimetable().then((_) => vm.campusManager.fetchAllModules());
 
       // setState(() {
       //   _awaitingAuthentication = false;
@@ -286,7 +285,7 @@ class LoginPageState extends State<LoginPage> {
   }
 
   // TODO: probably delete
-  _onSuccessfulLogin(CredentialsProvider credsVM, KITProvider vm) {
+  void _onSuccessfulLogin(CredentialsProvider credsVM, KITProvider vm) {
     credsVM.setDisplayName(vm.student.name.repr);
   }
 }

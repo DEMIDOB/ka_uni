@@ -14,7 +14,11 @@ class IliasManager extends KITLoginer {
   DateTime _lastUpdate = DateTime(2004);
 
   Future<String> getPHPSESSID() async {
-    while (isBusy);
+    // while (isBusy);
+    if (isBusy) {
+      await Future.delayed(Duration(milliseconds: 500));
+      return getPHPSESSID();
+    }
 
     if (DateTime.now().isAfter(_lastUpdate.add(Duration(minutes: 30)))) {
       if (kDebugMode) {
@@ -24,7 +28,10 @@ class IliasManager extends KITLoginer {
       _lastUpdate = DateTime.now();
     }
 
-    while (isBusy);
+    if (isBusy) {
+      await Future.delayed(Duration(milliseconds: 500));
+      return getPHPSESSID();
+    }
 
     return _phpsessid;
   }
