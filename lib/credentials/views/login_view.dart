@@ -275,9 +275,9 @@ class LoginPageState extends State<LoginPage> {
         print("Successfully authenticated");
       }
 
-      setState(() {
-        _awaitingAuthentication = false;
-      });
+      // setState(() {
+      //   _awaitingAuthentication = false;
+      // });
       _onSuccessfulLogin(credsVM, vm);
     });
   }

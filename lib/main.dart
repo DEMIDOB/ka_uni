@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:kit_mobile/common_ui/kit_progress_indicator.dart';
 import 'package:kit_mobile/credentials/data/credentials_provider.dart';
 import 'package:kit_mobile/local_files_storage/files_manager.dart';
 import 'package:kit_mobile/settings/providers/settings_provider.dart';
@@ -136,14 +137,19 @@ class _KITAppState extends State<KITApp> {
 
     final vm = Provider.of<KITProvider>(context, listen: false);
     final credsVM = Provider.of<CredentialsProvider>(context, listen: false);
+    final toastsProvider = Provider.of<ToastsProvider>(context, listen: false);
 
     _credentialsFuture = credsVM.loadCredentials(notify: false);
     _credentialsFuture.whenComplete(() async {
       if (credsVM.credentials.valid) {
-        await vm.loadStudentDataAndNotify();
-        await vm.prepareCachedData();
-        await vm.setCredentials(credsVM.credentials);
-        vm.iliasManager.authorize();
+        final preloadResult = await vm.tryPreloadCache(credsVM.credentials);
+
+        if (!preloadResult) {
+          // should never happen but just in case
+          toastsProvider.showTextToast("Ungültige Zugangsdaten!");
+          return;
+        }
+
         await credsVM.login(vm);
         await vm.fetchSchedule();
         await vm.campusManager.fetchAllModules();
@@ -155,19 +161,19 @@ class _KITAppState extends State<KITApp> {
   Widget build(BuildContext context) {
     final vm = Provider.of<KITProvider>(context);
 
-    return FutureBuilder<bool>(
-      future: _credentialsFuture,
-      builder: (context, snapshot) {
-        return AnimatedSwitcher(
-          duration: const Duration(milliseconds: 500),
-          transitionBuilder: (child, animation) =>
-              FadeTransition(opacity: animation, child: child),
-          child:
-              (vm.profileReady || (snapshot.hasData && snapshot.data == true))
-                  ? KITNavContainer()
-                  : LoginPage(),
-        );
-      },
-    );
+    return FutureBuilder(
+        future: _credentialsFuture,
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return const Center(child: KITProgressIndicator());
+          }
+
+          return AnimatedSwitcher(
+            duration: const Duration(milliseconds: 500),
+            transitionBuilder: (child, animation) =>
+                FadeTransition(opacity: animation, child: child),
+            child: vm.profileReady ? KITNavContainer() : LoginPage(),
+          );
+        });
   }
 }

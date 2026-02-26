@@ -1,13 +1,10 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:kit_mobile/credentials/models/kit_credentials.dart';
 import 'package:kit_mobile/geo/network/KITTopographyManager.dart';
 import 'package:kit_mobile/module_info_table/models/module_info_table_cell.dart';
 import 'package:kit_mobile/state_management/ilias/ilias_manager.dart';
-import 'package:kit_mobile/student/name.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../local_files_storage/files_manager.dart';
 import '../module/models/module.dart';
@@ -50,6 +47,20 @@ class KITProvider extends ChangeNotifier {
     topographyManager.fetchPlaces();
 
     iliasFileManager = IliasFilesProvider();
+  }
+
+  Future<bool> tryPreloadCache(KITCredentials credentials) async {
+    if (!credentials.valid) {
+      return false;
+    }
+
+    await loadStudentDataAndNotify();
+    await prepareCachedData();
+    await setCredentials(credentials);
+    campusManager.ready = true;
+    iliasManager.authorize();
+
+    return true;
   }
 
   forceRefetchEverything() async {
