@@ -16,7 +16,7 @@ import 'campus/campus_manager.dart';
 class KITProvider extends ChangeNotifier {
   Student student = Student.empty;
 
-  setCredentials(KITCredentials newCredentials) {
+  void setCredentials(KITCredentials newCredentials) {
     // _credentials = newCredentials;
     campusManager.credentials = newCredentials;
     iliasManager.credentials = newCredentials;
@@ -56,29 +56,29 @@ class KITProvider extends ChangeNotifier {
 
     await loadStudentDataAndNotify();
     await prepareCachedData();
-    await setCredentials(credentials);
+    setCredentials(credentials);
     campusManager.ready = true;
     iliasManager.authorize();
 
     return true;
   }
 
-  forceRefetchEverything() async {
+  Future<void> forceRefetchEverything() async {
     await campusManager.forceRefetchEverything();
   }
 
   String overlayHtmlData = "";
-  dismissOverlayHtml() {
+  void dismissOverlayHtml() {
     overlayHtmlData = "";
     notifyListeners();
   }
 
-  loadStudentDataAndNotify() async {
+  Future<void> loadStudentDataAndNotify() async {
     await campusManager.loadStudentData();
     notifyListeners();
   }
 
-  fetchSchedule(
+  Future fetchSchedule(
       {notify = true,
       retryIfFailed = true,
       secondRetryIfFailed = true,
@@ -116,11 +116,11 @@ class KITProvider extends ChangeNotifier {
   }
 
   // TODO: RENAME
-  clearCookiesAndCache() async {
+  Future<void> clearCookiesAndCache() async {
     await campusManager.clearCookiesAndCache();
   }
 
-  prepareCachedData() async {
+  Future<void> prepareCachedData() async {
     await campusManager.prepareRelevantModuleRows();
     notifyListeners();
   }

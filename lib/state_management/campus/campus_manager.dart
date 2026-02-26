@@ -171,7 +171,7 @@ class CampusManager extends KITLoginer {
 
   CampusManager(this.student, this.notificationCallback);
 
-  forceRefetchEverything() async {
+  Future<void> forceRefetchEverything() async {
     scheduleFetchingTimer?.cancel();
     scheduleFetchingTimer = null;
     await _clearModuleCacheForCurrentSemester();
@@ -206,7 +206,7 @@ class CampusManager extends KITLoginer {
     return response;
   }
 
-  fetchSchedule(
+  Future<void> fetchSchedule(
       {notify = true,
       retryIfFailed = true,
       secondRetryIfFailed = true,
@@ -538,13 +538,13 @@ class CampusManager extends KITLoginer {
     }
   }
 
-  storeRelevantModuleRows() async {
+  Future<void> storeRelevantModuleRows() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setStringList(
         _relevantModuleRowsStorageKey, relevantModuleRowIDs);
   }
 
-  resetRelevantModules() async {
+  Future<void> resetRelevantModules() async {
     relevantModuleRowIDs = [];
     await storeRelevantModuleRows();
     if (kDebugMode) {
@@ -553,7 +553,7 @@ class CampusManager extends KITLoginer {
   }
 
   final Lock _addRelevantModuleLock = Lock();
-  _addRelevantModuleRow(HierarchicTableRow row, {keepSorted = true}) async {
+  Future<void> _addRelevantModuleRow(HierarchicTableRow row, {keepSorted = true}) async {
     // A module is RELEVANT if there is an ILIAS link meaning that it is
     // relevant for the current semester
 
@@ -645,7 +645,7 @@ class CampusManager extends KITLoginer {
   }
 
   // Rows:
-  _clearRows({clearRelevants = false}) {
+  void _clearRows({clearRelevants = false}) {
     moduleRows = [];
     if (clearRelevants) {
       relevantModuleRowIDs = [];

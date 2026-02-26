@@ -275,6 +275,9 @@ class LoginPageState extends State<LoginPage> {
         print("Successfully authenticated");
       }
 
+      vm.campusManager.fetchTimetable();
+      vm.campusManager.fetchAllModules();
+
       // setState(() {
       //   _awaitingAuthentication = false;
       // });

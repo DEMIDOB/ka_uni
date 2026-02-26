@@ -151,7 +151,7 @@ class _KITAppState extends State<KITApp> {
         }
 
         await credsVM.login(vm);
-        await vm.fetchSchedule();
+        await vm.campusManager.fetchTimetable();
         await vm.campusManager.fetchAllModules();
       }
     });

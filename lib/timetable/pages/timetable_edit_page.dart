@@ -412,10 +412,12 @@ class _TimetableEditPageState extends State<TimetableEditPage> {
     BuildContext context, {
     required Tutorial tutorial,
   }) async {
+    final theme = Theme.of(context);
+
     final shouldDelete = await showDialog<bool>(
       context: context,
+      barrierColor: theme.scaffoldBackgroundColor.withAlpha(100),
       barrierDismissible: true,
-      barrierColor: Colors.grey.withAlpha(100),
       builder: (dialogContext) {
         final theme = Theme.of(dialogContext);
         return LayoutBuilder(
