@@ -1,6 +1,6 @@
 0.4.2+23:
     [ ] logout
-    [ ] timetable only showing monday (probably before fetching schedule or smth)
+    [X] timetable only showing monday (probably before fetching schedule or smth)
 
 0.5.0:
     [ ] Mensa
