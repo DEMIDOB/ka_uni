@@ -46,6 +46,8 @@ class _ModuleViewState extends State<ModuleView> {
 
         final double iconDescriptionPadding = 2;
 
+        final moduleFormattedGrade = _formatGrade(module.grade);
+
         return Scaffold(
           appBar: AppBar(
             title: Text("Modul", style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.normal),),
@@ -143,7 +145,7 @@ class _ModuleViewState extends State<ModuleView> {
                             children: [
                               Icon(CupertinoIcons.pencil_outline, color: theme.colorScheme.primary,),
                               Padding(padding: EdgeInsets.all(iconDescriptionPadding),),
-                              Text(module.grade.isNotEmpty ? module.grade : "0,0",)
+                              Text(moduleFormattedGrade.isNotEmpty ? moduleFormattedGrade : "0,0",)
                             ],
                           ),
 
@@ -176,6 +178,29 @@ class _ModuleViewState extends State<ModuleView> {
         );
       }
     );
+  }
+
+  String _formatGrade(String grade) {
+    bool insideHTMLChar = false;
+    String result = "";
+
+    for (final c in grade.split("")) {
+      if (insideHTMLChar) {
+        if (c == ";") {
+          insideHTMLChar = false;
+        }
+      }
+      else {
+        if (c == "&") {
+          insideHTMLChar = true;
+        }
+        else {
+          result += c;
+        }
+      }
+    }
+
+    return result;
   }
 
 }
