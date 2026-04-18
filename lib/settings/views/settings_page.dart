@@ -11,7 +11,7 @@ import 'package:provider/provider.dart';
 
 import '../../credentials/data/credentials_provider.dart';
 import '../../info/views/info_view.dart';
-import '../../local_files_storage/views/pages/cache_cleaner_page.dart';
+import '../../local_files_storage/views/pages/files_cache_page.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -30,7 +30,7 @@ class _SettingsPageState extends State<SettingsPage> {
     final settingsVM = Provider.of<SettingsProvider>(context);
     final filesVM = Provider.of<IliasFilesProvider>(context);
 
-    final theme = Theme.of(context);
+    // final theme = Theme.of(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -121,7 +121,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         onPressed: () => Navigator.of(context).push(
                             MaterialPageRoute(
                                 builder: (BuildContext context) =>
-                                    CacheCleanerPage())))
+                                    FilesCachePage())))
                   ],
                 ),
               ),

@@ -16,8 +16,7 @@ import 'package:kit_mobile/toasts/models/toasts_provider.dart';
 import 'package:provider/provider.dart';
 
 import '../../common_ui/kit_logo.dart';
-import '../../credentials/data/credentials_provider.dart';
-import '../../local_files_storage/views/pages/cache_cleaner_page.dart';
+import '../../local_files_storage/views/pages/files_cache_page.dart';
 import '../../state_management/kit_provider.dart';
 
 class KITHomePage extends StatefulWidget {
@@ -34,7 +33,7 @@ class _KITHomePageState extends State<KITHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final credsVM = Provider.of<CredentialsProvider>(context);
+    // final credsVM = Provider.of<CredentialsProvider>(context);
     final vm = Provider.of<KITProvider>(context);
     final toastsProvider = Provider.of<ToastsProvider>(context);
     final settingsVM = Provider.of<SettingsProvider>(context);
@@ -193,7 +192,7 @@ class _KITHomePageState extends State<KITHomePage> {
                           onPressed: () => Navigator.of(context).push(
                               MaterialPageRoute(
                                   builder: (BuildContext context) =>
-                                      CacheCleanerPage()))),
+                                      FilesCachePage()))),
                     ),
                     PinnedFilesListView(),
                     const Padding(padding: EdgeInsets.all(20)),
@@ -209,7 +208,7 @@ class _KITHomePageState extends State<KITHomePage> {
         ));
   }
 
-  Future<void> _refreshHomeView(KITProvider vm) async {
-    await vm.forceRefetchEverything();
-  }
+  // Future<void> _refreshHomeView(KITProvider vm) async {
+  //   await vm.forceRefetchEverything();
+  // }
 }

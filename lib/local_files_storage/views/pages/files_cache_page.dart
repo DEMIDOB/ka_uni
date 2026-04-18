@@ -10,16 +10,16 @@ import 'package:kit_mobile/local_files_storage/models/pinned_file.dart';
 import 'package:kit_mobile/local_files_storage/views/file_viewer.dart';
 import 'package:provider/provider.dart';
 
-class CacheCleanerPage extends StatefulWidget {
-  const CacheCleanerPage({super.key});
+class FilesCachePage extends StatefulWidget {
+  const FilesCachePage({super.key});
 
   @override
   State<StatefulWidget> createState() {
-    return _CacheCleanerPageState();
+    return _FilesCachePageState();
   }
 }
 
-class _CacheCleanerPageState extends State<CacheCleanerPage> {
+class _FilesCachePageState extends State<FilesCachePage> {
   String expandedSemesterString = "";
   List<String> expandedSemesterStringFiles = [];
 
@@ -56,7 +56,7 @@ class _CacheCleanerPageState extends State<CacheCleanerPage> {
                             child: Row(
                               children: [
                                 Text(
-                                  currentSemesterString,
+                                  _prettifySemesterString(currentSemesterString),
                                   style: theme.textTheme.titleMedium,
                                 ),
                                 Spacer(),
@@ -135,6 +135,13 @@ class _CacheCleanerPageState extends State<CacheCleanerPage> {
                                                 }),
                                             CupertinoButton(
                                               onPressed: () async {
+                                                final shouldDelete = await _confirmFileDeletion(_sanitizeFileDisplayName(
+                                                    fileDisplayName));
+
+                                                if (shouldDelete != true) {
+                                                  return;
+                                                }
+                                                
                                                 await filesVM
                                                     .localFileStorageManager
                                                     .removeFile(semFile);
@@ -160,6 +167,11 @@ class _CacheCleanerPageState extends State<CacheCleanerPage> {
                                       [
                                         CupertinoButton(
                                           onPressed: () async {
+                                            final shouldDelete = await _confirmFileDeletion("alle Dateien im ${_prettifySemesterString(currentSemesterString)}");
+                                            if (shouldDelete != true) {
+                                              return;
+                                            }
+
                                             for (final file
                                                 in expandedSemesterStringFiles) {
                                               await filesVM
@@ -187,6 +199,44 @@ class _CacheCleanerPageState extends State<CacheCleanerPage> {
             );
           }),
     );
+  }
+
+  Future<bool?> _confirmFileDeletion(String filename) async {
+    return await showCupertinoDialog<bool>(context: context, builder: (dialogContext) => CupertinoAlertDialog(
+      title: Text("Dateilöschung bestätigen"),
+      content: Text("Möchtest du den Dateicache für $filename löchen?"),
+      actions: [
+        CupertinoDialogAction(
+          onPressed: () => Navigator.of(dialogContext).pop(false),
+          child: const Text('Abbrechen'),
+        ),
+        CupertinoDialogAction(
+          isDestructiveAction: true,
+          onPressed: () => Navigator.of(dialogContext).pop(true),
+          child: const Text('Löschen'),
+        ),
+      ],
+    ));
+  }
+
+  String _prettifySemesterString(String semesterString) {
+    final underscoreSplit = semesterString.split("_");
+
+    if (underscoreSplit.isEmpty) {
+      return "";
+    }
+
+    String prettified = underscoreSplit[0];
+    if (underscoreSplit.length >= 2) {
+      prettified += " ${underscoreSplit[1]}";
+    }
+
+    for (int i = 2; i < underscoreSplit.length; i++) {
+      prettified += "/${underscoreSplit[i]}";
+    }
+
+    return prettified;
+    // return semesterString.replaceAll("_", " ").trim();
   }
 
   String _sanitizeFileDisplayName(String fileDisplayName) {
