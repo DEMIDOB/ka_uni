@@ -164,19 +164,22 @@ class _TimetableAppointmentPageState extends State<TimetableAppointmentPage> {
                 sigmaX: 10,
                 sigmaY: 10,
               ),
-              child: SafeArea(
-                bottom: false,
-                child:
-                    Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
-                  CupertinoButton(
-                    padding: EdgeInsets.zero,
-                    // color: Colors.amber,
-                    child: Icon(Icons.arrow_back_ios_rounded),
-                    onPressed: () {
-                      Navigator.of(context).maybePop();
-                    },
-                  )
-                ]),
+              child: Container(
+                color: theme.colorScheme.surface.withValues(alpha: 0.5),
+                child: SafeArea(
+                  bottom: false,
+                  child:
+                  Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
+                    CupertinoButton(
+                      padding: EdgeInsets.zero,
+                      // color: Colors.amber,
+                      child: Icon(Icons.arrow_back_ios_rounded),
+                      onPressed: () {
+                        Navigator.of(context).maybePop();
+                      },
+                    )
+                  ]),
+                ),
               ),
             ),
           )
