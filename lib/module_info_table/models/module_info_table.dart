@@ -20,6 +20,9 @@ class ModuleInfoTable {
   }
   String get caption => _caption;
 
+  int get termCellIndex => colTitles.indexOf("Semester");
+  int get titleCellIndex => colTitles.indexOf("Titel");
+
   List<String> colTitles = [];
   List<ModuleInfoTableRow> rows = [];
 
