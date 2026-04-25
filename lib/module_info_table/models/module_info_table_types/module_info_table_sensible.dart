@@ -19,8 +19,8 @@ class ModuleInfoTableSensible extends StatelessWidget {
     final vm = Provider.of<KITProvider>(context);
     final toastsProvider = Provider.of<ToastsProvider>(context);
 
-    final termCellIndex = table.colTitles.indexOf("Semester");
-    final titleCellIndex = table.colTitles.indexOf("Titel");
+    final termCellIndex = table.termCellIndex;
+    final titleCellIndex = table.titleCellIndex;
 
     int rowsDrawn = -1;
 
@@ -59,7 +59,7 @@ class ModuleInfoTableSensible extends StatelessWidget {
                       ],
                     ),
 
-                    row.favoriteToggleCell == null ? Text("") : CupertinoButton(
+                    (row.favoriteToggleCell == null || titleCell.body.toLowerCase().contains("tutorium")) ? Text("") : CupertinoButton(
                         child: Icon(row.favoriteToggleCell!.isFavorite ? CupertinoIcons.star_fill : CupertinoIcons.star),
                         onPressed: () async {
                           final toggleSuccessful = await vm.toggleIsFavorite(row.favoriteToggleCell!, table.parentModule);
@@ -69,15 +69,6 @@ class ModuleInfoTableSensible extends StatelessWidget {
                             vm.forceRefetchEverything();
                           } else {
                             toastsProvider.showTextToast(row.favoriteToggleCell!.isFavorite ? "Wurde zum Stundenplan hinzugefügt!" : "Wurde vom Stundenplan entfernt!");
-                            // Fluttertoast.showToast(
-                            //     msg: row.favoriteToggleCell!.isFavorite ? "Wurde zum Stundenplan hinzugefügt!" : "Wurde vom Stundenplan entfernt!",
-                            //     toastLength: Toast.LENGTH_SHORT,
-                            //     gravity: ToastGravity.CENTER,
-                            //     timeInSecForIosWeb: 1,
-                            //     backgroundColor: Colors.grey,
-                            //     textColor: Colors.white,
-                            //     fontSize: 16.0
-                            // );
                           }
                         }
                     )
