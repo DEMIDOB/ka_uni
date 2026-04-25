@@ -27,6 +27,7 @@ class _TimetableAppointmentPageState extends State<TimetableAppointmentPage> {
     final mq = MediaQuery.of(context);
 
     return Scaffold(
+      appBar: AppBar(),
       body: Stack(
         children: [
           Center(
@@ -158,31 +159,31 @@ class _TimetableAppointmentPageState extends State<TimetableAppointmentPage> {
                   ),
                 );
               }),
-          ClipRRect(
-            child: BackdropFilter(
-              filter: ImageFilter.blur(
-                sigmaX: 10,
-                sigmaY: 10,
-              ),
-              child: Container(
-                color: theme.colorScheme.surface.withValues(alpha: 0.5),
-                child: SafeArea(
-                  bottom: false,
-                  child:
-                  Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
-                    CupertinoButton(
-                      padding: EdgeInsets.zero,
-                      // color: Colors.amber,
-                      child: Icon(Icons.arrow_back_ios_rounded),
-                      onPressed: () {
-                        Navigator.of(context).maybePop();
-                      },
-                    )
-                  ]),
-                ),
-              ),
-            ),
-          )
+          // ClipRRect(
+          //   child: BackdropFilter(
+          //     filter: ImageFilter.blur(
+          //       sigmaX: 10,
+          //       sigmaY: 10,
+          //     ),
+          //     child: Container(
+          //       color: theme.colorScheme.surface.withValues(alpha: 0.5),
+          //       child: SafeArea(
+          //         bottom: false,
+          //         child:
+          //         Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
+          //           CupertinoButton(
+          //             padding: EdgeInsets.zero,
+          //             // color: Colors.amber,
+          //             child: Icon(Icons.arrow_back_ios_rounded),
+          //             onPressed: () {
+          //               Navigator.of(context).maybePop();
+          //             },
+          //           )
+          //         ]),
+          //       ),
+          //     ),
+          //   ),
+          // )
         ],
       ),
     );
