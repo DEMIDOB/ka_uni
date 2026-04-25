@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:kit_mobile/common_ui/block_container.dart';
+import 'package:kit_mobile/extensions/theme_data_extension.dart';
 import 'package:provider/provider.dart';
 
 import '../models/toasts_provider.dart';
@@ -26,6 +27,8 @@ class ToastsOverlay extends StatelessWidget {
                 child: IgnorePointer(
                   ignoring: !toastsProvider.isShowing,
                   child: BlockContainer(
+                    withShadow: true,
+                    backgroundColor: theme.isLightMode ? theme.cardColor : Colors.black,
                     child: Text(
                       toastsProvider.message,
                       style: theme.textTheme.bodyMedium?.copyWith(color: toastsProvider.foregroundColor),
