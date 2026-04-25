@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 
 import '../../state_management/kit_provider.dart';
 import '../../utils/regexps.dart';
+import '../../utils/string_prettifiers.dart';
 
 class RelevantModulesView extends StatelessWidget {
   const RelevantModulesView({super.key});
@@ -44,7 +45,7 @@ class RelevantModulesView extends StatelessWidget {
 
               if (module == null) {
                 module = KITModule();
-                module.title = _prettifyTemporaryModuleTitle(rowID);
+                module.title = prettifyTemporaryModuleTitle(rowID);
               }
 
               return RelevantModuleView(module: module);
@@ -54,20 +55,4 @@ class RelevantModulesView extends StatelessWidget {
       ],
     );
   }
-
-  String _prettifyTemporaryModuleTitle(String title) {
-    // TODO: explain why we need this
-
-    final split = title.split("_");
-    if (split.isEmpty) {
-      return "";
-    }
-    
-    if (split.first.length <= 1) {
-      split.removeWhere((element) => prettifyTemporaryModuleTitleNumberRegex.hasMatch(element));
-    }
-
-    return split.join(" ");
-  }
-
 }
