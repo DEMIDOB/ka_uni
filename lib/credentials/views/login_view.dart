@@ -14,7 +14,7 @@ import 'package:provider/provider.dart';
 
 import '../../../common_ui/kit_progress_indicator.dart';
 import '../../constants/view_constants.dart';
-import '../../info/views/info_view.dart';
+import '../../info/views/info_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -130,7 +130,7 @@ class LoginPageState extends State<LoginPage> {
                                 child: Icon(CupertinoIcons.info),
                                 onPressed: () => Navigator.of(context).push(
                                     MaterialPageRoute(
-                                        builder: (context) => InfoView()))),
+                                        builder: (context) => InfoPage()))),
                             CupertinoButton(
                                 child: Text("Einloggen"),
                                 onPressed: () => _submitLogin(credsVM, vm))
