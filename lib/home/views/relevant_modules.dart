@@ -6,6 +6,7 @@ import 'package:kit_mobile/utils/date_time_utils.dart';
 import 'package:provider/provider.dart';
 
 import '../../state_management/kit_provider.dart';
+import '../../utils/regexps.dart';
 
 class RelevantModulesView extends StatelessWidget {
   const RelevantModulesView({super.key});
@@ -55,16 +56,15 @@ class RelevantModulesView extends StatelessWidget {
   }
 
   String _prettifyTemporaryModuleTitle(String title) {
-    // TODO: explain why the fuck we need this
+    // TODO: explain why we need this
 
     final split = title.split("_");
     if (split.isEmpty) {
       return "";
     }
-
-    // MAYBE: split.removeWhere(regex of a number is satisfied)
+    
     if (split.first.length <= 1) {
-      split.removeAt(0);
+      split.removeWhere((element) => prettifyTemporaryModuleTitleNumberRegex.hasMatch(element));
     }
 
     return split.join(" ");
