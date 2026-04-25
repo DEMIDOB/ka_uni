@@ -27,7 +27,7 @@ class RelevantModuleView extends StatelessWidget {
               children: [
                 SizedBox(
                   width: 110,
-                  child: Text(module.title, maxLines: 3, style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),),
+                  child: Text(_sanitizeModuleTitle(module.title), maxLines: 3, style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),),
                 ),
 
 
@@ -101,6 +101,32 @@ class RelevantModuleView extends StatelessWidget {
     }
 
     return moduleToShow;
+  }
+
+  String _sanitizeModuleTitle(String title) {
+    // this method solves the problem when a hierarchic table's entry
+    // like "Lineare Algebra - Prüfung" is used as module.title
+    // so we split by "-" and filter out words like ["Prüfung", "Klausur"]
+    // IMPORTANT: if you encounter some other
+
+    const filterOutLower = ["prüfung", "klausur"]; // lowercased!
+
+    // the initial split by "-"
+    final split = title.split("-");
+
+    split.removeWhere((entry) {
+      final entryLower = entry.toLowerCase();
+      for (final ignored in filterOutLower) {
+        if (entryLower.contains(ignored)) {
+          // ignore immediately
+          return true;
+        }
+      }
+
+      return false;
+    });
+
+    return split.join("-");
   }
 
 }

@@ -43,7 +43,7 @@ class RelevantModulesView extends StatelessWidget {
 
               if (module == null) {
                 module = KITModule();
-                module.title = rowID;
+                module.title = _prettifyTemporaryModuleTitle(rowID);
               }
 
               return RelevantModuleView(module: module);
@@ -52,6 +52,22 @@ class RelevantModulesView extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  String _prettifyTemporaryModuleTitle(String title) {
+    // TODO: explain why the fuck we need this
+
+    final split = title.split("_");
+    if (split.isEmpty) {
+      return "";
+    }
+
+    // MAYBE: split.removeWhere(regex of a number is satisfied)
+    if (split.first.length <= 1) {
+      split.removeAt(0);
+    }
+
+    return split.join(" ");
   }
 
 }
