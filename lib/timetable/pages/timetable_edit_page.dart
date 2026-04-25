@@ -1,7 +1,10 @@
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:kit_mobile/common_ui/block_container.dart';
 import 'package:kit_mobile/constants/view_constants.dart';
 import 'package:kit_mobile/module/models/module.dart';
+import 'package:kit_mobile/module_info_table/models/module_info_table_types/module_info_table_sensible.dart';
 import 'package:kit_mobile/state_management/kit_provider.dart';
 import 'package:kit_mobile/timetable/models/timetable_appointment.dart';
 import 'package:kit_mobile/timetable/models/timetable_daily.dart';
@@ -9,6 +12,7 @@ import 'package:kit_mobile/timetable/models/timetable_weekly.dart';
 import 'package:kit_mobile/timetable/views/timetable_weekly_view.dart';
 import 'package:kit_mobile/tutorials/data/tutorial_manager.dart';
 import 'package:kit_mobile/tutorials/models/tutorial.dart';
+import 'package:kit_mobile/utils/string_prettifiers.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 import 'package:provider/provider.dart';
 
@@ -34,7 +38,7 @@ class _TimetableEditPageState extends State<TimetableEditPage> {
 
   @override
   Widget build(BuildContext context) {
-    final kitProvider = context.watch<KITProvider>();
+    final vm = context.watch<KITProvider>();
     final tutorialManager = context.watch<TutorialManager>();
     final semester = KITProvider.currentSemesterString;
     final tutorials = tutorialManager
@@ -42,13 +46,13 @@ class _TimetableEditPageState extends State<TimetableEditPage> {
         .map(
           (tutorial) => _withModuleTitle(
             tutorial,
-            kitProvider.campusManager.rowModules.values,
+            vm.campusManager.rowModules.values,
           ),
         )
         .toList(growable: false);
 
     final modulesById =
-        _modulesById(kitProvider.campusManager.rowModules.values);
+        _modulesById(vm.campusManager.rowModules.values);
     final theme = Theme.of(context);
 
     return Scaffold(
@@ -67,17 +71,9 @@ class _TimetableEditPageState extends State<TimetableEditPage> {
                   Row(
                     children: [
                       Text(
-                        "Eigene Tutorien",
+                        "Tutorien",
                         style: theme.textTheme.titleLarge,
                       ),
-
-                      // CupertinoButton(
-                      //     padding: EdgeInsets.zero,
-                      //     child: Icon(Icons.add),
-                      //     onPressed: modulesById.isEmpty
-                      //         ? () => _showNoModulesDialog(context)
-                      //         : () => _openTutorialDialog(context, modulesById: modulesById)
-                      // ),
                     ],
                   ),
 
@@ -137,10 +133,60 @@ class _TimetableEditPageState extends State<TimetableEditPage> {
                               : () => _openTutorialDialog(context,
                                   modulesById: modulesById)),
                     ],
-                  )
+                  ),
+
+                  SizedBox(height: 24,),
+
+                  Row(
+                    children: [
+                      Text(
+                        "Vorlesungen und Übungen",
+                        style: theme.textTheme.titleLarge,
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 8),
+
+                  Text(
+                    "Füge Termine zum Stundenplan hizu, indem du auf das Stern-Icon klickst.",
+                    style: theme.textTheme.bodyMedium,
+                  ),
+
+                  Column(
+                    children: vm.campusManager.moduleInfoTablesWithAppointments.keys.map((rowId) {
+                      final tables = vm.campusManager.moduleInfoTablesWithAppointments[rowId]!;
+                      if (tables.isEmpty) {
+                        return Row(children: [],);
+                      }
+
+                      return Column(
+                        children: [
+                          SizedBox(height: 32,),
+
+                          Text(sanitizeModuleTitle(tables.first.parentModule.title), style: theme.textTheme.titleLarge, textAlign: TextAlign.center,),
+
+                          SizedBox(height: 8,),
+
+                          BlockContainer(
+                            child: Column(
+                              children: tables.map((table) {
+                                return Padding(
+                                  padding: EdgeInsets.only(bottom: 16),
+                                  child: ModuleInfoTableSensible(table: table),
+                                );
+                              }
+                              ).toList(),
+                            ),
+                          )
+                        ],
+                      );
+                    }).toList(),
+                  ),
+
                   // const SizedBox(height: 24),
                   // Text(
-                  //   "Aktueller Stundenplan",
+                  //   "Aktueller Stundenplan (Vorschau)",
                   //   style: theme.textTheme.titleLarge,
                   // ),
                   // const SizedBox(height: 12),
@@ -422,85 +468,25 @@ class _TimetableEditPageState extends State<TimetableEditPage> {
     BuildContext context, {
     required Tutorial tutorial,
   }) async {
-    final theme = Theme.of(context);
-
-    final shouldDelete = await showDialog<bool>(
+    final shouldDelete = await showCupertinoDialog<bool>(
       context: context,
-      barrierColor: theme.scaffoldBackgroundColor.withAlpha(100),
-      barrierDismissible: true,
-      builder: (dialogContext) {
-        final theme = Theme.of(dialogContext);
-        return LayoutBuilder(
-          builder: (context, constraints) {
-            final mediaWidth = MediaQuery.of(dialogContext).size.width;
-            final availableWidth = constraints.maxWidth.isFinite
-                ? constraints.maxWidth
-                : mediaWidth;
-            final double dialogWidth =
-                availableWidth > 420 ? 420 : availableWidth * 0.9;
-
-            return Stack(
-              alignment: Alignment.center,
-              children: [
-                Center(
-                  child: GlassContainer(
-                    shape: LiquidRoundedSuperellipse(
-                        borderRadius: appBorderRadiusDouble),
-                    // settings: GlassContainerSettings(
-                    //     glassColor: theme.colorScheme.surface.withOpacity(0.7),
-                    //     blur: 4,
-                    //     blend: 1
-                    // ),
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(maxWidth: dialogWidth),
-                      child: Padding(
-                        padding: const EdgeInsets.all(20),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              "Tutorium löschen",
-                              style: theme.textTheme.titleLarge,
-                            ),
-                            const SizedBox(height: 12),
-                            Text(
-                              "Möchtest du das Tutorium für \"${tutorial.moduleTitle}\" wirklich entfernen?",
-                              style: theme.textTheme.bodyMedium,
-                            ),
-                            const SizedBox(height: 24),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                CupertinoButton(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 12, vertical: 8),
-                                  onPressed: () =>
-                                      Navigator.of(dialogContext).pop(false),
-                                  child: const Text("Abbrechen"),
-                                ),
-                                const SizedBox(width: 12),
-                                CupertinoButton(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 14, vertical: 8),
-                                  color: theme.colorScheme.error,
-                                  onPressed: () =>
-                                      Navigator.of(dialogContext).pop(true),
-                                  child: const Text("Löschen"),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            );
-          },
-        );
-      },
+      builder: (dialogContext) => CupertinoAlertDialog(
+        title: const Text("Tutorium löschen"),
+        content: Text(
+          "Möchtest du das Tutorium für \"${tutorial.moduleTitle}\" wirklich entfernen?",
+        ),
+        actions: [
+          CupertinoDialogAction(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: const Text("Abbrechen"),
+          ),
+          CupertinoDialogAction(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            isDestructiveAction: true,
+            child: const Text("Löschen"),
+          ),
+        ],
+      ),
     );
 
     if (shouldDelete != true) {
