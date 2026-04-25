@@ -6,19 +6,20 @@ import 'package:kit_mobile/common_ui/kit_logo.dart';
 import 'package:kit_mobile/state_management/kit_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 import '../../common_ui/block_container.dart';
 
-class InfoView extends StatefulWidget {
-  const InfoView({super.key});
+class InfoPage extends StatefulWidget {
+  const InfoPage({super.key});
 
   @override
   State<StatefulWidget> createState() {
-    return _InfoViewState();
+    return _InfoPageState();
   }
 }
 
-class _InfoViewState extends State<InfoView> {
+class _InfoPageState extends State<InfoPage> {
   @override
   Widget build(BuildContext context) {
     final vm = Provider.of<KITProvider>(context);
@@ -97,8 +98,7 @@ class _InfoViewState extends State<InfoView> {
                 CupertinoButton(
                     child: Text("Privacy Policy"),
                     onPressed: () {
-                      FlutterWebBrowser.openWebPage(
-                          url: "https://dandemidov.com/ka_uni/privacy_policy/");
+                      launchUrlString("https://dandemidov.com/ka_uni/privacy_policy/");
                     }),
 
                 InfoViewFaqSection(
