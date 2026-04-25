@@ -6,6 +6,8 @@ import 'package:kit_mobile/geo/models/kit_place.dart';
 import 'package:kit_mobile/parsing/util/remove_html_children.dart';
 import 'package:latlong2/latlong.dart';
 
+import '../../utils/regexps.dart';
+
 enum TimetableAppointmentType {
   lecture,
   tutorial,
@@ -43,12 +45,24 @@ class TimetableAppointment {
   bool get isEmpty {
     return id.isEmpty && title == "—";
   }
-
+  
   String get abbreviatedTitle {
     String res = "";
 
+    final skipTheseAsStartingCharacters = ["(", ];
+
     title.split(" ").forEach((part) {
-      res += part.substring(0, 1);
+      if (part.isEmpty || abbreviatedTitleSkipRegex.hasMatch(part)) {
+        return;
+      }
+
+      final startingCharacter = part.substring(0, 1);
+      
+      if (skipTheseAsStartingCharacters.contains(startingCharacter)) {
+        return;
+      }
+      
+      res += startingCharacter;
     });
 
     return res;
