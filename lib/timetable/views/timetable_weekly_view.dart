@@ -2,6 +2,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:kit_mobile/common_ui/block_container.dart';
+import 'package:kit_mobile/extensions/theme_data_extension.dart';
 import 'package:kit_mobile/timetable/models/timetable_daily.dart';
 import 'package:kit_mobile/timetable/models/timetable_weekly.dart';
 import 'package:kit_mobile/timetable/views/timetable_daily_view.dart';
@@ -77,6 +78,16 @@ class _TimetableWeeklyViewState extends State<TimetableWeeklyView> {
       "Dezember",
     ][date.month - 1];
 
+    final weekdayShortStr = [
+      "Mo",
+      "Di",
+      "Mi",
+      "Do",
+      "Fr",
+      "Sa",
+      "So"
+    ][weekdayIdx % 7];
+
     String dateTitle = "${date.day}. $monthStr";
 
     if (now.day == date.day && now.month == date.month) {
@@ -94,12 +105,26 @@ class _TimetableWeeklyViewState extends State<TimetableWeeklyView> {
             Container(
               padding: EdgeInsets.only(left: 10, right: 10, top: 10),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Text(
+                    weekdayShortStr,
+                    style: theme.textTheme.titleLarge?.copyWith(color: theme.isLightMode ? Colors.black26 : Colors.white30),
+                  ),
+
+                  Padding(padding: EdgeInsets.all(5)),
+
+                  Text(
                     dateTitle,
                     style: theme.textTheme.titleLarge,
+                  ),
+
+                  Padding(padding: EdgeInsets.all(5)),
+
+                  Text(
+                    weekdayShortStr,
+                    style: theme.textTheme.titleLarge?.copyWith(color: Colors.transparent),
                   ),
                 ],
               ),
