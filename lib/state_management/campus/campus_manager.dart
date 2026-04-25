@@ -6,6 +6,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:html/parser.dart';
 import 'package:http/http.dart' as http;
+import 'package:kit_mobile/module_info_table/models/module_info_table.dart';
+import 'package:kit_mobile/module_info_table/models/module_info_table_row.dart';
 import 'package:kit_mobile/state_management/kit_loginer.dart';
 import 'package:kit_mobile/state_management/kit_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -499,6 +501,7 @@ class CampusManager extends KITLoginer {
     rowModules[module.hierarchicalTableRowId] = module;
 
     _addRelevantModuleRow(row);
+    _extractUsefulDataFromModule(module);
     return module;
   }
 
@@ -604,6 +607,9 @@ class CampusManager extends KITLoginer {
       storeRelevantModuleRows();
       notificationCallback();
     });
+  }
+
+  _extractUsefulDataFromModule(KITModule module) {
   }
 
   Future<bool> toggleIsFavorite(ModuleInfoTableCell cell, KITModule inModule,
@@ -713,5 +719,47 @@ class CampusManager extends KITLoginer {
   Future<void> clearCachedTimetableData() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_timetableSrcCurrentSemesterKey);
+  }
+
+  Map<String, List<ModuleInfoTable>> get moduleInfoTablesWithAppointments {
+    final result = <String, List<ModuleInfoTable>>{};
+
+    for (final rowId in rowModules.keys) {
+      final module = rowModules[rowId];
+
+      if (module == null || module.isEmpty) {
+        continue;
+      }
+
+      result.putIfAbsent(module.hierarchicalTableRowId, () => []);
+
+      for (final table in module.tables) {
+        for (final row in table.rows) {
+          if (row.favoriteToggleCell == null) {
+            continue;
+          }
+
+          // Bingo! We've found a module with an appointment that should be
+          // displayed on the TimetableEditPage
+
+          assert (result[module.hierarchicalTableRowId] != null);
+          bool shouldAdd = true;
+
+          // ensure we do not insert duplicates
+          for (final existingTable in result[module.hierarchicalTableRowId]!) {
+            if (existingTable.caption.trim() == table.caption.trim()) {
+              shouldAdd = false;
+              break;
+            }
+          }
+
+          if (shouldAdd) {
+            result[module.hierarchicalTableRowId]?.add(table);
+          }
+        }
+      }
+    }
+
+    return result;
   }
 }
