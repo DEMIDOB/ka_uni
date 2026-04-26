@@ -175,14 +175,23 @@ class CampusManager extends KITLoginer {
 
   CampusManager(this.student, this.notificationCallback);
 
-  Future<void> forceRefetchEverything() async {
+  Future<void> forceRefetchEverything({bool allModulesAsWell=true}) async {
+    await clearEverything();
+    await fetchSchedule();
+    await fetchTimetable();
+
+    if (allModulesAsWell) {
+      await fetchAllModules();
+    }
+  }
+
+  Future<void> clearEverything() async {
     scheduleFetchingTimer?.cancel();
     scheduleFetchingTimer = null;
     await _clearModuleCacheForCurrentSemester();
     rowModules.clear();
     _moduleRefreshInProgress.clear();
     await clearCookiesAndCache();
-    await fetchSchedule();
   }
 
   Future<http.Response?> _fetchScheduleStage3_ObtainSchedule(
@@ -613,7 +622,7 @@ class CampusManager extends KITLoginer {
   }
 
   Future<bool> toggleIsFavorite(ModuleInfoTableCell cell, KITModule inModule,
-      {visual = true}) async {
+      {anticipate = true}) async {
     if (cell.objectValue.isEmpty) {
       if (kDebugMode) {
         print("Failed to toggle a non-toggable cell ${cell.body}");
@@ -624,7 +633,7 @@ class CampusManager extends KITLoginer {
     String action =
         cell.isFavorite ? "removeeventfavorite" : "addeventfavorite";
     bool newSupposedValue = !cell.isFavorite;
-    if (visual) {
+    if (anticipate) {
       cell.isFavorite = newSupposedValue;
       notificationCallback();
     }
@@ -634,7 +643,7 @@ class CampusManager extends KITLoginer {
 
     final response =
         await session.post(Uri.parse(url), body: {action: cell.objectValue});
-    final ok = !response.body.toLowerCase().contains("sitzung ist abgelaufen");
+    final isOk = !response.body.toLowerCase().contains("sitzung ist abgelaufen");
 
     for (final row in moduleRows) {
       if (row.id == inModule.hierarchicalTableRowId) {
@@ -643,13 +652,13 @@ class CampusManager extends KITLoginer {
       }
     }
 
-    if (!ok) {
+    if (!isOk) {
       cell.isFavorite = !cell.isFavorite;
     }
 
     notificationCallback();
 
-    return ok;
+    return isOk;
   }
 
   // Rows:
