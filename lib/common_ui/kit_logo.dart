@@ -22,7 +22,7 @@ class KITLogo extends StatelessWidget {
       // height: 28,
       child: GestureDetector(
         onLongPress: () async {
-          toastsProvider.showTextToast("Currywerk ist ueberschaetzt");
+          toastsProvider.showTextToast("Currywerk ist überschätzt");
         },
         child: Row(
           children: [
