@@ -133,6 +133,7 @@ class _TimetableAppointmentPageState extends State<TimetableAppointmentPage> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
+                                    SizedBox(height: 15,),
                                     Hero(
                                         tag:
                                             "appointmentTitle_${widget.appointment.title}_${widget.appointment.id}",
