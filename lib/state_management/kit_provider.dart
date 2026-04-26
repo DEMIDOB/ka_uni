@@ -5,7 +5,6 @@ import 'package:fuzzywuzzy/fuzzywuzzy.dart';
 import 'package:kit_mobile/credentials/models/kit_credentials.dart';
 import 'package:kit_mobile/geo/network/KITTopographyManager.dart';
 import 'package:kit_mobile/module_info_table/models/module_info_table_cell.dart';
-import 'package:kit_mobile/module_info_table/models/module_info_table_row.dart';
 import 'package:kit_mobile/state_management/ilias/ilias_manager.dart';
 
 import '../local_files_storage/files_manager.dart';

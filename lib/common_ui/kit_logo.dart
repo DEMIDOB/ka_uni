@@ -14,7 +14,6 @@ class KITLogo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final vm = Provider.of<KITProvider>(context);
     final toastsProvider = Provider.of<ToastsProvider>(context);
 
     return SizedBox(

@@ -16,7 +16,6 @@ import 'package:kit_mobile/timetable/views/timetable_weekly_view.dart';
 import 'package:kit_mobile/toasts/models/toasts_provider.dart';
 import 'package:provider/provider.dart';
 
-import '../../common_ui/kit_logo.dart';
 import '../../local_files_storage/views/pages/files_cache_page.dart';
 import '../../state_management/kit_provider.dart';
 
@@ -34,12 +33,9 @@ class _KITHomePageState extends State<KITHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    // final credsVM = Provider.of<CredentialsProvider>(context);
     final vm = Provider.of<KITProvider>(context);
     final toastsProvider = Provider.of<ToastsProvider>(context);
     final settingsVM = Provider.of<SettingsProvider>(context);
-
-    final theme = Theme.of(context);
 
     return Scaffold(
         appBar: AppBar(
@@ -187,7 +183,7 @@ class _KITHomePageState extends State<KITHomePage> {
         ));
   }
 
-  Future<void> _refreshHomeView(KITProvider vm) async {
-    await vm.forceRefetchEverything();
-  }
+  // Future<void> _refreshHomeView(KITProvider vm) async {
+  //   await vm.forceRefetchEverything();
+  // }
 }

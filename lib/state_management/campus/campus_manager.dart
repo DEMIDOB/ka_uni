@@ -7,7 +7,6 @@ import 'package:flutter/services.dart';
 import 'package:html/parser.dart';
 import 'package:http/http.dart' as http;
 import 'package:kit_mobile/module_info_table/models/module_info_table.dart';
-import 'package:kit_mobile/module_info_table/models/module_info_table_row.dart';
 import 'package:kit_mobile/state_management/kit_loginer.dart';
 import 'package:kit_mobile/state_management/kit_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
