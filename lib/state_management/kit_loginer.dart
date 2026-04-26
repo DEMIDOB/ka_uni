@@ -15,7 +15,7 @@ class KITLoginer {
   final String _JSESSIONID = "";
   String get JSESSIONID => _JSESSIONID;
 
-  clearCookiesAndCache() {
+  Future<void> clearCookiesAndCache() async {
     session.clear();
   }
 
