@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:kit_mobile/state_management/kit_provider.dart';
 import 'package:kit_mobile/toasts/models/toasts_provider.dart';
 import 'package:provider/provider.dart';
 
