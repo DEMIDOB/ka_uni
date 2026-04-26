@@ -6,7 +6,9 @@ import 'package:provider/provider.dart';
 import '../models/toasts_provider.dart';
 
 class ToastsOverlay extends StatelessWidget {
-  const ToastsOverlay({super.key});
+  final EdgeInsets? extraPadding;
+
+  const ToastsOverlay({super.key, this.extraPadding});
 
   @override
   Widget build(BuildContext context) {
@@ -18,25 +20,28 @@ class ToastsOverlay extends StatelessWidget {
         children: [
           Spacer(),
 
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              AnimatedOpacity(
-                opacity: toastsProvider.isShowing ? 1 : 0,
-                duration: ToastsProvider.defaultAnimationDuration,
-                child: IgnorePointer(
-                  ignoring: !toastsProvider.isShowing,
-                  child: BlockContainer(
-                    withShadow: true,
-                    backgroundColor: theme.isLightMode ? theme.cardColor : Colors.black,
-                    child: Text(
-                      toastsProvider.message,
-                      style: theme.textTheme.bodyMedium?.copyWith(color: toastsProvider.foregroundColor),
+          Container(
+            padding: extraPadding,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                AnimatedOpacity(
+                  opacity: toastsProvider.isShowing ? 1 : 0,
+                  duration: ToastsProvider.defaultAnimationDuration,
+                  child: IgnorePointer(
+                    ignoring: !toastsProvider.isShowing,
+                    child: BlockContainer(
+                      withShadow: true,
+                      backgroundColor: theme.isLightMode ? theme.cardColor : Colors.black,
+                      child: Text(
+                        toastsProvider.message,
+                        style: theme.textTheme.bodyMedium?.copyWith(color: toastsProvider.foregroundColor),
+                      ),
                     ),
                   ),
-                ),
-              )
-            ],
+                )
+              ],
+            ),
           ),
         ],
       )

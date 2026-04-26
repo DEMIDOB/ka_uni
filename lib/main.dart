@@ -114,7 +114,7 @@ class MyApp extends StatelessWidget {
             darkTheme: darkThemeData,
             builder: (context, child) {
               return Stack(
-                children: [child ?? SizedBox(), ToastsOverlay()],
+                children: [child ?? SizedBox(), ToastsOverlay(extraPadding: EdgeInsets.only(bottom: 40),)],
               );
             },
             home: KITApp()));
