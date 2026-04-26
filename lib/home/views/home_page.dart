@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:kit_mobile/common_ui/kit_progress_indicator.dart';
 import 'package:kit_mobile/constants/view_constants.dart';
 import 'package:kit_mobile/home/views/hierarchic_table.dart';
+import 'package:kit_mobile/home/views/ka_uni_app_bar_title.dart';
 import 'package:kit_mobile/home/views/padded_title.dart';
 import 'package:kit_mobile/home/views/relevant_modules.dart';
 import 'package:kit_mobile/local_files_storage/views/pinned_files_list_view.dart';
@@ -51,29 +52,7 @@ class _KITHomePageState extends State<KITHomePage> {
             ),
           ),
           // backgroundColor: Theme.of(context).colorScheme.surface,
-          title: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              AnimatedSwitcher(
-                duration: const Duration(milliseconds: 200),
-                child: settingsVM.showingProfile.value
-                    ? const KITLogo()
-                    : Row(
-                        children: [
-                          Text(
-                            "Hi, ",
-                            style: theme.textTheme.titleLarge,
-                          ),
-                          Text(
-                            vm.student.name.firstName,
-                            style: theme.textTheme.titleLarge
-                                ?.copyWith(color: theme.colorScheme.primary),
-                          )
-                        ],
-                      ),
-              )
-            ],
-          ),
+          title: KaUniAppBarTitle(),
           centerTitle: true,
           // backgroundColor: Colors.transparent,
           // shadowColor: Colors.transparent,
@@ -208,7 +187,7 @@ class _KITHomePageState extends State<KITHomePage> {
         ));
   }
 
-  // Future<void> _refreshHomeView(KITProvider vm) async {
-  //   await vm.forceRefetchEverything();
-  // }
+  Future<void> _refreshHomeView(KITProvider vm) async {
+    await vm.forceRefetchEverything();
+  }
 }
