@@ -2,6 +2,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:kit_mobile/common_ui/block_container.dart';
+import 'package:kit_mobile/common_ui/kit_progress_indicator.dart';
 import 'package:kit_mobile/constants/view_constants.dart';
 import 'package:kit_mobile/module/models/module.dart';
 import 'package:kit_mobile/module_info_table/models/module_info_table_types/module_info_table_sensible.dart';
@@ -143,6 +144,8 @@ class _TimetableEditPageState extends State<TimetableEditPage> {
                         "Vorlesungen und Übungen",
                         style: theme.textTheme.titleLarge,
                       ),
+                      vm.campusManager.mostImportantModulesFetched ? SizedBox.shrink() : SizedBox(width: 8,),
+                      vm.campusManager.mostImportantModulesFetched ? SizedBox.shrink() : KITProgressIndicator()
                     ],
                   ),
 
@@ -250,7 +253,7 @@ class _TimetableEditPageState extends State<TimetableEditPage> {
     await showDialog<void>(
       context: context,
       barrierDismissible: true,
-      barrierColor: theme.scaffoldBackgroundColor.withAlpha(100),
+      barrierColor: theme.scaffoldBackgroundColor.withAlpha(175),
       builder: (dialogContext) {
         // final theme = Theme.of(dialogContext);
         return LayoutBuilder(
@@ -268,19 +271,14 @@ class _TimetableEditPageState extends State<TimetableEditPage> {
                 Center(
                   child: StatefulBuilder(
                     builder: (context, setState) {
-                      return GlassContainer(
-                        shape: LiquidRoundedSuperellipse(
-                            borderRadius: appBorderRadiusDouble),
-                        // settings: LiquidGlassSettings(
-                        //   glassColor: Colors.white.withOpacity(0.7),
-                        //   blur: 4,
-                        //   // blend: 1
-                        // ),
+                      return BlockContainer(
+                        innerPadding: EdgeInsets.all(5),
+                        withShadow: true,
                         child: ConstrainedBox(
                           constraints: BoxConstraints(
                             maxWidth: dialogWidth,
                             maxHeight:
-                                MediaQuery.of(dialogContext).size.height * 0.85,
+                            MediaQuery.of(dialogContext).size.height * 0.85,
                           ),
                           child: Padding(
                             padding: const EdgeInsets.all(20),
@@ -304,19 +302,20 @@ class _TimetableEditPageState extends State<TimetableEditPage> {
                                     DropdownButtonFormField<String>(
                                       value: selectedModuleId,
                                       decoration: const InputDecoration(
-                                          labelText: "Modul auswählen"),
+                                          labelText: "Modul auswählen",
+                                      ),
                                       items: moduleList
                                           .map(
                                             (module) => DropdownMenuItem(
-                                              value: module.id,
-                                              child: Text(module.title),
-                                            ),
-                                          )
+                                          value: module.id,
+                                          child: Text(module.title),
+                                        ),
+                                      )
                                           .toList(),
                                       onChanged: (value) {
                                         if (value == null) return;
                                         setState(
-                                            () => selectedModuleId = value);
+                                                () => selectedModuleId = value);
                                       },
                                     ),
 
@@ -329,11 +328,11 @@ class _TimetableEditPageState extends State<TimetableEditPage> {
                                       items: workingWeekdays
                                           .map(
                                             (weekday) => DropdownMenuItem(
-                                              value: weekday,
-                                              child:
-                                                  Text(_weekdayLabel(weekday)),
-                                            ),
-                                          )
+                                          value: weekday,
+                                          child:
+                                          Text(_weekdayLabel(weekday)),
+                                        ),
+                                      )
                                           .toList(),
                                       onChanged: (value) {
                                         if (value == null) return;
@@ -350,15 +349,15 @@ class _TimetableEditPageState extends State<TimetableEditPage> {
                                       items: _blockOptions
                                           .map(
                                             (option) => DropdownMenuItem(
-                                              value: option.index,
-                                              child: Text(option.label),
-                                            ),
-                                          )
+                                          value: option.index,
+                                          child: Text(option.label),
+                                        ),
+                                      )
                                           .toList(),
                                       onChanged: (value) {
                                         if (value == null) return;
                                         setState(
-                                            () => selectedBlockIndex = value);
+                                                () => selectedBlockIndex = value);
                                       },
                                     ),
 
@@ -392,48 +391,48 @@ class _TimetableEditPageState extends State<TimetableEditPage> {
                                               horizontal: 14, vertical: 8),
                                           onPressed: () async {
                                             final module =
-                                                modulesById[selectedModuleId];
+                                            modulesById[selectedModuleId];
                                             if (module == null) {
                                               return;
                                             }
 
                                             final tutorial = existing != null
                                                 ? existing.copyWith(
-                                                    moduleId: module.id,
-                                                    moduleTitle: module.title
-                                                            .trim()
-                                                            .isEmpty
-                                                        ? module.title
-                                                        : module.title.trim(),
-                                                    weekday: selectedWeekday,
-                                                    blockIndex:
-                                                        selectedBlockIndex,
-                                                    notes: notesController.text
-                                                            .trim()
-                                                            .isEmpty
-                                                        ? null
-                                                        : notesController.text
-                                                            .trim(),
-                                                  )
+                                              moduleId: module.id,
+                                              moduleTitle: module.title
+                                                  .trim()
+                                                  .isEmpty
+                                                  ? module.title
+                                                  : module.title.trim(),
+                                              weekday: selectedWeekday,
+                                              blockIndex:
+                                              selectedBlockIndex,
+                                              notes: notesController.text
+                                                  .trim()
+                                                  .isEmpty
+                                                  ? null
+                                                  : notesController.text
+                                                  .trim(),
+                                            )
                                                 : Tutorial.createNew(
-                                                    moduleId: module.id,
-                                                    moduleTitle: module.title
-                                                            .trim()
-                                                            .isEmpty
-                                                        ? module.title
-                                                        : module.title.trim(),
-                                                    weekday: selectedWeekday,
-                                                    blockIndex:
-                                                        selectedBlockIndex,
-                                                    semesterString: KITProvider
-                                                        .currentSemesterString,
-                                                    notes: notesController.text
-                                                            .trim()
-                                                            .isEmpty
-                                                        ? null
-                                                        : notesController.text
-                                                            .trim(),
-                                                  );
+                                              moduleId: module.id,
+                                              moduleTitle: module.title
+                                                  .trim()
+                                                  .isEmpty
+                                                  ? module.title
+                                                  : module.title.trim(),
+                                              weekday: selectedWeekday,
+                                              blockIndex:
+                                              selectedBlockIndex,
+                                              semesterString: KITProvider
+                                                  .currentSemesterString,
+                                              notes: notesController.text
+                                                  .trim()
+                                                  .isEmpty
+                                                  ? null
+                                                  : notesController.text
+                                                  .trim(),
+                                            );
 
                                             await context
                                                 .read<TutorialManager>()

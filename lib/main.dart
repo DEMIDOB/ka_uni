@@ -37,6 +37,7 @@ class MyApp extends StatelessWidget {
       useMaterial3: true,
       scaffoldBackgroundColor: appleGrey,
       cardColor: Colors.white,
+      canvasColor: Colors.white,
     );
 
     var textTheme = themeData.textTheme.copyWith(
@@ -87,7 +88,9 @@ class MyApp extends StatelessWidget {
           surfaceTintColor: Colors.black,
         ),
         cardColor: appleDarkGrey,
-        bottomSheetTheme: bottomSheetThemeData);
+        bottomSheetTheme: bottomSheetThemeData,
+        canvasColor: Colors.white,
+    );
 
     return MultiProvider(
         providers: [
@@ -152,7 +155,7 @@ class _KITAppState extends State<KITApp> {
 
         await credsVM.login(vm);
         await vm.campusManager.fetchTimetable();
-        await vm.campusManager.fetchAllModules();
+        await vm.campusManager.fetchAllModules(onlyMostImportantOnes: true);
       }
     });
   }

@@ -44,7 +44,9 @@ class _ModuleInfoTableSensibleState extends State<ModuleInfoTableSensible> {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(table.caption, style: theme.textTheme.titleMedium,),
+            table.caption.length > 30 ?
+            Expanded(child: Text(table.caption, style: theme.textTheme.titleMedium, maxLines: 3,))
+            : Text(table.caption, style: theme.textTheme.titleMedium),
             _isBusy ? SizedBox(width: 5,) : SizedBox.shrink(),
             _isBusy ? KITProgressIndicator() : SizedBox.shrink()
           ],
@@ -128,7 +130,7 @@ class _ModuleInfoTableSensibleState extends State<ModuleInfoTableSensible> {
                               await Haptics.vibrate(HapticsType.error);
                               toastsProvider.showTextToast("Fehler beim Hinzufügen von ${titleCell.body} zum Stundenplan");
                             } else {
-                              _onToggleFavoriteSuccess(row.favoriteToggleCell!.isFavorite, toastsProvider);
+                              _onToggleFavoriteSuccess(!row.favoriteToggleCell!.isFavorite, toastsProvider);
                             }
 
                             vm.campusManager.fetchAllModules();

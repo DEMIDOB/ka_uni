@@ -31,9 +31,11 @@ class CampusManager extends KITLoginer {
 
   Function() notificationCallback;
 
+  // i don't like this but it kinda does its job (~_~)
   bool isFetchingSchedule = false;
   bool isFetchingModules = false;
   bool allModulesFetched = false;
+  bool mostImportantModulesFetched = false;
 
   Timer? scheduleFetchingTimer;
   DateTime? lastModuleFetchTime;
@@ -333,6 +335,7 @@ class CampusManager extends KITLoginer {
         print("No row. Failed to fetch for now. Retrying...");
       }
 
+      isFetchingSchedule = false;
       if (retryIfFailed) {
         await fetchSchedule(
             retryIfFailed: secondRetryIfFailed, secondRetryIfFailed: false);
@@ -414,8 +417,9 @@ class CampusManager extends KITLoginer {
     }
   }
 
-  Future<void> fetchAllModules({inParallel = true}) async {
+  Future<void> fetchAllModules({inParallel = true, onlyMostImportantOnes=false}) async {
     isFetchingModules = true;
+    mostImportantModulesFetched = false;
 
     if (kDebugMode) {
       print("Fetching all modules");
@@ -439,6 +443,11 @@ class CampusManager extends KITLoginer {
 
     // rowsToFetch = rowsToFetch + lessImportantRows;
 
+    if (rowsToFetch.isEmpty) {
+      rowsToFetch = lessImportantRows;
+      lessImportantRows = [];
+    }
+
     if (kDebugMode) {
       for (final row in rowsToFetch) {
         print("Fethcing ${row.title}");
@@ -449,7 +458,10 @@ class CampusManager extends KITLoginer {
     if (kDebugMode) {
       print("Fetched the most important rows!");
     }
-    await fetchModulesForRows(lessImportantRows, inParallel: inParallel);
+    mostImportantModulesFetched = true;
+    if (!onlyMostImportantOnes) {
+      await fetchModulesForRows(lessImportantRows, inParallel: inParallel);
+    }
 
     isFetchingModules = false;
     allModulesFetched = true;
@@ -523,13 +535,13 @@ class CampusManager extends KITLoginer {
       return readyModule;
     }
 
-    module = await _loadModuleFromCache(row);
-    if (_isModuleReady(module)) {
-      final cachedModule = module!;
-      _addRelevantModuleRow(row);
-      _triggerBackgroundRefreshIfStale(row, cachedModule);
-      return cachedModule;
-    }
+    // module = await _loadModuleFromCache(row);
+    // if (_isModuleReady(module)) {
+    //   final cachedModule = module!;
+    //   _addRelevantModuleRow(row);
+    //   _triggerBackgroundRefreshIfStale(row, cachedModule);
+    //   return cachedModule;
+    // }
 
     final fetchedModule = await fetchModule(row, recursiveRetry: retryIfFailed);
     return fetchedModule;
