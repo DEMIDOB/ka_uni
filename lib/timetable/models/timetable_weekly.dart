@@ -1,28 +1,20 @@
 import 'package:html/parser.dart';
 import 'package:kit_mobile/timetable/models/timetable_daily.dart';
 
-enum Weekday {
-  monday,
-  tuesday,
-  wednesday,
-  thursday,
-  friday,
-  saturday,
-  sunday
-}
+enum Weekday { monday, tuesday, wednesday, thursday, friday, saturday, sunday }
 
 extension WeekdayExtension on Weekday {
   bool get isWorkingDay => idx < 5;
 
   int get idx => [
-    Weekday.monday,
-    Weekday.tuesday,
-    Weekday.wednesday,
-    Weekday.thursday,
-    Weekday.friday,
-    Weekday.saturday,
-    Weekday.sunday
-  ].indexOf(this);
+        Weekday.monday,
+        Weekday.tuesday,
+        Weekday.wednesday,
+        Weekday.thursday,
+        Weekday.friday,
+        Weekday.saturday,
+        Weekday.sunday
+      ].indexOf(this);
   //
   // static Weekday workingFromInt(int src) {
   //   src = src % 7;
@@ -58,18 +50,16 @@ class TimetableWeekly {
   List<TimetableDaily> days = [];
 
   TimetableWeekly({List<TimetableDaily>? days}) {
-    this.days = days ?? [
-      TimetableDaily(),
-      TimetableDaily(),
-      TimetableDaily(),
-      TimetableDaily(),
-      TimetableDaily(),
-    ];
+    this.days = days ??
+        workingWeekdays
+            .map((weekday) => TimetableDaily(weekday: weekday))
+            .toList();
   }
 
   static TimetableWeekly? parseFromHtmlString(String src) {
     final document = parse(src);
-    final daysContainer = document.getElementsByClassName("cal-row-lecture").firstOrNull;
+    final daysContainer =
+        document.getElementsByClassName("cal-row-lecture").firstOrNull;
 
     if (daysContainer == null) {
       return null;
@@ -85,7 +75,8 @@ class TimetableWeekly {
     days.removeAt(0);
     int weekdayIdx = 0;
     for (var dayNode in days) {
-      final timetableDaily = TimetableDaily.parseFromHtml(dayNode, workingWeekdays[weekdayIdx]);
+      final timetableDaily =
+          TimetableDaily.parseFromHtml(dayNode, workingWeekdays[weekdayIdx]);
       if (timetableDaily == null) {
         return null;
       }

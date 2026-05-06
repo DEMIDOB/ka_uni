@@ -66,12 +66,18 @@ class _KITNavContainerState extends State<KITNavContainer> {
                     customBottomNavBarButton(
                         2, CupertinoIcons.rectangle_paperclip,
                         title: "ILIAS",
-                        customAction: () => Navigator.of(context).push(
-                            MaterialPageRoute(
-                                builder: (BuildContext context) =>
-                                    IliasPageView(KITModule(),
-                                        PHPSESSID:
-                                            vm.iliasManager.getPHPSESSID()))))
+                        customAction: () {
+                          // if (vm.iliasManager.isBusy) {
+                          //   return;
+                          // }
+
+                          Navigator.of(context).push(
+                              MaterialPageRoute(
+                                  builder: (BuildContext context) =>
+                                      IliasPageView(KITModule(),
+                                          PHPSESSID_Future:
+                                          vm.iliasManager.getPHPSESSID())));
+                        })
                   ],
                 ),
               ),
@@ -98,8 +104,9 @@ class _KITNavContainerState extends State<KITNavContainer> {
           [
             SettingsPage(),
             KITHomePage(),
-            IliasPageView(KITModule(),
-                PHPSESSID: vm.iliasManager.getPHPSESSID()),
+            // IliasPageView(KITModule(),
+            //     PHPSESSID: vm.iliasManager.getPHPSESSID()),
+            IliasPageView(KITModule(), PHPSESSID_Future: Future.value("")),
           ][_selectedPage],
         ],
       ),

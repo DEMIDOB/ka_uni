@@ -179,7 +179,7 @@ class ProfileView extends StatelessWidget {
             title: "ILIAS",
             icon: CupertinoIcons.globe,
             onPressed: () {
-              Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) => IliasPageView(KITModule(), PHPSESSID: vm.iliasManager.getPHPSESSID())));
+              Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) => IliasPageView(KITModule(), PHPSESSID_Future: vm.iliasManager.getPHPSESSID())));
             }
         ),
       ],

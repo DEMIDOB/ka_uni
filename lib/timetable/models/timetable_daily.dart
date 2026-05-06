@@ -5,15 +5,15 @@ import 'package:kit_mobile/timetable/models/timetable_weekly.dart';
 import '../../tutorials/models/tutorial.dart';
 
 class TimetableDaily {
-  Weekday weekday = Weekday.monday;
+  Weekday weekday;
   List<TimetableAppointment> appointments = genericAppointmentsSchedule;
 
-  List<List<dynamic>> appointmentsWithTutorials(
-    Map<int, List<Tutorial>> tutByBlock) {
+  TimetableDaily({this.weekday = Weekday.monday});
 
-    List<List<TimetableAppointment>> appointmentsByBlock = appointments.map(
-            (appointment) => [appointment]
-    ).toList();
+  List<List<dynamic>> appointmentsWithTutorials(
+      Map<int, List<Tutorial>> tutByBlock) {
+    List<List<TimetableAppointment>> appointmentsByBlock =
+        appointments.map((appointment) => [appointment]).toList();
 
     tutByBlock.forEach((blockIdx, tutorials) {
       for (final tut in tutorials) {
@@ -35,17 +35,32 @@ class TimetableDaily {
   }
 
   static List<TimetableAppointment> get genericAppointmentsSchedule {
-   final d = DateTime.now();
+    final d = DateTime.now();
 
-   return [
-     TimetableAppointment(begin: d.copyWith(hour: 8, minute: 0), end: d.copyWith(hour: 9, minute: 30)),
-     TimetableAppointment(begin: d.copyWith(hour: 9, minute: 45), end: d.copyWith(hour: 11, minute: 15)),
-     TimetableAppointment(begin: d.copyWith(hour: 11, minute: 30), end: d.copyWith(hour: 13, minute: 0)),
-     TimetableAppointment(begin: d.copyWith(hour: 13, minute: 0), end: d.copyWith(hour: 14, minute: 0), type: TimetableAppointmentType.lunchBreak),
-     TimetableAppointment(begin: d.copyWith(hour: 14, minute: 0), end: d.copyWith(hour: 15, minute: 30)),
-     TimetableAppointment(begin: d.copyWith(hour: 15, minute: 45), end: d.copyWith(hour: 17, minute: 15)),
-     TimetableAppointment(begin: d.copyWith(hour: 17, minute: 30), end: d.copyWith(hour: 19, minute: 0)),
-   ];
+    return [
+      TimetableAppointment(
+          begin: d.copyWith(hour: 8, minute: 0),
+          end: d.copyWith(hour: 9, minute: 30)),
+      TimetableAppointment(
+          begin: d.copyWith(hour: 9, minute: 45),
+          end: d.copyWith(hour: 11, minute: 15)),
+      TimetableAppointment(
+          begin: d.copyWith(hour: 11, minute: 30),
+          end: d.copyWith(hour: 13, minute: 0)),
+      TimetableAppointment(
+          begin: d.copyWith(hour: 13, minute: 0),
+          end: d.copyWith(hour: 14, minute: 0),
+          type: TimetableAppointmentType.lunchBreak),
+      TimetableAppointment(
+          begin: d.copyWith(hour: 14, minute: 0),
+          end: d.copyWith(hour: 15, minute: 30)),
+      TimetableAppointment(
+          begin: d.copyWith(hour: 15, minute: 45),
+          end: d.copyWith(hour: 17, minute: 15)),
+      TimetableAppointment(
+          begin: d.copyWith(hour: 17, minute: 30),
+          end: d.copyWith(hour: 19, minute: 0)),
+    ];
   }
 
   static TimetableDaily? parseFromHtml(Element node, Weekday weekday) {

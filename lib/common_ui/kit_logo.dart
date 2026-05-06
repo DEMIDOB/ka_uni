@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:kit_mobile/state_management/kit_provider.dart';
 import 'package:kit_mobile/toasts/models/toasts_provider.dart';
 import 'package:provider/provider.dart';
 
@@ -14,7 +13,6 @@ class KITLogo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final vm = Provider.of<KITProvider>(context);
     final toastsProvider = Provider.of<ToastsProvider>(context);
 
     return SizedBox(
@@ -22,7 +20,7 @@ class KITLogo extends StatelessWidget {
       // height: 28,
       child: GestureDetector(
         onLongPress: () async {
-          toastsProvider.showTextToast("Currywerk ist ueberschaetzt");
+          toastsProvider.showTextToast("Currywerk ist überschätzt");
         },
         child: Row(
           children: [

@@ -37,8 +37,6 @@ class LocalFileStorageManager {
   Future<int> getCacheSize() async {
     /// In bytes
 
-    print(await getSemestersWithCachedFiles());
-
     await ensureAndGetCurrentSemesterDirectory();
 
     final dir = Directory(await baseDirPath);

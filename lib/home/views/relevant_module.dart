@@ -8,6 +8,7 @@ import 'package:kit_mobile/state_management/kit_provider.dart';
 import 'package:provider/provider.dart';
 
 import '../../module/views/module_page.dart';
+import '../../utils/string_prettifiers.dart';
 
 class RelevantModuleView extends StatelessWidget {
   final KITModule module;
@@ -27,7 +28,7 @@ class RelevantModuleView extends StatelessWidget {
               children: [
                 SizedBox(
                   width: 110,
-                  child: Text(module.title, maxLines: 3, style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),),
+                  child: Text(sanitizeModuleTitle(module.title), maxLines: 3, style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),),
                 ),
 
 
@@ -49,7 +50,7 @@ class RelevantModuleView extends StatelessWidget {
                       onPressed: () async {
                         // await vm.iliasManager.authorize();
                         final moduleToShow = await _getModuleToShow(vm);
-                        Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) => IliasPageView(moduleToShow, PHPSESSID: vm.iliasManager.getPHPSESSID())));
+                        Navigator.of(context).push(MaterialPageRoute(builder: (BuildContext context) => IliasPageView(moduleToShow, PHPSESSID_Future: vm.iliasManager.getPHPSESSID())));
                       },
 
                     ),
@@ -102,5 +103,7 @@ class RelevantModuleView extends StatelessWidget {
 
     return moduleToShow;
   }
+
+
 
 }

@@ -3,7 +3,9 @@ import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:kit_mobile/common_ui/kit_progress_indicator.dart';
+import 'package:kit_mobile/constants/view_constants.dart';
 import 'package:kit_mobile/home/views/hierarchic_table.dart';
+import 'package:kit_mobile/home/views/ka_uni_app_bar_title.dart';
 import 'package:kit_mobile/home/views/padded_title.dart';
 import 'package:kit_mobile/home/views/relevant_modules.dart';
 import 'package:kit_mobile/local_files_storage/views/pinned_files_list_view.dart';
@@ -14,9 +16,7 @@ import 'package:kit_mobile/timetable/views/timetable_weekly_view.dart';
 import 'package:kit_mobile/toasts/models/toasts_provider.dart';
 import 'package:provider/provider.dart';
 
-import '../../common_ui/kit_logo.dart';
-import '../../credentials/data/credentials_provider.dart';
-import '../../local_files_storage/views/pages/cache_cleaner_page.dart';
+import '../../local_files_storage/views/pages/files_cache_page.dart';
 import '../../state_management/kit_provider.dart';
 
 class KITHomePage extends StatefulWidget {
@@ -33,12 +33,9 @@ class _KITHomePageState extends State<KITHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final credsVM = Provider.of<CredentialsProvider>(context);
     final vm = Provider.of<KITProvider>(context);
     final toastsProvider = Provider.of<ToastsProvider>(context);
     final settingsVM = Provider.of<SettingsProvider>(context);
-
-    final theme = Theme.of(context);
 
     return Scaffold(
         appBar: AppBar(
@@ -51,29 +48,7 @@ class _KITHomePageState extends State<KITHomePage> {
             ),
           ),
           // backgroundColor: Theme.of(context).colorScheme.surface,
-          title: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              AnimatedSwitcher(
-                duration: const Duration(milliseconds: 200),
-                child: settingsVM.showingProfile.value
-                    ? const KITLogo()
-                    : Row(
-                        children: [
-                          Text(
-                            "Hi, ",
-                            style: theme.textTheme.titleLarge,
-                          ),
-                          Text(
-                            vm.student.name.firstName,
-                            style: theme.textTheme.titleLarge
-                                ?.copyWith(color: theme.colorScheme.primary),
-                          )
-                        ],
-                      ),
-              )
-            ],
-          ),
+          title: KaUniAppBarTitle(),
           centerTitle: true,
           // backgroundColor: Colors.transparent,
           // shadowColor: Colors.transparent,
@@ -83,15 +58,28 @@ class _KITHomePageState extends State<KITHomePage> {
             bottomRight: Radius.circular(10),
           )),
           // surfaceTintColor: Colors.transparent,
-          leading: CupertinoButton(
-            onPressed: () {
-              // credsVM.logout(vm);
-            },
-            child: const Icon(
-              CupertinoIcons.arrow_left_square,
-              color: Colors.transparent,
-            ),
-          ),
+          leading: vm.profileReady ? SizedBox.shrink() : KITProgressIndicator(),
+          // leading: !kDebugMode
+          //     ? null
+          //     : CupertinoButton(
+          //         child: Icon(
+          //           CupertinoIcons.check_mark_circled_solid,
+          //           color: Colors.red,
+          //         ),
+          //         onPressed: () async {
+          //           await vm.prepareCachedData();
+          //
+          //           await credsVM.loadCredentials();
+          //           await vm.setCredentials(credsVM.credentials);
+          //           print(
+          //               "${credsVM.credentials}, ${credsVM.credentials.valid}");
+          //           if (credsVM.credentialsLoaded &&
+          //               credsVM.credentials.valid) {
+          //             await credsVM.login(vm);
+          //             await vm.fetchSchedule();
+          //             await vm.campusManager.fetchAllModules();
+          //           }
+          //         }),
           actions: [
             CupertinoButton(
               onPressed: () {
@@ -103,8 +91,9 @@ class _KITHomePageState extends State<KITHomePage> {
               },
               // child: const Icon(CupertinoIcons.info),
               child: AnimatedRotation(
+                curve: defaultChevronRotationAnimationCurve,
                 turns: settingsVM.showingProfile.value ? 0 : -0.25,
-                duration: Duration(milliseconds: 200),
+                duration: defaultChevronRotationAnimationDuration,
                 child: Icon(CupertinoIcons.chevron_down),
               ),
             )
@@ -125,9 +114,7 @@ class _KITHomePageState extends State<KITHomePage> {
                             )
                           : SizedBox(),
                     ),
-
                     TimetableWeeklyView(),
-
                     CupertinoButton(
                         padding: EdgeInsets.zero,
                         onPressed: () {
@@ -142,11 +129,7 @@ class _KITHomePageState extends State<KITHomePage> {
                             Text("Stundenplan bearbeiten"),
                           ],
                         )),
-                    // Text("Tutorien & co.: coming soon :)", style: theme.textTheme.bodySmall?.copyWith(color: Colors.black26)),
-                    // TimetableDailyView(tt: vm.timetable.days[DateTime.now().weekday - 1 < 5 ? DateTime.now().weekday - 1 : 1]),
-
                     const Padding(padding: EdgeInsets.all(10)),
-
                     Row(
                       children: [
                         PaddedTitle(
@@ -176,9 +159,7 @@ class _KITHomePageState extends State<KITHomePage> {
                       padding: EdgeInsets.all(5),
                       child: RelevantModulesView(),
                     ),
-
                     const Padding(padding: EdgeInsets.all(20)),
-
                     PaddedTitle(
                       title: "Angeheftete Dateien",
                       trailing: CupertinoButton(
@@ -186,12 +167,10 @@ class _KITHomePageState extends State<KITHomePage> {
                           onPressed: () => Navigator.of(context).push(
                               MaterialPageRoute(
                                   builder: (BuildContext context) =>
-                                      CacheCleanerPage()))),
+                                      FilesCachePage()))),
                     ),
                     PinnedFilesListView(),
-
                     const Padding(padding: EdgeInsets.all(20)),
-
                     PaddedTitle(title: "Meine Module"),
                     HierarchicTableView(
                       rows: vm.campusManager.moduleRows,
@@ -204,7 +183,7 @@ class _KITHomePageState extends State<KITHomePage> {
         ));
   }
 
-  Future<void> _refreshHomeView(KITProvider vm) async {
-    await vm.forceRefetchEverything();
-  }
+  // Future<void> _refreshHomeView(KITProvider vm) async {
+  //   await vm.forceRefetchEverything();
+  // }
 }

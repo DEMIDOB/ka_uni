@@ -9,13 +9,17 @@ class BlockContainer extends StatelessWidget {
   final EdgeInsets? padding;
   final EdgeInsets? innerPadding;
   final double opacity;
+  final bool withShadow;
+  final Color? backgroundColor;
 
   const BlockContainer(
       {super.key,
       required this.child,
       this.padding,
       this.innerPadding,
-      this.opacity = 1});
+      this.opacity = 1,
+      this.withShadow = false,
+      this.backgroundColor});
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +44,10 @@ class BlockContainer extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.all(appBorderRadius),
-          color: theme.cardColor,
+          color: backgroundColor ?? theme.cardColor,
+          boxShadow: withShadow ? [
+            BoxShadow(blurRadius: 5, color: Colors.black12)
+          ] : []
         ),
         padding: innerPadding ??
             const EdgeInsets.only(top: 10, bottom: 10, left: 15, right: 15),

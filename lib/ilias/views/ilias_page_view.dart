@@ -20,11 +20,11 @@ import '../../settings/providers/settings_provider.dart';
 
 class IliasPageView extends StatefulWidget {
   final KITModule module;
-  final Future<String> PHPSESSID;
+  final Future<String> PHPSESSID_Future;
   final bool isFileView;
 
   const IliasPageView(this.module,
-      {super.key, required this.PHPSESSID, this.isFileView = false});
+      {super.key, required this.PHPSESSID_Future, this.isFileView = false});
 
   @override
   State<StatefulWidget> createState() {
@@ -60,7 +60,7 @@ class _IliasPageViewWState extends State<IliasPageView> {
           return NavigationDecision.navigate;
         }));
 
-    widget.PHPSESSID.then((value) {
+    widget.PHPSESSID_Future.then((value) {
       final settingsVM = Provider.of<SettingsProvider>(context, listen: false);
       _phpsessid = value;
 
@@ -192,7 +192,7 @@ class _IliasPageViewWState extends State<IliasPageView> {
     // }
 
     return FutureBuilder(
-        future: widget.PHPSESSID,
+        future: widget.PHPSESSID_Future,
         builder: (context, snapshot) {
           if (!snapshot.hasData || _phpsessid.isEmpty) {
             return Scaffold(

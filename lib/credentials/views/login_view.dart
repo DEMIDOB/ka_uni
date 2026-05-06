@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
@@ -15,7 +14,7 @@ import 'package:provider/provider.dart';
 
 import '../../../common_ui/kit_progress_indicator.dart';
 import '../../constants/view_constants.dart';
-import '../../info/views/info_view.dart';
+import '../../info/views/info_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -50,29 +49,20 @@ class LoginPageState extends State<LoginPage> {
       _usernameInputController.text = credsVM.credentials.username;
       _passwordInputController.text = credsVM.credentials.password;
 
-      if (credsVM.credentials.valid && !vm.profileReady && !credsVM.loggingIn) {
-        Timer(const Duration(milliseconds: 50), () {
-          _submitLogin(credsVM, vm);
-        });
-      }
+      // if (credsVM.credentials.valid &&
+      //     credsVM.credentials.isFormatValid &&
+      //     !vm.profileReady &&
+      //     !credsVM.loggingIn) {
+      //   Timer(const Duration(milliseconds: 50), () {
+      //     _submitLogin(credsVM, vm);
+      //   });
+      // }
     }
 
     return Scaffold(
         body: Stack(
       children: [
         Scaffold(
-            // appBar: AppBar(
-            //   backgroundColor: Colors.white.withOpacity(0),
-            //   centerTitle: true,
-            //   title: const Row(
-            //     mainAxisAlignment: MainAxisAlignment.center,
-            //     crossAxisAlignment: CrossAxisAlignment.center,
-            //     children: [
-            //       // KITLogo(width: 100,),
-            //       Text(" Account")
-            //     ],
-            //   ),
-            // ),
             body: Stack(
           children: [
             AnimatedOpacity(
@@ -83,9 +73,19 @@ class LoginPageState extends State<LoginPage> {
                   children: [
                     Column(
                       children: [
-                        Text("Hallo",
-                            style: theme.textTheme.headlineLarge
-                                ?.copyWith(fontWeight: FontWeight.bold)),
+                        GestureDetector(
+                          onTap: !kDebugMode
+                              ? null
+                              : () async {
+                                  await credsVM.loadCredentials();
+                                  if (kDebugMode) {
+                                    print(credsVM.credentials.valid);
+                                  }
+                                },
+                          child: Text("Hallo",
+                              style: theme.textTheme.headlineLarge
+                                  ?.copyWith(fontWeight: FontWeight.bold)),
+                        ),
                         Text(
                           "Wilkommen in Karlsruhe",
                           style: theme.textTheme.headlineSmall
@@ -130,7 +130,7 @@ class LoginPageState extends State<LoginPage> {
                                 child: Icon(CupertinoIcons.info),
                                 onPressed: () => Navigator.of(context).push(
                                     MaterialPageRoute(
-                                        builder: (context) => InfoView()))),
+                                        builder: (context) => InfoPage()))),
                             CupertinoButton(
                                 child: Text("Einloggen"),
                                 onPressed: () => _submitLogin(credsVM, vm))
@@ -245,7 +245,7 @@ class LoginPageState extends State<LoginPage> {
 
   bool _awaitingAuthentication = false;
 
-  _submitLogin(CredentialsProvider credsVM, KITProvider vm) {
+  void _submitLogin(CredentialsProvider credsVM, KITProvider vm) {
     if (kDebugMode) {
       print("Submitted Login");
     }
@@ -275,14 +275,17 @@ class LoginPageState extends State<LoginPage> {
         print("Successfully authenticated");
       }
 
-      setState(() {
-        _awaitingAuthentication = false;
-      });
+      vm.campusManager.fetchTimetable().then((_) => vm.campusManager.fetchAllModules());
+
+      // setState(() {
+      //   _awaitingAuthentication = false;
+      // });
       _onSuccessfulLogin(credsVM, vm);
     });
   }
 
-  _onSuccessfulLogin(CredentialsProvider credsVM, KITProvider vm) {
+  // TODO: probably delete
+  void _onSuccessfulLogin(CredentialsProvider credsVM, KITProvider vm) {
     credsVM.setDisplayName(vm.student.name.repr);
   }
 }

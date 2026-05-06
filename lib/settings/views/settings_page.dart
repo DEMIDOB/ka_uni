@@ -10,8 +10,8 @@ import 'package:kit_mobile/state_management/kit_provider.dart';
 import 'package:provider/provider.dart';
 
 import '../../credentials/data/credentials_provider.dart';
-import '../../info/views/info_view.dart';
-import '../../local_files_storage/views/pages/cache_cleaner_page.dart';
+import '../../info/views/info_page.dart';
+import '../../local_files_storage/views/pages/files_cache_page.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -30,7 +30,7 @@ class _SettingsPageState extends State<SettingsPage> {
     final settingsVM = Provider.of<SettingsProvider>(context);
     final filesVM = Provider.of<IliasFilesProvider>(context);
 
-    final theme = Theme.of(context);
+    // final theme = Theme.of(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -39,7 +39,7 @@ class _SettingsPageState extends State<SettingsPage> {
           CupertinoButton(
               child: Icon(CupertinoIcons.info),
               onPressed: () => Navigator.of(context)
-                  .push(MaterialPageRoute(builder: (context) => InfoView())))
+                  .push(MaterialPageRoute(builder: (context) => InfoPage())))
         ],
       ),
       body: SingleChildScrollView(
@@ -110,7 +110,7 @@ class _SettingsPageState extends State<SettingsPage> {
                           builder: (context, snapshot) {
                             if (snapshot.hasData && snapshot.data != null) {
                               return Text(
-                                  "${(snapshot.data! / 1024 / 8).toStringAsFixed(1)} MB");
+                                  "${(snapshot.data! / 1024 / 1024).toStringAsFixed(1)} MB");
                             }
 
                             return KITProgressIndicator();
@@ -121,7 +121,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         onPressed: () => Navigator.of(context).push(
                             MaterialPageRoute(
                                 builder: (BuildContext context) =>
-                                    CacheCleanerPage())))
+                                    FilesCachePage())))
                   ],
                 ),
               ),

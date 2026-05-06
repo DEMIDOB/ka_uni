@@ -6,6 +6,8 @@ import 'package:kit_mobile/utils/date_time_utils.dart';
 import 'package:provider/provider.dart';
 
 import '../../state_management/kit_provider.dart';
+import '../../utils/regexps.dart';
+import '../../utils/string_prettifiers.dart';
 
 class RelevantModulesView extends StatelessWidget {
   const RelevantModulesView({super.key});
@@ -43,7 +45,7 @@ class RelevantModulesView extends StatelessWidget {
 
               if (module == null) {
                 module = KITModule();
-                module.title = rowID;
+                module.title = prettifyTemporaryModuleTitle(rowID);
               }
 
               return RelevantModuleView(module: module);
@@ -53,5 +55,4 @@ class RelevantModulesView extends StatelessWidget {
       ],
     );
   }
-
 }

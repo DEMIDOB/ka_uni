@@ -10,7 +10,7 @@ class ModuleInfoTable {
   int numCols = 0;
   int numRows = 0;
 
-  late ModuleInfoTableType _type;
+  ModuleInfoTableType _type = ModuleInfoTableType.common;
   ModuleInfoTableType get type => _type;
 
   String _caption = "";
@@ -19,6 +19,9 @@ class ModuleInfoTable {
     _type = ModuleInfoTableType.fromCaption(_caption);
   }
   String get caption => _caption;
+
+  int get termCellIndex => colTitles.indexOf("Semester");
+  int get titleCellIndex => colTitles.indexOf("Titel");
 
   List<String> colTitles = [];
   List<ModuleInfoTableRow> rows = [];

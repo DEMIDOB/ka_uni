@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:html/parser.dart';
 import 'package:http/http.dart' as http;
+import 'package:kit_mobile/module_info_table/models/module_info_table.dart';
 import 'package:kit_mobile/state_management/kit_loginer.dart';
 import 'package:kit_mobile/state_management/kit_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -16,6 +17,8 @@ import '../../parsing/models/hierarchic_table_row.dart';
 import '../../student/name.dart';
 import '../../student/student.dart';
 import '../../timetable/models/timetable_weekly.dart';
+
+const _studentDataKey = "DATA_student";
 
 class CampusManager extends KITLoginer {
   List<HierarchicTableRow> moduleRows = [];
@@ -28,12 +31,16 @@ class CampusManager extends KITLoginer {
 
   Function() notificationCallback;
 
+  // i don't like this but it kinda does its job (~_~)
   bool isFetchingSchedule = false;
   bool isFetchingModules = false;
   bool allModulesFetched = false;
+  bool mostImportantModulesFetched = false;
 
   Timer? scheduleFetchingTimer;
   DateTime? lastModuleFetchTime;
+
+  String get _timetableSrcCurrentSemesterKey => "DATA_timetableSrc_${KITProvider.currentSemesterString}";
 
   String get _moduleCacheNamespace =>
       "module_cache_${KITProvider.currentSemesterString}";
@@ -43,8 +50,26 @@ class CampusManager extends KITLoginer {
     return "${_moduleCacheNamespace}_$encodedRowId";
   }
 
-  String get _moduleCacheLastFetchKey =>
-      "${_moduleCacheNamespace}_last_fetch";
+  String get _moduleCacheLastFetchKey => "${_moduleCacheNamespace}_last_fetch";
+
+  Future<void> loadStudentData() async {
+    final prefs = await SharedPreferences.getInstance();
+    final stored = prefs.getString(_studentDataKey);
+    if (stored != null && stored.isNotEmpty) {
+      student.copyFrom(Student.fromJson(jsonDecode(stored)));
+    }
+  }
+
+  Future<void> writeStudentData() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_studentDataKey, jsonEncode(student.toJson()));
+  }
+
+  Future<void> clearStudentData() async {
+    student.copyFrom(Student.empty);
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_studentDataKey);
+  }
 
   void _updateLastModuleFetchTime(DateTime timestamp) {
     if (lastModuleFetchTime == null ||
@@ -112,8 +137,10 @@ class CampusManager extends KITLoginer {
 
   Future<void> _clearModuleCacheForCurrentSemester() async {
     final prefs = await SharedPreferences.getInstance();
-    final keys = prefs.getKeys().where(
-        (key) => key.startsWith(_moduleCacheNamespace)).toList(growable: false);
+    final keys = prefs
+        .getKeys()
+        .where((key) => key.startsWith(_moduleCacheNamespace))
+        .toList(growable: false);
     for (final key in keys) {
       await prefs.remove(key);
     }
@@ -131,8 +158,7 @@ class CampusManager extends KITLoginer {
     }
 
     _moduleRefreshInProgress.add(row.id);
-    fetchModule(row, recursiveRetry: false)
-        .catchError((error, stackTrace) {
+    fetchModule(row, recursiveRetry: false).catchError((error, stackTrace) {
       if (kDebugMode) {
         print("Background refresh failed for ${row.id}: $error");
       }
@@ -150,14 +176,23 @@ class CampusManager extends KITLoginer {
 
   CampusManager(this.student, this.notificationCallback);
 
-  forceRefetchEverything() async {
+  Future<void> forceRefetchEverything({bool allModulesAsWell=true}) async {
+    await clearEverything();
+    await fetchSchedule();
+    await fetchTimetable();
+
+    if (allModulesAsWell) {
+      await fetchAllModules();
+    }
+  }
+
+  Future<void> clearEverything() async {
     scheduleFetchingTimer?.cancel();
     scheduleFetchingTimer = null;
     await _clearModuleCacheForCurrentSemester();
     rowModules.clear();
     _moduleRefreshInProgress.clear();
     await clearCookiesAndCache();
-    await fetchSchedule();
   }
 
   Future<http.Response?> _fetchScheduleStage3_ObtainSchedule(
@@ -185,7 +220,7 @@ class CampusManager extends KITLoginer {
     return response;
   }
 
-  fetchSchedule(
+  Future<void> fetchSchedule(
       {notify = true,
       retryIfFailed = true,
       secondRetryIfFailed = true,
@@ -300,6 +335,7 @@ class CampusManager extends KITLoginer {
         print("No row. Failed to fetch for now. Retrying...");
       }
 
+      isFetchingSchedule = false;
       if (retryIfFailed) {
         await fetchSchedule(
             retryIfFailed: secondRetryIfFailed, secondRetryIfFailed: false);
@@ -318,9 +354,11 @@ class CampusManager extends KITLoginer {
         avgMark: rowsSorted[1]?.first.grade ?? "0,0",
         ectsAcquired: ectsAcquired);
 
-    fetchTimetable().then((_) {
-      fetchAllModules();
-    });
+    await writeStudentData();
+
+    // fetchTimetable().then((_) {
+    //   fetchAllModules();
+    // });
 
     ready = true;
     notificationCallback();
@@ -379,8 +417,9 @@ class CampusManager extends KITLoginer {
     }
   }
 
-  Future<void> fetchAllModules({inParallel = true}) async {
+  Future<void> fetchAllModules({inParallel = true, onlyMostImportantOnes=false}) async {
     isFetchingModules = true;
+    mostImportantModulesFetched = false;
 
     if (kDebugMode) {
       print("Fetching all modules");
@@ -404,6 +443,11 @@ class CampusManager extends KITLoginer {
 
     // rowsToFetch = rowsToFetch + lessImportantRows;
 
+    if (rowsToFetch.isEmpty) {
+      rowsToFetch = lessImportantRows;
+      lessImportantRows = [];
+    }
+
     if (kDebugMode) {
       for (final row in rowsToFetch) {
         print("Fethcing ${row.title}");
@@ -414,7 +458,10 @@ class CampusManager extends KITLoginer {
     if (kDebugMode) {
       print("Fetched the most important rows!");
     }
-    await fetchModulesForRows(lessImportantRows, inParallel: inParallel);
+    mostImportantModulesFetched = true;
+    if (!onlyMostImportantOnes) {
+      await fetchModulesForRows(lessImportantRows, inParallel: inParallel);
+    }
 
     isFetchingModules = false;
     allModulesFetched = true;
@@ -474,6 +521,7 @@ class CampusManager extends KITLoginer {
     rowModules[module.hierarchicalTableRowId] = module;
 
     _addRelevantModuleRow(row);
+    _extractUsefulDataFromModule(module);
     return module;
   }
 
@@ -487,16 +535,15 @@ class CampusManager extends KITLoginer {
       return readyModule;
     }
 
-    module = await _loadModuleFromCache(row);
-    if (_isModuleReady(module)) {
-      final cachedModule = module!;
-      _addRelevantModuleRow(row);
-      _triggerBackgroundRefreshIfStale(row, cachedModule);
-      return cachedModule;
-    }
+    // module = await _loadModuleFromCache(row);
+    // if (_isModuleReady(module)) {
+    //   final cachedModule = module!;
+    //   _addRelevantModuleRow(row);
+    //   _triggerBackgroundRefreshIfStale(row, cachedModule);
+    //   return cachedModule;
+    // }
 
-    final fetchedModule =
-        await fetchModule(row, recursiveRetry: retryIfFailed);
+    final fetchedModule = await fetchModule(row, recursiveRetry: retryIfFailed);
     return fetchedModule;
   }
 
@@ -516,13 +563,13 @@ class CampusManager extends KITLoginer {
     }
   }
 
-  storeRelevantModuleRows() async {
+  Future<void> storeRelevantModuleRows() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setStringList(
         _relevantModuleRowsStorageKey, relevantModuleRowIDs);
   }
 
-  resetRelevantModules() async {
+  Future<void> resetRelevantModules() async {
     relevantModuleRowIDs = [];
     await storeRelevantModuleRows();
     if (kDebugMode) {
@@ -531,18 +578,16 @@ class CampusManager extends KITLoginer {
   }
 
   final Lock _addRelevantModuleLock = Lock();
-  _addRelevantModuleRow(HierarchicTableRow row, {keepSorted = true}) async {
+  Future<void> _addRelevantModuleRow(HierarchicTableRow row, {keepSorted = true}) async {
+    // A module is RELEVANT if there is an ILIAS link meaning that it is
+    // relevant for the current semester
+
     await _addRelevantModuleLock.run(() async {
       final module = rowModules[row.id];
       if (module == null) {
         if (kDebugMode) print("Somehow module is null :(");
         return;
       }
-
-      // final rowLevelAccepted = 3;
-      // if (row.level != rowLevelAccepted) {
-      //   return;
-      // }
 
       // double-check if the module is relevant (there must be an ilias-course link)
       if (module.iliasLink == null || module.iliasLink!.isEmpty) {
@@ -556,12 +601,9 @@ class CampusManager extends KITLoginer {
       }
 
       if (keepSorted) {
-        if (kDebugMode) print("Sorting! (${row.grade})");
-
         bool hasNumber = false;
         for (final num in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]) {
           if (row.grade.contains("$num")) {
-            if (kDebugMode) print("has number");
             hasNumber = true;
             break;
           }
@@ -579,7 +621,6 @@ class CampusManager extends KITLoginer {
           relevantModuleRowIDs.insert(insertAt, row.id);
         }
       } else {
-        if (kDebugMode) print("Not soring -_-");
         relevantModuleRowIDs.add(row.id);
       }
 
@@ -588,8 +629,11 @@ class CampusManager extends KITLoginer {
     });
   }
 
+  _extractUsefulDataFromModule(KITModule module) {
+  }
+
   Future<bool> toggleIsFavorite(ModuleInfoTableCell cell, KITModule inModule,
-      {visual = true}) async {
+      {anticipate = true}) async {
     if (cell.objectValue.isEmpty) {
       if (kDebugMode) {
         print("Failed to toggle a non-toggable cell ${cell.body}");
@@ -600,7 +644,7 @@ class CampusManager extends KITLoginer {
     String action =
         cell.isFavorite ? "removeeventfavorite" : "addeventfavorite";
     bool newSupposedValue = !cell.isFavorite;
-    if (visual) {
+    if (anticipate) {
       cell.isFavorite = newSupposedValue;
       notificationCallback();
     }
@@ -610,7 +654,7 @@ class CampusManager extends KITLoginer {
 
     final response =
         await session.post(Uri.parse(url), body: {action: cell.objectValue});
-    final ok = !response.body.toLowerCase().contains("sitzung ist abgelaufen");
+    final isOk = !response.body.toLowerCase().contains("sitzung ist abgelaufen");
 
     for (final row in moduleRows) {
       if (row.id == inModule.hierarchicalTableRowId) {
@@ -619,17 +663,17 @@ class CampusManager extends KITLoginer {
       }
     }
 
-    if (!ok) {
+    if (!isOk) {
       cell.isFavorite = !cell.isFavorite;
     }
 
     notificationCallback();
 
-    return ok;
+    return isOk;
   }
 
   // Rows:
-  _clearRows({clearRelevants = false}) {
+  void _clearRows({clearRelevants = false}) {
     moduleRows = [];
     if (clearRelevants) {
       relevantModuleRowIDs = [];
@@ -644,17 +688,98 @@ class CampusManager extends KITLoginer {
         "https://campus.studium.kit.edu/redirect.php?system=campus&url=/campus/student/timetable.asp";
     final response = await session.get(Uri.parse(url));
 
-    final timetableUpdate = TimetableWeekly.parseFromHtmlString(response.body);
+    final ok = await updateTimetableFromStrSrc(response.body);
+
+    if (!ok && retryIfFailed) {
+      return fetchTimetable(retryIfFailed: false);
+    }
+  }
+
+  Future<bool> updateTimetableFromStrSrc(String src, {cacheSrc = true}) async {
+    final timetableUpdate = TimetableWeekly.parseFromHtmlString(src);
     if (timetableUpdate == null) {
       if (kDebugMode) {
         print("Failed to update the timetable!");
       }
-      if (retryIfFailed) {
-        return fetchTimetable(retryIfFailed: false);
-      }
-      return;
+
+      return false;
     }
+
+    if (cacheSrc) {
+      await _cacheTimetableSrc(src);
+    }
+
     timetable = timetableUpdate;
     notificationCallback();
+
+    return true;
+  }
+
+  Future<void> _cacheTimetableSrc(String src) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_timetableSrcCurrentSemesterKey, src);
+  }
+
+  Future<String?> _readCachedTimetableSrc() async {
+    final prefs = await SharedPreferences.getInstance();
+    final cached = prefs.getString(_timetableSrcCurrentSemesterKey);
+    return cached;
+  }
+
+  Future<bool> loadCachedTimetable() async {
+    final cached = await _readCachedTimetableSrc();
+    if (cached == null || cached.isEmpty) {
+      return false;
+    }
+    else {
+      return updateTimetableFromStrSrc(cached);
+    }
+  }
+
+  Future<void> clearCachedTimetableData() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_timetableSrcCurrentSemesterKey);
+  }
+
+  Map<String, List<ModuleInfoTable>> get moduleInfoTablesWithAppointments {
+    final result = <String, List<ModuleInfoTable>>{};
+
+    for (final rowId in rowModules.keys) {
+      final module = rowModules[rowId];
+
+      if (module == null || module.isEmpty) {
+        continue;
+      }
+
+      result.putIfAbsent(module.hierarchicalTableRowId, () => []);
+
+      for (final table in module.tables) {
+        for (final row in table.rows) {
+          if (row.favoriteToggleCell == null) {
+            continue;
+          }
+
+          // Bingo! We've found a module with an appointment that should be
+          // displayed on the TimetableEditPage
+
+          assert (result[module.hierarchicalTableRowId] != null);
+          bool shouldAdd = true;
+
+          // ensure we do not insert duplicates
+          for (final existingTable in result[module.hierarchicalTableRowId]!) {
+            if (existingTable.caption.trim() == table.caption.trim()) {
+              shouldAdd = false;
+              break;
+            }
+          }
+
+          if (shouldAdd) {
+            result[module.hierarchicalTableRowId]?.add(table);
+          }
+        }
+      }
+    }
+
+    return result;
   }
 }

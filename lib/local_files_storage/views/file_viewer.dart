@@ -172,7 +172,7 @@ class _PDFScreenState extends State<PDFScreen> with WidgetsBindingObserver {
     final settingsProvider = Provider.of<KITProvider>(context, listen: false);
 
     final moduleTitles = [
-          "Anderes",
+          "Sonstiges",
         ] +
         _collectRelevantModuleTitles(kitProvider);
     if (moduleTitles.isEmpty) {

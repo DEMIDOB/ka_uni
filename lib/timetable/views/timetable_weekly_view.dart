@@ -2,6 +2,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:kit_mobile/common_ui/block_container.dart';
+import 'package:kit_mobile/extensions/theme_data_extension.dart';
 import 'package:kit_mobile/timetable/models/timetable_daily.dart';
 import 'package:kit_mobile/timetable/models/timetable_weekly.dart';
 import 'package:kit_mobile/timetable/views/timetable_daily_view.dart';
@@ -16,14 +17,14 @@ class TimetableWeeklyView extends StatefulWidget {
   State<StatefulWidget> createState() {
     return _TimetableWeeklyViewState();
   }
-
 }
 
 class _TimetableWeeklyViewState extends State<TimetableWeeklyView> {
   Weekday _initialWeekday = Weekday.monday;
 
   _TimetableWeeklyViewState({Weekday? initialWeekday}) {
-    _initialWeekday = initialWeekday ?? _initialWeekday.fromInt(DateTime.now().weekday - 1);
+    _initialWeekday =
+        initialWeekday ?? _initialWeekday.fromInt(DateTime.now().weekday - 1);
   }
 
   final _weekdayHeight = 90 * 7 * 0.7 + 200;
@@ -38,12 +39,13 @@ class _TimetableWeeklyViewState extends State<TimetableWeeklyView> {
     return Column(
       children: [
         CarouselSlider.builder(
-            itemCount: 3, itemBuilder: _weekdayCarouselBuilder, options: CarouselOptions(
-          enableInfiniteScroll: true,
-          initialPage: _initialWeekday.idx,
-          height: _weekdayHeight - 40,
-        )),
-
+            itemCount: 3,
+            itemBuilder: _weekdayCarouselBuilder,
+            options: CarouselOptions(
+              enableInfiniteScroll: true,
+              initialPage: _initialWeekday.idx,
+              height: _weekdayHeight - 40,
+            )),
       ],
     );
   }
@@ -58,7 +60,8 @@ class _TimetableWeeklyViewState extends State<TimetableWeeklyView> {
     final todayWeekdayIdx = DateTime.now().weekday - 1;
     final date = now.add(Duration(days: weekdayIdx - todayWeekdayIdx));
 
-    final TimetableDaily? tt = weekdayIdx % 7 < 5 ? vm.timetable.days[weekdayIdx % 7] : null;
+    final TimetableDaily? tt =
+        weekdayIdx % 7 < 5 ? vm.timetable.days[weekdayIdx % 7] : null;
 
     final monthStr = [
       "Januar",
@@ -74,6 +77,16 @@ class _TimetableWeeklyViewState extends State<TimetableWeeklyView> {
       "November",
       "Dezember",
     ][date.month - 1];
+
+    final weekdayShortStr = [
+      "Mo",
+      "Di",
+      "Mi",
+      "Do",
+      "Fr",
+      "Sa",
+      "So"
+    ][weekdayIdx % 7];
 
     String dateTitle = "${date.day}. $monthStr";
 
@@ -92,41 +105,68 @@ class _TimetableWeeklyViewState extends State<TimetableWeeklyView> {
             Container(
               padding: EdgeInsets.only(left: 10, right: 10, top: 10),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Text(dateTitle, style: theme.textTheme.titleLarge,),
+                  Text(
+                    weekdayShortStr,
+                    style: theme.textTheme.titleLarge?.copyWith(color: theme.isLightMode ? Colors.black26 : Colors.white30),
+                  ),
+
+                  Padding(padding: EdgeInsets.all(5)),
+
+                  Text(
+                    dateTitle,
+                    style: theme.textTheme.titleLarge,
+                  ),
+
+                  Padding(padding: EdgeInsets.all(5)),
+
+                  Text(
+                    weekdayShortStr,
+                    style: theme.textTheme.titleLarge?.copyWith(color: Colors.transparent),
+                  ),
                 ],
               ),
             ),
             Padding(padding: EdgeInsets.all(5)),
             BlockContainer(
               innerPadding: EdgeInsets.zero,
-              child: tt != null ? TimetableDailyView(tt: tt) : Padding(padding: EdgeInsets.symmetric(vertical: MediaQuery.of(context).size.height * 0.15),
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      SizedBox(
-                        width: MediaQuery.of(context).size.width * 0.8,
-                        height: _weekdayHeight * 0.47,
-                      ),
-                      Column(
+              child: tt != null
+                  ? TimetableDailyView(tt: tt)
+                  : Padding(
+                      padding: EdgeInsets.symmetric(
+                          vertical: MediaQuery.of(context).size.height * 0.15),
+                      child: Stack(
+                        alignment: Alignment.center,
                         children: [
-                          Icon(CupertinoIcons.zzz, color: theme.colorScheme.primary, size: 64,),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 5),
-                            child: Text("Wochenende :)", style: theme.textTheme.bodyLarge,),
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.8,
+                            height: _weekdayHeight * 0.4,
+                          ),
+                          Column(
+                            children: [
+                              Icon(
+                                CupertinoIcons.zzz,
+                                color: theme.colorScheme.primary,
+                                size: 64,
+                              ),
+                              Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 5),
+                                child: Text(
+                                  "Wochenende :)",
+                                  style: theme.textTheme.bodyLarge,
+                                ),
+                              )
+                            ],
                           )
                         ],
-                      )
-                    ],
-                  )
-              ),
+                      )),
             )
           ],
         )
       ],
     );
   }
-
 }

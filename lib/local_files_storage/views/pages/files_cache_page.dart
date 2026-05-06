@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:kit_mobile/common_ui/block_container.dart';
@@ -8,16 +10,16 @@ import 'package:kit_mobile/local_files_storage/models/pinned_file.dart';
 import 'package:kit_mobile/local_files_storage/views/file_viewer.dart';
 import 'package:provider/provider.dart';
 
-class CacheCleanerPage extends StatefulWidget {
-  const CacheCleanerPage({super.key});
+class FilesCachePage extends StatefulWidget {
+  const FilesCachePage({super.key});
 
   @override
   State<StatefulWidget> createState() {
-    return _CacheCleanerPageState();
+    return _FilesCachePageState();
   }
 }
 
-class _CacheCleanerPageState extends State<CacheCleanerPage> {
+class _FilesCachePageState extends State<FilesCachePage> {
   String expandedSemesterString = "";
   List<String> expandedSemesterStringFiles = [];
 
@@ -54,13 +56,14 @@ class _CacheCleanerPageState extends State<CacheCleanerPage> {
                             child: Row(
                               children: [
                                 Text(
-                                  currentSemesterString,
+                                  _prettifySemesterString(currentSemesterString),
                                   style: theme.textTheme.titleMedium,
                                 ),
                                 Spacer(),
                                 AnimatedRotation(
+                                  curve: defaultChevronRotationAnimationCurve,
                                   turns: iAmSelected ? 0 : -0.25,
-                                  duration: Duration(milliseconds: 500),
+                                  duration: defaultChevronRotationAnimationDuration,
                                   child: CupertinoButton(
                                     child: Icon(CupertinoIcons.chevron_down),
                                     onPressed: () => _expandSemester(
@@ -87,8 +90,27 @@ class _CacheCleanerPageState extends State<CacheCleanerPage> {
                                                 expandedSemesterString));
                                         return Row(
                                           children: [
-                                            Text(fileDisplayName),
+                                            Expanded(
+                                              child: Text(
+                                                _sanitizeFileDisplayName(
+                                                    fileDisplayName),
+                                                softWrap: true,
+                                                maxLines: 3,
+                                              ),
+                                            ),
                                             Spacer(),
+                                            FutureBuilder(
+                                                future: File(semFile).stat(),
+                                                builder: (context, snapshot) {
+                                                  if (snapshot.hasData &&
+                                                      snapshot.data != null) {
+                                                    return Text(
+                                                        "${(snapshot.data!.size / 1024 / 1024).toStringAsFixed(1)} MB");
+                                                  }
+
+                                                  return KITProgressIndicator();
+                                                }),
+                                            // Spacer(),
                                             CupertinoButton(
                                                 child: Icon(
                                                     CupertinoIcons.eye_fill),
@@ -113,6 +135,13 @@ class _CacheCleanerPageState extends State<CacheCleanerPage> {
                                                 }),
                                             CupertinoButton(
                                               onPressed: () async {
+                                                final shouldDelete = await _confirmFileDeletion(_sanitizeFileDisplayName(
+                                                    fileDisplayName));
+
+                                                if (shouldDelete != true) {
+                                                  return;
+                                                }
+                                                
                                                 await filesVM
                                                     .localFileStorageManager
                                                     .removeFile(semFile);
@@ -138,6 +167,11 @@ class _CacheCleanerPageState extends State<CacheCleanerPage> {
                                       [
                                         CupertinoButton(
                                           onPressed: () async {
+                                            final shouldDelete = await _confirmFileDeletion("alle Dateien im ${_prettifySemesterString(currentSemesterString)}");
+                                            if (shouldDelete != true) {
+                                              return;
+                                            }
+
                                             for (final file
                                                 in expandedSemesterStringFiles) {
                                               await filesVM
@@ -167,7 +201,53 @@ class _CacheCleanerPageState extends State<CacheCleanerPage> {
     );
   }
 
-  _expandSemester(String currentSemesterString, IliasFilesProvider filesVM) {
+  Future<bool?> _confirmFileDeletion(String filename) async {
+    return await showCupertinoDialog<bool>(context: context, builder: (dialogContext) => CupertinoAlertDialog(
+      title: Text("Dateilöschung bestätigen"),
+      content: Text("Möchtest du den Dateicache für $filename löchen?"),
+      actions: [
+        CupertinoDialogAction(
+          onPressed: () => Navigator.of(dialogContext).pop(false),
+          child: const Text('Abbrechen'),
+        ),
+        CupertinoDialogAction(
+          isDestructiveAction: true,
+          onPressed: () => Navigator.of(dialogContext).pop(true),
+          child: const Text('Löschen'),
+        ),
+      ],
+    ));
+  }
+
+  String _prettifySemesterString(String semesterString) {
+    final underscoreSplit = semesterString.split("_");
+
+    if (underscoreSplit.isEmpty) {
+      return "";
+    }
+
+    String prettified = underscoreSplit[0];
+    if (underscoreSplit.length >= 2) {
+      prettified += " ${underscoreSplit[1]}";
+    }
+
+    for (int i = 2; i < underscoreSplit.length; i++) {
+      prettified += "/${underscoreSplit[i]}";
+    }
+
+    return prettified;
+    // return semesterString.replaceAll("_", " ").trim();
+  }
+
+  String _sanitizeFileDisplayName(String fileDisplayName) {
+    fileDisplayName =
+        fileDisplayName.substring(fileDisplayName.indexOf("/") + 1);
+
+    return fileDisplayName;
+  }
+
+  void _expandSemester(
+      String currentSemesterString, IliasFilesProvider filesVM) {
     setState(() {
       if (expandedSemesterString == currentSemesterString) {
         // deselect

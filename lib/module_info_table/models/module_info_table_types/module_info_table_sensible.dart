@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:haptic_feedback/haptic_feedback.dart';
+import 'package:kit_mobile/common_ui/kit_progress_indicator.dart';
 import 'package:kit_mobile/module_info_table/views/appointment_cell.dart';
 import 'package:provider/provider.dart';
 
@@ -7,10 +9,20 @@ import '../../../state_management/kit_provider.dart';
 import '../../../toasts/models/toasts_provider.dart';
 import '../module_info_table.dart';
 
-class ModuleInfoTableSensible extends StatelessWidget {
+class ModuleInfoTableSensible extends StatefulWidget {
   final ModuleInfoTable table;
 
   const ModuleInfoTableSensible({super.key, required this.table});
+
+  @override
+  State<StatefulWidget> createState() {
+    return _ModuleInfoTableSensibleState();
+  }
+
+}
+
+class _ModuleInfoTableSensibleState extends State<ModuleInfoTableSensible> {
+  bool _isBusy = false;
 
   @override
   Widget build(BuildContext context) {
@@ -19,14 +31,26 @@ class ModuleInfoTableSensible extends StatelessWidget {
     final vm = Provider.of<KITProvider>(context);
     final toastsProvider = Provider.of<ToastsProvider>(context);
 
-    final termCellIndex = table.colTitles.indexOf("Semester");
-    final titleCellIndex = table.colTitles.indexOf("Titel");
+    final table = widget.table;
 
+    final termCellIndex = table.termCellIndex;
+    final titleCellIndex = table.titleCellIndex;
+
+    // rowsDrawn is used to skip the first divider
     int rowsDrawn = -1;
 
     return Column(
       children: [
-        Text(table.caption, style: theme.textTheme.titleMedium,),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            table.caption.length > 30 ?
+            Expanded(child: Text(table.caption, style: theme.textTheme.titleMedium, maxLines: 3,))
+            : Text(table.caption, style: theme.textTheme.titleMedium),
+            _isBusy ? SizedBox(width: 5,) : SizedBox.shrink(),
+            _isBusy ? KITProgressIndicator() : SizedBox.shrink()
+          ],
+        ),
 
         const SizedBox(height: 10,),
 
@@ -59,26 +83,64 @@ class ModuleInfoTableSensible extends StatelessWidget {
                       ],
                     ),
 
-                    row.favoriteToggleCell == null ? Text("") : CupertinoButton(
+                    (row.favoriteToggleCell == null || titleCell.body.toLowerCase().contains("tutorium")) ? Text("") : CupertinoButton(
                         child: Icon(row.favoriteToggleCell!.isFavorite ? CupertinoIcons.star_fill : CupertinoIcons.star),
                         onPressed: () async {
-                          final toggleSuccessful = await vm.toggleIsFavorite(row.favoriteToggleCell!, table.parentModule);
+                          setState(() {
+                            _isBusy = true;
+                          });
+                          // final toggleSuccessful = await vm.toggleIsFavorite(row.favoriteToggleCell!, table.parentModule);
+                          final toggleSuccessful = await vm.toggleIsFavoriteFuzzy(titleCell.body, table.caption, table.parentModule.title);
                           if (!toggleSuccessful) {
-                            toastsProvider.showTextToast("Fehler!");
-                            // used to go to the previous page, avoiding it for now
-                            vm.forceRefetchEverything();
+                            toastsProvider.showTextToast("Die Sitzung ist abgelaufen. Das kann ein bisschen länger dauern...");
+                            // retry ONE MORE TIME after refetching everything
+                            await vm.forceRefetchEverything(allModulesAsWell: false);
+
+                            if (table.parentModule.row == null) {
+                              await Haptics.vibrate(HapticsType.error);
+                              toastsProvider.showTextToast("Fehler beim Hinzufügen von ${titleCell.body} zum Stundenplan");
+                              setState(() {
+                                _isBusy = false;
+                              });
+                              await vm.campusManager.fetchAllModules();
+                              return;
+                            }
+
+                            final newRowEntry = vm.fuzzyFindHierarchicTableRowSimilarTo(table.parentModule.row!);
+
+                            if (newRowEntry == null) {
+                              await Haptics.vibrate(HapticsType.error);
+                              toastsProvider.showTextToast("Fehler beim Hinzufügen von ${titleCell.body} zum Stundenplan");
+                              setState(() {
+                                _isBusy = false;
+                              });
+                              await vm.campusManager.fetchAllModules();
+                              return;
+                            }
+
+                            // we only fetch the needed module for now (all the others later)
+                            await vm.getOrFetchModuleForRow(newRowEntry);
+
+                            // the url or other data could have been changed after refetching everything,
+                            // although we assume that we can still find this entry by the module title,
+                            // caption (aka name) of the table and the title of this "row"
+                            final secondToggleSuccessful = await vm.toggleIsFavoriteFuzzy(titleCell.body, table.caption, table.parentModule.title);
+
+                            if (!secondToggleSuccessful) {
+                              await Haptics.vibrate(HapticsType.error);
+                              toastsProvider.showTextToast("Fehler beim Hinzufügen von ${titleCell.body} zum Stundenplan");
+                            } else {
+                              _onToggleFavoriteSuccess(!row.favoriteToggleCell!.isFavorite, toastsProvider);
+                            }
+
+                            vm.campusManager.fetchAllModules();
                           } else {
-                            toastsProvider.showTextToast(row.favoriteToggleCell!.isFavorite ? "Wurde zum Stundenplan hinzugefügt!" : "Wurde vom Stundenplan entfernt!");
-                            // Fluttertoast.showToast(
-                            //     msg: row.favoriteToggleCell!.isFavorite ? "Wurde zum Stundenplan hinzugefügt!" : "Wurde vom Stundenplan entfernt!",
-                            //     toastLength: Toast.LENGTH_SHORT,
-                            //     gravity: ToastGravity.CENTER,
-                            //     timeInSecForIosWeb: 1,
-                            //     backgroundColor: Colors.grey,
-                            //     textColor: Colors.white,
-                            //     fontSize: 16.0
-                            // );
+                            _onToggleFavoriteSuccess(row.favoriteToggleCell!.isFavorite, toastsProvider);
                           }
+
+                          setState(() {
+                            _isBusy = false;
+                          });
                         }
                     )
                   ],
@@ -91,4 +153,8 @@ class ModuleInfoTableSensible extends StatelessWidget {
     );
   }
 
+  Future<void> _onToggleFavoriteSuccess(bool newValue, ToastsProvider toastsProvider) async {
+    toastsProvider.showTextToast(newValue ? "Wurde zum Stundenplan hinzugefügt!" : "Wurde vom Stundenplan entfernt!");
+    await Haptics.vibrate(HapticsType.success);
+  }
 }
