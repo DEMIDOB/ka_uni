@@ -137,7 +137,7 @@ class _TimetableWeeklyViewState extends State<TimetableWeeklyView> {
                     onPressed: () => _showToday(idx, w)
                   ),
 
-                  Padding(padding: EdgeInsets.only(right: 30)),
+                  Padding(padding: EdgeInsets.only(right: 5)),
                 ],
               ),
             ),
