@@ -147,7 +147,7 @@ class ModuleInfoTable {
     return true;
   }
 
-  prepare(KITModule parentModule) {
+  void prepare(KITModule parentModule) {
     show = true;
     this.parentModule = parentModule;
 
@@ -179,7 +179,7 @@ class ModuleInfoTable {
 
   // called after the row is parsed and has finished all its internal processing
   // before adding it to the rows list of the table
-  _preprocessRow(ModuleInfoTableRow row) {
+  void _preprocessRow(ModuleInfoTableRow row) {
     iliasLink ??= row.iliasLink;
     hasFavoriteChild |= row.hasFavoriteChild;
   }

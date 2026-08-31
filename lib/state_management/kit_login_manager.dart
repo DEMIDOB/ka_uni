@@ -5,7 +5,7 @@ import 'package:http_session/http_session.dart';
 
 import '../credentials/models/kit_credentials.dart';
 
-class KITLoginer {
+class KITLoginManager {
   late KITCredentials credentials = KITCredentials(); // empty at the beginning
 
   bool ready = false;
@@ -24,7 +24,7 @@ class KITLoginer {
     return cookies.map((c) => "${c.name}=${c.value}").join("; ");
   }
 
-  bool cookiesContains(String cookieName) {
+  bool sessionContainsCookieNamed(String cookieName) {
     final cookies = session.cookieStore.cookies;
 
     for (final cookie in cookies) {
@@ -41,7 +41,7 @@ class KITLoginer {
         "https://idp.scc.kit.edu/idp/profile/SAML2/Redirect/SSO?execution=e1s1";
 
     await session.get(Uri.parse(url));
-    if (cookiesContains("JSESSIONID")) {
+    if (sessionContainsCookieNamed("JSESSIONID")) {
       return true;
     }
 
@@ -52,7 +52,7 @@ class KITLoginer {
     return false;
   }
 
-  fetchStage0_Init(
+  Future<int> fetchStage0_Init(
       {notify = true, retryIfFailed = true, secondRetryIfFailed = true}) async {
     if (!credentials.isFormatValid) {
       return -1;
@@ -77,7 +77,7 @@ class KITLoginer {
   Future<http.Response> fetchStage1_TryToOpenLoginPage(String url) async {
     var response = await session.get(Uri.parse(url));
 
-    // sometimes, the server wants us to manually redirect us to the login page, idk why
+    // sometimes, server wants us to manually "redirect" to the login page, idk why
     if (isManualRedirectRequired(response)) {
       final currentResponse = await handleNoJSResponse(response.body);
       if (currentResponse == null) {

@@ -13,7 +13,7 @@ class ToastsProvider extends ChangeNotifier {
   Color? foregroundColor;
   String message = "You are not supposed to see this ;)";
 
-  showTextToast(String message, {
+  Future<void> showTextToast(String message, {
     Duration duration = _defaultDuration,
     backgroundColor = _defaultBackgroundColor,
     Color? foregroundColor}) async {
@@ -45,7 +45,7 @@ class ToastsProvider extends ChangeNotifier {
 
   }
 
-  reset({notify = true}) {
+  void reset({notify = true}) {
     message = "";
     backgroundColor = _defaultBackgroundColor;
     foregroundColor = _defaultForegroundColor;

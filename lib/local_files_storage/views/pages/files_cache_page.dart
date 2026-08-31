@@ -65,10 +65,10 @@ class _FilesCachePageState extends State<FilesCachePage> {
                                   turns: iAmSelected ? 0 : -0.25,
                                   duration: defaultChevronRotationAnimationDuration,
                                   child: CupertinoButton(
-                                    child: Icon(CupertinoIcons.chevron_down),
                                     onPressed: () => _expandSemester(
                                         currentSemesterString, filesVM),
                                     padding: EdgeInsets.zero,
+                                    child: Icon(CupertinoIcons.chevron_down),
                                   ),
                                 )
                               ],

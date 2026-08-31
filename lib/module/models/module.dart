@@ -26,7 +26,7 @@ class KITModule {
 
   // Module({required this.csbrId, required this.title, required this.avgMark, required this.pointsAcquired});
   
-  parseModulePage(String src) {
+  void parseModulePage(String src) {
     final document = parse(src.replaceAll("&nbsp;", " "));
     
     // get id

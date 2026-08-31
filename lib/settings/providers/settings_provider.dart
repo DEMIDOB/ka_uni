@@ -1,8 +1,6 @@
-import 'dart:ffi';
 
 import 'package:flutter/cupertino.dart';
 import 'package:kit_mobile/settings/types/multiple_choice_setting.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import '../types/bool_setting.dart';
 import '../types/setting.dart';

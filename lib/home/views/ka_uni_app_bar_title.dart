@@ -6,6 +6,8 @@ import '../../settings/providers/settings_provider.dart';
 import '../../state_management/kit_provider.dart';
 
 class KaUniAppBarTitle extends StatelessWidget {
+  const KaUniAppBarTitle({super.key});
+
   @override
   Widget build(BuildContext context) {
     final vm = Provider.of<KITProvider>(context);

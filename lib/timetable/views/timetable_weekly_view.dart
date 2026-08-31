@@ -6,6 +6,7 @@ import 'package:kit_mobile/extensions/theme_data_extension.dart';
 import 'package:kit_mobile/timetable/models/timetable_daily.dart';
 import 'package:kit_mobile/timetable/models/timetable_weekly.dart';
 import 'package:kit_mobile/timetable/views/timetable_daily_view.dart';
+import 'package:kit_mobile/timetable/views/ui_elements/show_today_button.dart';
 import 'package:provider/provider.dart';
 
 import '../../state_management/kit_provider.dart';
@@ -28,6 +29,7 @@ class _TimetableWeeklyViewState extends State<TimetableWeeklyView> {
   }
 
   final _weekdayHeight = 90 * 7 * 0.7 + 200;
+  final CarouselSliderController _carouselSliderController = CarouselSliderController();
 
   @override
   Widget build(BuildContext context) {
@@ -39,8 +41,9 @@ class _TimetableWeeklyViewState extends State<TimetableWeeklyView> {
     return Column(
       children: [
         CarouselSlider.builder(
-            itemCount: 3,
+            itemCount: 1,
             itemBuilder: _weekdayCarouselBuilder,
+            carouselController: _carouselSliderController,
             options: CarouselOptions(
               enableInfiniteScroll: true,
               initialPage: _initialWeekday.idx,
@@ -126,6 +129,15 @@ class _TimetableWeeklyViewState extends State<TimetableWeeklyView> {
                     weekdayShortStr,
                     style: theme.textTheme.titleLarge?.copyWith(color: Colors.transparent),
                   ),
+
+                  Spacer(),
+
+                  ShowTodayButton(
+                    relativeOffset: w - (10000 + _initialWeekday.idx),
+                    onPressed: () => _showToday(idx, w)
+                  ),
+
+                  Padding(padding: EdgeInsets.only(right: 5)),
                 ],
               ),
             ),
@@ -168,5 +180,11 @@ class _TimetableWeeklyViewState extends State<TimetableWeeklyView> {
         )
       ],
     );
+  }
+
+  void _showToday(int idx, int w) {
+    int toPage = 10000 + _initialWeekday.index - w;
+    toPage += toPage.sign;
+    _carouselSliderController.animateToPage(toPage, curve: Curves.easeInOut);
   }
 }

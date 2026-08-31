@@ -64,7 +64,7 @@ class ModuleInfoTableCell {
     return cell;
   }
 
-  markMeAsAddToFavorites() {
+  void markMeAsAddToFavorites() {
     if (node == null) {
       return;
     }

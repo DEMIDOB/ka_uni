@@ -7,7 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:html/parser.dart';
 import 'package:http/http.dart' as http;
 import 'package:kit_mobile/module_info_table/models/module_info_table.dart';
-import 'package:kit_mobile/state_management/kit_loginer.dart';
+import 'package:kit_mobile/state_management/kit_login_manager.dart';
 import 'package:kit_mobile/state_management/kit_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -20,7 +20,7 @@ import '../../timetable/models/timetable_weekly.dart';
 
 const _studentDataKey = "DATA_student";
 
-class CampusManager extends KITLoginer {
+class CampusManager extends KITLoginManager {
   List<HierarchicTableRow> moduleRows = [];
   Map<String, KITModule> rowModules = {}; // INDEXING AS row_id: module
   final Set<String> _moduleRefreshInProgress = {};
@@ -78,49 +78,49 @@ class CampusManager extends KITLoginer {
     }
   }
 
-  Future<KITModule?> _loadModuleFromCache(HierarchicTableRow row) async {
-    final prefs = await SharedPreferences.getInstance();
-    final cached = prefs.getString(_moduleCacheEntryKey(row.id));
-    if (cached == null) {
-      return null;
-    }
-
-    try {
-      final Map<String, dynamic> decoded = jsonDecode(cached);
-      final html = decoded["html"] as String?;
-      final fetchedAtStr = decoded["fetchedAt"] as String?;
-      if (html == null || fetchedAtStr == null) {
-        return null;
-      }
-
-      final module = KITModule();
-      module.parseModulePage(html);
-      module.hierarchicalTableRowId = row.id;
-      module.row = row;
-
-      if (module.grade == "0,0" && row.grade.isNotEmpty) {
-        module.grade = row.grade;
-      }
-
-      if (module.title.trim().isEmpty) {
-        module.title = row.title;
-      }
-
-      final fetchedAt = DateTime.tryParse(fetchedAtStr);
-      if (fetchedAt != null) {
-        module.lastUpdated = fetchedAt;
-        _updateLastModuleFetchTime(fetchedAt);
-      }
-
-      rowModules[row.id] = module;
-      return module;
-    } catch (error) {
-      if (kDebugMode) {
-        print("Failed to load module ${row.id} from cache: $error");
-      }
-      return null;
-    }
-  }
+  // Future<KITModule?> _loadModuleFromCache(HierarchicTableRow row) async {
+  //   final prefs = await SharedPreferences.getInstance();
+  //   final cached = prefs.getString(_moduleCacheEntryKey(row.id));
+  //   if (cached == null) {
+  //     return null;
+  //   }
+  //
+  //   try {
+  //     final Map<String, dynamic> decoded = jsonDecode(cached);
+  //     final html = decoded["html"] as String?;
+  //     final fetchedAtStr = decoded["fetchedAt"] as String?;
+  //     if (html == null || fetchedAtStr == null) {
+  //       return null;
+  //     }
+  //
+  //     final module = KITModule();
+  //     module.parseModulePage(html);
+  //     module.hierarchicalTableRowId = row.id;
+  //     module.row = row;
+  //
+  //     if (module.grade == "0,0" && row.grade.isNotEmpty) {
+  //       module.grade = row.grade;
+  //     }
+  //
+  //     if (module.title.trim().isEmpty) {
+  //       module.title = row.title;
+  //     }
+  //
+  //     final fetchedAt = DateTime.tryParse(fetchedAtStr);
+  //     if (fetchedAt != null) {
+  //       module.lastUpdated = fetchedAt;
+  //       _updateLastModuleFetchTime(fetchedAt);
+  //     }
+  //
+  //     rowModules[row.id] = module;
+  //     return module;
+  //   } catch (error) {
+  //     if (kDebugMode) {
+  //       print("Failed to load module ${row.id} from cache: $error");
+  //     }
+  //     return null;
+  //   }
+  // }
 
   Future<void> _saveModuleToCache(
       String rowId, String rawHtml, DateTime fetchedAt) async {
@@ -200,6 +200,7 @@ class CampusManager extends KITLoginer {
     String url =
         "https://campus.studium.kit.edu/redirect.php?system=campus&url=/campus/student/contractview.asp";
 
+    url = "https://campus.studium.kit.edu/redirect.php?system=cascampus&url=campus/student/contractview.asp";
     var response = await session.get(Uri.parse(url));
 
     if (isManualRedirectRequired(response)) {
@@ -629,7 +630,7 @@ class CampusManager extends KITLoginer {
     });
   }
 
-  _extractUsefulDataFromModule(KITModule module) {
+  void _extractUsefulDataFromModule(KITModule module) {
   }
 
   Future<bool> toggleIsFavorite(ModuleInfoTableCell cell, KITModule inModule,
@@ -649,8 +650,9 @@ class CampusManager extends KITLoginer {
       notificationCallback();
     }
 
-    const url =
-        "https://campus.kit.edu/sp/campus/student/specificModuleView.asp";
+    // const url =
+    //     "https://campus.kit.edu/sp/campus/student/specificModuleView.asp";
+    const url = "https://cascampus.studium.kit.edu/campus/student/specificBrickView.asp";
 
     final response =
         await session.post(Uri.parse(url), body: {action: cell.objectValue});
@@ -685,7 +687,7 @@ class CampusManager extends KITLoginer {
       print("Fetching timetable...");
     }
     final url =
-        "https://campus.studium.kit.edu/redirect.php?system=campus&url=/campus/student/timetable.asp";
+        "https://campus.studium.kit.edu/redirect.php?system=cascampus&url=/campus/student/timetable.asp";
     final response = await session.get(Uri.parse(url));
 
     final ok = await updateTimetableFromStrSrc(response.body);

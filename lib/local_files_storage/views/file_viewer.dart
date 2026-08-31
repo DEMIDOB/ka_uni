@@ -99,9 +99,9 @@ class _PDFScreenState extends State<PDFScreen> with WidgetsBindingObserver {
             // backgroundColor: Colors.white,
             nightMode: false,
             // nightModeBackgroundColor: Colors.amber,
-            onRender: (_pages) {
+            onRender: (pages) {
               setState(() {
-                pages = _pages;
+                pages = pages;
                 isReady = true;
               });
             },
