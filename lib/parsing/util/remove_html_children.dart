@@ -1,4 +1,4 @@
-removeHtmlChildren(element) {
+void removeHtmlChildren(element) {
   element.children.forEach((child) {
     child.remove();
   });

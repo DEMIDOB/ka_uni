@@ -44,7 +44,7 @@ class CredentialsProvider extends ChangeNotifier {
     return credentials.valid;
   }
 
-  _writeCredentials() async {
+  Future<void> _writeCredentials() async {
     final username = credentials.username;
     final password = credentials.password;
     final isValid = credentials.valid;
@@ -94,7 +94,7 @@ class CredentialsProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  _clearCredentials() async {
+  Future<void> _clearCredentials() async {
     if (kDebugMode) {
       print("Clearing credentials...");
     }
@@ -102,7 +102,7 @@ class CredentialsProvider extends ChangeNotifier {
     await _writeCredentials();
   }
 
-  setDisplayName(String val) async {
+  Future<void> setDisplayName(String val) async {
     displayName = val;
     await _storage.write(
         key: "userDisplayName",
@@ -171,7 +171,7 @@ class CredentialsProvider extends ChangeNotifier {
     return AuthResult.ok;
   }
 
-  logout(KITProvider vm) async {
+  Future<void> logout(KITProvider vm) async {
     await _clearCredentials();
     // i do not really like how this is implemented. I'll rewrite this in the future
     vm.campusManager.ready = false;

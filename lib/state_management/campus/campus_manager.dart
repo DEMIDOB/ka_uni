@@ -630,7 +630,7 @@ class CampusManager extends KITLoginManager {
     });
   }
 
-  _extractUsefulDataFromModule(KITModule module) {
+  void _extractUsefulDataFromModule(KITModule module) {
   }
 
   Future<bool> toggleIsFavorite(ModuleInfoTableCell cell, KITModule inModule,

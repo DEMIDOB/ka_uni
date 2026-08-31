@@ -104,7 +104,7 @@ class IliasManager extends KITLoginManager {
         fileSystemPath: targetFile.path);
   }
 
-  logout() async {
+  Future<void> logout() async {
     _phpsessid = "";
   }
 }

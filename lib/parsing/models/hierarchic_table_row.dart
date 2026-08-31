@@ -96,7 +96,7 @@ class HierarchicTableRow  {
   // often there is is a title like T-MATH-106335 – Analysis 1 where the first
   // part before the long "–" is some technical name of the entry
   // so we remove that from the title and store in a separate variable
-  clearTitle() {
+  void clearTitle() {
     final titleSplit = title.split("–");
     if (titleSplit.length > 1) {
       String newTitle = "";
@@ -121,7 +121,7 @@ class HierarchicTableRow  {
     }
   }
 
-  clearHref() {
+  void clearHref() {
     final base = "https://cascampus.studium.kit.edu/";
     while (href.startsWith("../")) {
       href = href.substring(3);

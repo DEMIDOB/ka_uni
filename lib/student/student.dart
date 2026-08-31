@@ -9,7 +9,7 @@ class Student {
 
   Student({required this.name, required this.matriculationNumber, required this.degreeProgram, required this.avgMark, required this.ectsAcquired});
 
-  set({name, matriculationNumber, degreeProgram, avgMark, ectsAcquired}) {
+  void set({name, matriculationNumber, degreeProgram, avgMark, ectsAcquired}) {
     this.name = name;
     this.matriculationNumber = matriculationNumber;
     this.degreeProgram = degreeProgram;
@@ -17,7 +17,7 @@ class Student {
     this.ectsAcquired = ectsAcquired;
   }
 
-  copyFrom(Student otherStudent) {
+  void copyFrom(Student otherStudent) {
     name = otherStudent.name;
     matriculationNumber = otherStudent.matriculationNumber;
     degreeProgram = otherStudent.degreeProgram;

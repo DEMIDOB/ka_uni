@@ -1,9 +1,7 @@
-import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:kit_mobile/common_ui/block_container.dart';
 import 'package:kit_mobile/common_ui/kit_progress_indicator.dart';
-import 'package:kit_mobile/constants/view_constants.dart';
 import 'package:kit_mobile/module/models/module.dart';
 import 'package:kit_mobile/module_info_table/models/module_info_table_types/module_info_table_sensible.dart';
 import 'package:kit_mobile/state_management/kit_provider.dart';
@@ -128,11 +126,11 @@ class _TimetableEditPageState extends State<TimetableEditPage> {
                     children: [
                       CupertinoButton(
                           padding: EdgeInsets.zero,
-                          child: Icon(CupertinoIcons.add),
                           onPressed: modulesById.isEmpty
                               ? () => _showNoModulesDialog(context)
                               : () => _openTutorialDialog(context,
-                                  modulesById: modulesById)),
+                                  modulesById: modulesById),
+                          child: Icon(CupertinoIcons.add)),
                     ],
                   ),
 
@@ -300,7 +298,7 @@ class _TimetableEditPageState extends State<TimetableEditPage> {
                                     const SizedBox(height: 16),
 
                                     DropdownButtonFormField<String>(
-                                      value: selectedModuleId,
+                                      initialValue: selectedModuleId,
                                       decoration: const InputDecoration(
                                           labelText: "Modul auswählen",
                                       ),
@@ -322,7 +320,7 @@ class _TimetableEditPageState extends State<TimetableEditPage> {
                                     const SizedBox(height: 12),
 
                                     DropdownButtonFormField<Weekday>(
-                                      value: selectedWeekday,
+                                      initialValue: selectedWeekday,
                                       decoration: const InputDecoration(
                                           labelText: "Wochentag"),
                                       items: workingWeekdays
@@ -343,7 +341,7 @@ class _TimetableEditPageState extends State<TimetableEditPage> {
                                     const SizedBox(height: 12),
 
                                     DropdownButtonFormField<int>(
-                                      value: selectedBlockIndex,
+                                      initialValue: selectedBlockIndex,
                                       decoration: const InputDecoration(
                                           labelText: "Zeitblock"),
                                       items: _blockOptions
@@ -651,14 +649,12 @@ class _TutorialListTile extends StatelessWidget {
         children: [
           CupertinoButton(
             padding: EdgeInsets.zero,
-            minSize: 32,
-            onPressed: onEdit,
+            onPressed: onEdit, minimumSize: Size(32, 32),
             child: const Icon(CupertinoIcons.pencil),
           ),
           CupertinoButton(
             padding: EdgeInsets.zero,
-            minSize: 32,
-            onPressed: onDelete,
+            onPressed: onDelete, minimumSize: Size(32, 32),
             child: Icon(CupertinoIcons.trash, color: theme.colorScheme.error),
           ),
         ],

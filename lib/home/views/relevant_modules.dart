@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:kit_mobile/home/views/relevant_module.dart';
 import 'package:kit_mobile/module/models/module.dart';
@@ -6,7 +5,6 @@ import 'package:kit_mobile/utils/date_time_utils.dart';
 import 'package:provider/provider.dart';
 
 import '../../state_management/kit_provider.dart';
-import '../../utils/regexps.dart';
 import '../../utils/string_prettifiers.dart';
 
 class RelevantModulesView extends StatelessWidget {

@@ -4,7 +4,7 @@ class PaddedTitle extends StatelessWidget {
   final String title;
   final Widget? trailing;
 
-  const PaddedTitle({super.key, required this.title, Widget? this.trailing});
+  const PaddedTitle({super.key, required this.title, this.trailing});
 
   @override
   Widget build(BuildContext context) {

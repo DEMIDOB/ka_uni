@@ -52,7 +52,7 @@ class KITLoginManager {
     return false;
   }
 
-  fetchStage0_Init(
+  Future<int> fetchStage0_Init(
       {notify = true, retryIfFailed = true, secondRetryIfFailed = true}) async {
     if (!credentials.isFormatValid) {
       return -1;

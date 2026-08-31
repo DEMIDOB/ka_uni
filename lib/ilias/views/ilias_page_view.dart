@@ -72,7 +72,7 @@ class _IliasPageViewWState extends State<IliasPageView> {
     });
   }
 
-  _navigationDelegateOnUrlChange(UrlChange urlChange) {
+  void _navigationDelegateOnUrlChange(UrlChange urlChange) {
     pagesStackSize++;
     setState(() {
       canGoBackFuture = _controller.canGoBack();
@@ -144,7 +144,7 @@ class _IliasPageViewWState extends State<IliasPageView> {
     return null;
   }
 
-  _launchFileView(PinnedFile iliasFile) {
+  void _launchFileView(PinnedFile iliasFile) {
     if (iliasFile.fileSystemPath.isEmpty) {
       if (kDebugMode) {
         print("Failed to download file!");
@@ -163,7 +163,7 @@ class _IliasPageViewWState extends State<IliasPageView> {
             )));
   }
 
-  _launchPage(String defaultPage) async {
+  Future<void> _launchPage(String defaultPage) async {
     final cookieManager = WebViewCookieManager();
     await cookieManager.setCookie(WebViewCookie(
         name: "PHPSESSID", value: _phpsessid, domain: "ilias.studium.kit.edu"));
