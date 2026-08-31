@@ -78,49 +78,49 @@ class CampusManager extends KITLoginManager {
     }
   }
 
-  Future<KITModule?> _loadModuleFromCache(HierarchicTableRow row) async {
-    final prefs = await SharedPreferences.getInstance();
-    final cached = prefs.getString(_moduleCacheEntryKey(row.id));
-    if (cached == null) {
-      return null;
-    }
-
-    try {
-      final Map<String, dynamic> decoded = jsonDecode(cached);
-      final html = decoded["html"] as String?;
-      final fetchedAtStr = decoded["fetchedAt"] as String?;
-      if (html == null || fetchedAtStr == null) {
-        return null;
-      }
-
-      final module = KITModule();
-      module.parseModulePage(html);
-      module.hierarchicalTableRowId = row.id;
-      module.row = row;
-
-      if (module.grade == "0,0" && row.grade.isNotEmpty) {
-        module.grade = row.grade;
-      }
-
-      if (module.title.trim().isEmpty) {
-        module.title = row.title;
-      }
-
-      final fetchedAt = DateTime.tryParse(fetchedAtStr);
-      if (fetchedAt != null) {
-        module.lastUpdated = fetchedAt;
-        _updateLastModuleFetchTime(fetchedAt);
-      }
-
-      rowModules[row.id] = module;
-      return module;
-    } catch (error) {
-      if (kDebugMode) {
-        print("Failed to load module ${row.id} from cache: $error");
-      }
-      return null;
-    }
-  }
+  // Future<KITModule?> _loadModuleFromCache(HierarchicTableRow row) async {
+  //   final prefs = await SharedPreferences.getInstance();
+  //   final cached = prefs.getString(_moduleCacheEntryKey(row.id));
+  //   if (cached == null) {
+  //     return null;
+  //   }
+  //
+  //   try {
+  //     final Map<String, dynamic> decoded = jsonDecode(cached);
+  //     final html = decoded["html"] as String?;
+  //     final fetchedAtStr = decoded["fetchedAt"] as String?;
+  //     if (html == null || fetchedAtStr == null) {
+  //       return null;
+  //     }
+  //
+  //     final module = KITModule();
+  //     module.parseModulePage(html);
+  //     module.hierarchicalTableRowId = row.id;
+  //     module.row = row;
+  //
+  //     if (module.grade == "0,0" && row.grade.isNotEmpty) {
+  //       module.grade = row.grade;
+  //     }
+  //
+  //     if (module.title.trim().isEmpty) {
+  //       module.title = row.title;
+  //     }
+  //
+  //     final fetchedAt = DateTime.tryParse(fetchedAtStr);
+  //     if (fetchedAt != null) {
+  //       module.lastUpdated = fetchedAt;
+  //       _updateLastModuleFetchTime(fetchedAt);
+  //     }
+  //
+  //     rowModules[row.id] = module;
+  //     return module;
+  //   } catch (error) {
+  //     if (kDebugMode) {
+  //       print("Failed to load module ${row.id} from cache: $error");
+  //     }
+  //     return null;
+  //   }
+  // }
 
   Future<void> _saveModuleToCache(
       String rowId, String rawHtml, DateTime fetchedAt) async {
