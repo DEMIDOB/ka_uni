@@ -7,7 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:html/parser.dart';
 import 'package:http/http.dart' as http;
 import 'package:kit_mobile/module_info_table/models/module_info_table.dart';
-import 'package:kit_mobile/state_management/kit_loginer.dart';
+import 'package:kit_mobile/state_management/kit_login_manager.dart';
 import 'package:kit_mobile/state_management/kit_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -20,7 +20,7 @@ import '../../timetable/models/timetable_weekly.dart';
 
 const _studentDataKey = "DATA_student";
 
-class CampusManager extends KITLoginer {
+class CampusManager extends KITLoginManager {
   List<HierarchicTableRow> moduleRows = [];
   Map<String, KITModule> rowModules = {}; // INDEXING AS row_id: module
   final Set<String> _moduleRefreshInProgress = {};
