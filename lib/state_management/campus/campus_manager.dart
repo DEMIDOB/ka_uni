@@ -200,6 +200,7 @@ class CampusManager extends KITLoginManager {
     String url =
         "https://campus.studium.kit.edu/redirect.php?system=campus&url=/campus/student/contractview.asp";
 
+    url = "https://campus.studium.kit.edu/redirect.php?system=cascampus&url=campus/student/contractview.asp";
     var response = await session.get(Uri.parse(url));
 
     if (isManualRedirectRequired(response)) {
@@ -649,8 +650,9 @@ class CampusManager extends KITLoginManager {
       notificationCallback();
     }
 
-    const url =
-        "https://campus.kit.edu/sp/campus/student/specificModuleView.asp";
+    // const url =
+    //     "https://campus.kit.edu/sp/campus/student/specificModuleView.asp";
+    const url = "https://cascampus.studium.kit.edu/campus/student/specificBrickView.asp";
 
     final response =
         await session.post(Uri.parse(url), body: {action: cell.objectValue});
@@ -685,7 +687,7 @@ class CampusManager extends KITLoginManager {
       print("Fetching timetable...");
     }
     final url =
-        "https://campus.studium.kit.edu/redirect.php?system=campus&url=/campus/student/timetable.asp";
+        "https://campus.studium.kit.edu/redirect.php?system=cascampus&url=/campus/student/timetable.asp";
     final response = await session.get(Uri.parse(url));
 
     final ok = await updateTimetableFromStrSrc(response.body);

@@ -2,12 +2,12 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
-import 'package:kit_mobile/state_management/kit_loginer.dart';
+import 'package:kit_mobile/state_management/kit_login_manager.dart';
 import 'package:kit_mobile/state_management/kit_provider.dart';
 
 import '../../local_files_storage/models/pinned_file.dart';
 
-class IliasManager extends KITLoginer {
+class IliasManager extends KITLoginManager {
   String _phpsessid = "";
   bool isBusy = false;
 
@@ -66,7 +66,7 @@ class IliasManager extends KITLoginer {
       }
     }
 
-    if (retryIfFailed && !cookiesContains("PHPSESSID")) {
+    if (retryIfFailed && !sessionContainsCookieNamed("PHPSESSID")) {
       await authorize(
           retryIfFailed: secondRetryIfFailed, secondRetryIfFailed: false);
       return;

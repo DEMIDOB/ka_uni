@@ -122,7 +122,7 @@ class HierarchicTableRow  {
   }
 
   clearHref() {
-    final base = "https://campus.kit.edu/sp/";
+    final base = "https://cascampus.studium.kit.edu/";
     while (href.startsWith("../")) {
       href = href.substring(3);
     }
