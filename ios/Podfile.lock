@@ -93,7 +93,7 @@ SPEC CHECKSUMS:
   audio_session: 9bb7f6c970f21241b19f5a3658097ae459681ba0
   file_saver: 6cdbcddd690cb02b0c1a0c225b37cd805c2bf8b6
   Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
-  flutter_pdfview: 32bf27bda6fd85b9dd2c09628a824df5081246cf
+  flutter_pdfview: 4fbfbd0590f63153fbd492a54997c5e5be010458
   flutter_secure_storage_darwin: acdb3f316ed05a3e68f856e0353b133eec373a23
   flutter_web_browser: 68b27d2c4773b059cef19e12c890cb204518d3c3
   haptic_feedback: 1f22d7ad3abb43bb814aa42fdf548dc6d9e8245a
