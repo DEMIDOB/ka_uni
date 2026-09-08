@@ -78,9 +78,6 @@ class LoginPageState extends State<LoginPage> {
                               ? null
                               : () async {
                                   await credsVM.loadCredentials();
-                                  if (kDebugMode) {
-                                    print(credsVM.credentials.valid);
-                                  }
                                 },
                           child: Text("Hallo",
                               style: theme.textTheme.headlineLarge

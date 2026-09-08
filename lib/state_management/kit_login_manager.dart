@@ -11,7 +11,7 @@ class KITLoginManager {
   bool ready = false;
 
   final HttpSession session =
-      HttpSession(acceptBadCertificate: true, maxRedirects: 15);
+      HttpSession(acceptBadCertificate: false, maxRedirects: 15);
   final String _JSESSIONID = "";
   String get JSESSIONID => _JSESSIONID;
 
@@ -61,7 +61,7 @@ class KITLoginManager {
     // scheduleFetchingTimer = null;
 
     ready = false || ready;
-    clearCookiesAndCache();
+    await clearCookiesAndCache();
 
     // if (notify) {
     //   notifyListeners();
@@ -140,7 +140,7 @@ class KITLoginManager {
     formData["j_password"] = credentials.password;
 
     if (kDebugMode) {
-      print("Successfully found the login form. Data provided: $formData");
+      print("Successfully found the login form.");
     }
 
     var response = await session.post(Uri.parse(url), body: formData);
@@ -226,8 +226,9 @@ class KITLoginManager {
     }
 
     if (kDebugMode) {
-      print(
-          "Handling no-js redirect: url is $url, cookies: ${session.cookieStore.cookies.toString()}");
+      // print(
+          // "Handling no-js redirect: url is $url, cookies: ${session.cookieStore.cookies.toString()}");
+      print("Handling no-js redirect: url is $url");
       print("formData: ${formData.keys}");
     }
 

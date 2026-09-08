@@ -109,7 +109,7 @@ class KITProvider extends ChangeNotifier {
   }
 
   Future<KITModule> getOrFetchModuleForRow(HierarchicTableRow row) async {
-    return await campusManager.getOrFetchModuleForRow(row);
+    return await campusManager.getOrFetchModuleForRow(row, userInitiated: true);
   }
 
   Future<bool> toggleIsFavorite(ModuleInfoTableCell cell, KITModule inModule,

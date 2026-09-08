@@ -7,9 +7,6 @@ class KITCredentials {
   bool _valid = false;
 
   set valid(bool newValue) {
-    if (kDebugMode) {
-      print("Setting valid to $newValue");
-    }
     _valid = newValue;
   }
 
@@ -22,7 +19,6 @@ class KITCredentials {
   bool get isFormatValid {
     final exp = RegExp(r'u([a-z]){4}');
     final matches = exp.allMatches(username);
-    // print(matches.firstOrNull?.input);
     return matches.length == 1 && matches.firstOrNull?.input == username;
   }
 
