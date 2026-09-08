@@ -45,10 +45,10 @@ class CampusManager extends KITLoginManager {
   String get _moduleCacheNamespace =>
       "module_cache_${KITProvider.currentSemesterString}";
 
-  String _moduleCacheEntryKey(String rowId) {
-    final encodedRowId = base64Url.encode(utf8.encode(rowId));
-    return "${_moduleCacheNamespace}_$encodedRowId";
-  }
+  // String _moduleCacheEntryKey(String rowId) {
+  //   final encodedRowId = base64Url.encode(utf8.encode(rowId));
+  //   return "${_moduleCacheNamespace}_$encodedRowId";
+  // }
 
   String get _moduleCacheLastFetchKey => "${_moduleCacheNamespace}_last_fetch";
 
@@ -476,7 +476,7 @@ class CampusManager extends KITLoginManager {
   }
 
   Future<KITModule> fetchModule(HierarchicTableRow row,
-      {recursiveRetry = true}) async {
+      {recursiveRetry = true, userInitiated = false}) async {
     final url = row.href;
 
     final response = await session.get(Uri.parse(url));
@@ -523,7 +523,7 @@ class CampusManager extends KITLoginManager {
         print(
             "Failed to fetch the module. Possible reason: session expired. Retrying...");
       }
-      await forceRefetchEverything();
+      await forceRefetchEverything(allModulesAsWell: !userInitiated);
       return fetchModule(row, recursiveRetry: false);
     }
 
@@ -535,7 +535,7 @@ class CampusManager extends KITLoginManager {
   }
 
   Future<KITModule> getOrFetchModuleForRow(HierarchicTableRow row,
-      {retryIfFailed = true}) async {
+      {retryIfFailed = true, userInitiated = false}) async {
     var module = rowModules[row.id];
 
     if (_isModuleReady(module)) {
@@ -552,7 +552,7 @@ class CampusManager extends KITLoginManager {
     //   return cachedModule;
     // }
 
-    final fetchedModule = await fetchModule(row, recursiveRetry: retryIfFailed);
+    final fetchedModule = await fetchModule(row, recursiveRetry: retryIfFailed, userInitiated: userInitiated);
     return fetchedModule;
   }
 
@@ -668,7 +668,7 @@ class CampusManager extends KITLoginManager {
 
     for (final row in moduleRows) {
       if (row.id == inModule.hierarchicalTableRowId) {
-        fetchModule(row).then((_) => fetchTimetable());
+        fetchModule(row, userInitiated: true).then((_) => fetchTimetable());
         break;
       }
     }
