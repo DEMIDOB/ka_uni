@@ -78,6 +78,8 @@ class CampusManager extends KITLoginManager {
     }
   }
 
+  // NOTE: such caching is deprecated! TBR:
+
   // Future<KITModule?> _loadModuleFromCache(HierarchicTableRow row) async {
   //   final prefs = await SharedPreferences.getInstance();
   //   final cached = prefs.getString(_moduleCacheEntryKey(row.id));
@@ -122,18 +124,20 @@ class CampusManager extends KITLoginManager {
   //   }
   // }
 
-  Future<void> _saveModuleToCache(
-      String rowId, String rawHtml, DateTime fetchedAt) async {
-    final prefs = await SharedPreferences.getInstance();
-    final payload = jsonEncode({
-      "html": rawHtml,
-      "fetchedAt": fetchedAt.toIso8601String(),
-    });
-    await prefs.setString(_moduleCacheEntryKey(rowId), payload);
-    await prefs.setString(
-        _moduleCacheLastFetchKey, fetchedAt.toIso8601String());
-    _updateLastModuleFetchTime(fetchedAt);
-  }
+  // NOTE: such caching is deprecated! TBR:
+
+  // Future<void> _saveModuleToCache(
+  //     String rowId, String rawHtml, DateTime fetchedAt) async {
+  //   final prefs = await SharedPreferences.getInstance();
+  //   final payload = jsonEncode({
+  //     "html": rawHtml,
+  //     "fetchedAt": fetchedAt.toIso8601String(),
+  //   });
+  //   await prefs.setString(_moduleCacheEntryKey(rowId), payload);
+  //   await prefs.setString(
+  //       _moduleCacheLastFetchKey, fetchedAt.toIso8601String());
+  //   _updateLastModuleFetchTime(fetchedAt);
+  // }
 
   Future<void> _clearModuleCacheForCurrentSemester() async {
     final prefs = await SharedPreferences.getInstance();
@@ -495,13 +499,17 @@ class CampusManager extends KITLoginManager {
 
     module.row = row;
     module.hierarchicalTableRowId = row.id;
-    try {
-      await _saveModuleToCache(row.id, response.body, module.lastUpdated);
-    } catch (error) {
-      if (kDebugMode) {
-        print("Failed to persist module ${row.id}: $error");
-      }
-    }
+
+    // NOTE: such caching is deprecated! TBR
+
+    // try {
+    //   await _saveModuleToCache(row.id, response.body, module.lastUpdated);
+    // } catch (error) {
+    //   if (kDebugMode) {
+    //     print("Failed to persist module ${row.id}: $error");
+    //   }
+    // }
+
     _updateLastModuleFetchTime(module.lastUpdated);
 
     final prevModuleData = rowModules[module.hierarchicalTableRowId];
